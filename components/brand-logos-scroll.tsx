@@ -14,7 +14,7 @@ const brands = [
 export function BrandLogosScroll() {
   return (
     <section className="py-8 sm:py-12 md:py-16 bg-white border-t border-gray-200 overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 mb-6 sm:mb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 mb-6 sm:mb-8">
         <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-center text-gray-800 mb-2 sm:mb-3">
           Thương hiệu hàng đầu
         </h2>

@@ -63,7 +63,7 @@ export function FilterSidebar({
         {/* Categories */}
         <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100">
           <Label className="text-sm font-bold mb-3 block text-blue-800 flex items-center gap-2">
-            <span className="text-lg">📦</span>
+            <span className="text-lg"></span>
             Danh mục
           </Label>
           <div className="space-y-2">
@@ -93,7 +93,7 @@ export function FilterSidebar({
         {selectedCategories.length > 0 && (
           <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-100">
             <Label className="text-sm font-bold mb-3 block text-green-800 flex items-center gap-2">
-              <span className="text-lg">🏷️</span>
+              <span className="text-lg"></span>
               Loại sản phẩm
             </Label>
             <div className="space-y-2">
@@ -127,7 +127,7 @@ export function FilterSidebar({
         {/* Brands */}
         <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
           <Label className="text-sm font-bold mb-3 block text-amber-800 flex items-center gap-2">
-            <span className="text-lg">⭐</span>
+            <span className="text-lg"></span>
             Thương hiệu
           </Label>
           <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -156,24 +156,26 @@ export function FilterSidebar({
         {/* Price Range */}
         <div className="p-4 rounded-xl bg-purple-50 border border-purple-100">
           <Label className="text-sm font-bold mb-3 block text-purple-800 flex items-center gap-2">
-            <span className="text-lg">💰</span>
+            <span className="text-lg"></span>
             Khoảng giá
           </Label>
-          <Slider
-            min={0}
-            max={maxPrice}
-            step={1000000}
-            value={priceRange}
-            onValueChange={(value) =>
-              onPriceRangeChange(value as [number, number])
-            }
-            className="mb-4"
-          />
-          <div className="flex items-center justify-between text-sm font-semibold">
-            <span className="text-purple-700 bg-white px-2 py-1 rounded">
+          <div className="px-2 py-4">
+            <Slider
+              min={0}
+              max={maxPrice}
+              step={1000000}
+              value={priceRange}
+              onValueChange={(value) =>
+                onPriceRangeChange(value as [number, number])
+              }
+              className="w-full"
+            />
+          </div>
+          <div className="flex items-center justify-between text-sm font-semibold mt-2">
+            <span className="text-purple-700 bg-white px-2 py-1 rounded shadow-sm">
               {formatPrice(priceRange[0])}
             </span>
-            <span className="text-purple-700 bg-white px-2 py-1 rounded">
+            <span className="text-purple-700 bg-white px-2 py-1 rounded shadow-sm">
               {formatPrice(priceRange[1])}
             </span>
           </div>

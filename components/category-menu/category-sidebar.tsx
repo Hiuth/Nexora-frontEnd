@@ -15,7 +15,7 @@ export function CategorySidebar({
   onCategoryHover,
 }: CategorySidebarProps) {
   return (
-    <div className="w-64 bg-gray-50 border-r border-gray-200">
+    <div className="lg:w-64 w-full bg-gray-50 lg:border-r border-gray-200">
       <div className="max-h-[520px] overflow-y-auto pt-4">
         {categories.map((category) => (
           <div
@@ -26,6 +26,14 @@ export function CategorySidebar({
                 : ""
             }`}
             onMouseEnter={() => onCategoryHover(category.id)}
+            onClick={() => {
+              if (category.id === "pc-builder") {
+                // Navigate to PC Builder page
+                window.location.href = "/pc-builder";
+              } else {
+                onCategoryHover(category.id);
+              }
+            }}
           >
             <span className="text-lg">{category.iconImg}</span>
             <span className="font-medium text-sm">{category.categoryName}</span>

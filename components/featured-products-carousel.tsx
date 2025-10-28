@@ -61,24 +61,24 @@ export function FeaturedProductsCarousel({
   }, [products]);
 
   return (
-    <div className="mb-8 sm:mb-10 md:mb-12">
-      <div className="max-w-7xl mx-auto px-6">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 rounded-lg shadow-md mb-4 sm:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+    <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
+      <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 sm:px-4 md:px-6 py-3 sm:py-4 rounded-lg shadow-md mb-3 sm:mb-4 md:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center gap-2 sm:gap-3">
               {categoryIcon && (
-                <span className="text-lg sm:text-xl md:text-2xl">
+                <span className="text-base sm:text-lg md:text-xl lg:text-2xl">
                   {categoryIcon}
                 </span>
               )}
-              <h3 className="text-lg sm:text-xl md:text-2xl font-bold">
+              <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
                 {title}
               </h3>
             </div>
             <div className="flex justify-end">
               <a
                 href="/products"
-                className="text-sm sm:text-base text-white hover:text-blue-200 font-medium hover:underline transition-colors"
+                className="text-xs sm:text-sm md:text-base text-white hover:text-blue-200 font-medium hover:underline transition-colors"
               >
                 Xem tất cả →
               </a>
@@ -88,13 +88,13 @@ export function FeaturedProductsCarousel({
 
         <div
           ref={scrollRef}
-          className="flex gap-4 overflow-x-hidden pb-4 sm:pb-6"
+          className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-hidden pb-3 sm:pb-4 md:pb-6"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {products.map((product) => (
             <div
               key={product.id}
-              className="flex-shrink-0 w-48 sm:w-56 md:w-64"
+              className="flex-shrink-0 w-40 sm:w-48 md:w-56 lg:w-64"
             >
               <ProductCard product={product} />
             </div>

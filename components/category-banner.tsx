@@ -65,7 +65,7 @@ const categoriesWithImages = [
 export function CategoryBanner() {
   return (
     <section className="py-3 sm:py-4 md:py-6 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Title Banner */}
         <div className="bg-white rounded-t-lg border border-gray-200 shadow-sm mb-0">
           <div className="text-center py-2 sm:py-3 px-4">

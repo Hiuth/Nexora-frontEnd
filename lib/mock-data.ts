@@ -1,6 +1,7 @@
 import type { Category, SubCategory, Brand, Product } from "./types";
 
 export const categories: Category[] = [
+  { id: "pc-builder", categoryName: "Xây dựng cấu hình", iconImg: "🛠️" },
   { id: "1", categoryName: "CPU", iconImg: "🔲" },
   { id: "2", categoryName: "GPU", iconImg: "🎮" },
   { id: "3", categoryName: "RAM", iconImg: "💾" },
@@ -12,6 +13,13 @@ export const categories: Category[] = [
 ];
 
 export const subCategories: SubCategory[] = [
+  {
+    id: "pc-builder-1",
+    categoryId: "pc-builder",
+    subCategoryName: "Xây dựng PC",
+    subCategoryImg: "/icon-buildPc.png",
+    description: "Tạo cấu hình PC của bạn",
+  },
   {
     id: "1",
     categoryId: "1",
