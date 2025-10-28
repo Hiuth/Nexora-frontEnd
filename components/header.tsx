@@ -17,9 +17,9 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/95 shadow-lg">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex h-24 sm:h-26 lg:h-28 items-center gap-4 lg:gap-6">
+        <div className="flex h-24 sm:h-26 lg:h-28 items-center gap-2 sm:gap-4 lg:gap-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center flex-shrink-0">
+          <Link href="/" className="hidden sm:flex items-center flex-shrink-0">
             <img
               src="/logo.png"
               alt="Logo"
@@ -28,12 +28,12 @@ export function Header() {
           </Link>
 
           {/* Category Menu */}
-          <div className="hidden md:flex flex-shrink-0">
+          <div className="hidden lg:flex flex-shrink-0">
             <CategoryMegaMenu />
           </div>
 
           {/* Search Bar - Center */}
-          <div className="hidden lg:flex flex-1 max-w-2xl mx-6">
+          <div className="hidden md:flex flex-1 max-w-2xl mx-2 lg:mx-6">
             <div className="relative w-full">
               <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <Input
@@ -45,9 +45,9 @@ export function Header() {
           </div>
 
           {/* Right Actions */}
-          <div className="flex items-center gap-2 lg:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 lg:gap-3 flex-shrink-0">
             {/* PC Builder Button */}
-            <div className="hidden lg:flex">
+            <div className="hidden sm:flex">
               <PCBuilderButton />
             </div>
 

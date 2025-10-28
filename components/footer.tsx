@@ -17,16 +17,16 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-3 mb-6">
               <img
-                src="https://res.cloudinary.com/dggt29zsn/image/upload/v1761538283/logo_psoszk.png"
+                src="/logo.png"
                 alt="PC Store Logo"
                 className="h-12 w-12 rounded-xl shadow-lg"
               />
               <div className="flex flex-col">
                 <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                  PC Store
+                  NEXORA
                 </span>
                 <span className="text-xs text-gray-500 -mt-1">
-                  Linh kiện chính hãng
+                  THE FUTURE MACHINE
                 </span>
               </div>
             </div>
@@ -58,7 +58,9 @@ export function Footer() {
 
           {/* Quick Links */}
           <div>
-            <h3 className="font-bold mb-6 text-gray-800 text-lg">Liên kết nhanh</h3>
+            <h3 className="font-bold mb-6 text-gray-800 text-lg">
+              Liên kết nhanh
+            </h3>
             <ul className="space-y-3 text-sm">
               <li>
                 <Link
@@ -151,7 +153,7 @@ export function Footer() {
               <li className="flex items-center gap-2">
                 <Mail className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-muted-foreground">
-                  support@pcbuildstore.vn
+                  nextaura2025@gmail.com
                 </span>
               </li>
             </ul>
@@ -159,7 +161,7 @@ export function Footer() {
         </div>
 
         <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
-          <p>&copy; 2025 PCBuildStore. All rights reserved.</p>
+          <p>&copy; 2025 NEXORA. All rights reserved.</p>
         </div>
       </div>
     </footer>
