@@ -187,9 +187,9 @@ export default function HomePage() {
           <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6 text-center relative z-10">
             <div className="flex justify-center mb-3 sm:mb-4 md:mb-6">
               <img
-                src="https://res.cloudinary.com/dggt29zsn/image/upload/v1761538283/logo_psoszk.png"
+                src="/logo.png"
                 alt="PC Store Logo"
-                className="h-8 w-8 sm:h-12 sm:w-12 md:h-16 md:w-16 rounded-lg sm:rounded-xl shadow-lg sm:shadow-xl bg-white/10 p-1 sm:p-2"
+                className="h-8 w-8 sm:h-12 sm:w-12 md:h-16 md:w-16 rounded-lg sm:rounded-xl shadow-lg sm:shadow-xl bg-white p-1 sm:p-2"
               />
             </div>
             <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight mb-3 sm:mb-4 md:mb-6">
@@ -201,19 +201,15 @@ export default function HomePage() {
             </p>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 md:gap-4 justify-center max-w-lg sm:max-w-none mx-auto px-2">
               <Button
-                size="sm"
-                className="bg-white text-blue-700 hover:bg-blue-50 shadow-lg sm:shadow-xl font-semibold px-4 sm:px-6 md:px-10 py-2 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg w-full sm:w-auto"
+                size="lg"
+                className="bg-white text-blue-700 shadow-lg sm:shadow-xl font-semibold px-6 sm:px-8 md:px-12 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl w-[160px] hover:bg-white"
                 asChild
               >
-                <Link href="/pc-builder">
-                  Bắt đầu ngay
-                  <ArrowRight className="ml-1 sm:ml-2 h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-                </Link>
+                <Link href="/pc-builder">Bắt đầu ngay</Link>
               </Button>
               <Button
-                size="sm"
-                variant="outline"
-                className="border border-white sm:border-2 text-white hover:bg-white hover:text-blue-700 bg-transparent shadow-md sm:shadow-lg font-semibold px-4 sm:px-6 md:px-10 py-2 sm:py-3 md:py-4 text-sm sm:text-base md:text-lg w-full sm:w-auto"
+                size="lg"
+                className="bg-white text-blue-700 shadow-lg sm:shadow-xl font-semibold px-6 sm:px-8 md:px-12 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl w-[160px] hover:bg-blue-50"
                 asChild
               >
                 <Link href="/products">Xem sản phẩm</Link>
