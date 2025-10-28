@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +21,7 @@ export function ProductInfo({ product, brand }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
   const { toast } = useToast();
+  const router = useRouter();
 
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -35,6 +37,11 @@ export function ProductInfo({ product, brand }: ProductInfoProps) {
       title: "Đã thêm vào giỏ hàng",
       description: `Đã thêm ${quantity} ${product.productName} vào giỏ hàng`,
     });
+  };
+
+  const handleBuyNow = () => {
+    addItem(product, quantity);
+    router.push("/checkout");
   };
 
   return (
@@ -131,7 +138,9 @@ export function ProductInfo({ product, brand }: ProductInfoProps) {
         <Button
           variant="secondary"
           size="lg"
-          className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold"
+          className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold border border-gray-300 shadow-sm"
+          disabled={product.stockQuantity === 0}
+          onClick={handleBuyNow}
         >
           Mua ngay
         </Button>

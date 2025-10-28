@@ -16,8 +16,8 @@ export function PaymentMethod({
 }: PaymentMethodProps) {
   return (
     <Card className="border-2 border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
-      <CardHeader className="bg-gradient-to-r from-purple-50 to-pink-50 border-b border-gray-100">
-        <CardTitle className="flex items-center gap-3 text-gray-900">
+      <CardHeader className="border-b border-gray-100">
+        <CardTitle className="flex items-center justify-center gap-3 text-gray-900">
           <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
             <CreditCard className="h-4 w-4 text-purple-600" />
           </div>

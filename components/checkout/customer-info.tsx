@@ -29,8 +29,8 @@ export function CustomerInfo({ formData, onChange }: CustomerInfoProps) {
     <div className="space-y-6">
       {/* Personal Information */}
       <Card className="border-2 border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
-        <CardHeader className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-gray-100">
-          <CardTitle className="flex items-center gap-3 text-gray-900">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center justify-center gap-3 text-gray-900">
             <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
               <User className="h-4 w-4 text-blue-600" />
             </div>
@@ -101,8 +101,8 @@ export function CustomerInfo({ formData, onChange }: CustomerInfoProps) {
 
       {/* Shipping Address */}
       <Card className="border-2 border-gray-100 shadow-sm hover:border-blue-200 transition-colors">
-        <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 border-b border-gray-100">
-          <CardTitle className="flex items-center gap-3 text-gray-900">
+        <CardHeader className="border-b border-gray-100">
+          <CardTitle className="flex items-center justify-center gap-3 text-gray-900">
             <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
               <MapPin className="h-4 w-4 text-green-600" />
             </div>
