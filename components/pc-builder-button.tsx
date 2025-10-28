@@ -12,7 +12,7 @@ export function PCBuilderButton() {
       className="flex flex-col items-center justify-center gap-1 p-2 h-16 rounded-lg"
     >
       <Link href="/pc-builder">
-        <div className="flex flex-col items-center gap-1">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
             <img
               src="/icon-buildPc.png"
@@ -20,11 +20,10 @@ export function PCBuilderButton() {
               className="w-5 h-5 object-contain"
             />
           </div>
-          <span className="text-xs font-medium text-gray-700 text-center leading-tight">
-            Xây dựng
-            <br />
-            cấu hình
-          </span>
+          <div className="text-xs font-medium text-gray-700 text-left leading-tight">
+            <div>Xây dựng</div>
+            <div>cấu hình</div>
+          </div>
         </div>
       </Link>
     </Button>

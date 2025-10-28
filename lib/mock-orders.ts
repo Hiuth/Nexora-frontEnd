@@ -1,45 +1,85 @@
-import type { Order, OrderDetail } from "./types"
+import type { Order, OrderDetail } from "./types";
 
 export const mockOrders: Order[] = [
   {
-    order_id: 1,
-    account_id: 1,
-    order_date: "2025-01-15T10:30:00",
-    total_amount: 48980000,
+    id: "1",
+    accountId: "1",
+    orderDate: "2025-01-15T10:30:00",
+    totalAmount: 48980000,
     status: "delivered",
     phoneNumber: "0123456789",
     address: "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
-    customer_Name: "Nguyễn Văn A",
+    customerName: "Nguyễn Văn A",
   },
   {
-    order_id: 2,
-    account_id: 1,
-    order_date: "2025-01-20T14:20:00",
-    total_amount: 17980000,
+    id: "2",
+    accountId: "1",
+    orderDate: "2025-01-20T14:20:00",
+    totalAmount: 17980000,
     status: "shipping",
     phoneNumber: "0123456789",
     address: "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
-    customer_Name: "Nguyễn Văn A",
+    customerName: "Nguyễn Văn A",
   },
   {
-    order_id: 3,
-    account_id: 1,
-    order_date: "2025-01-25T09:15:00",
-    total_amount: 2990000,
+    id: "3",
+    accountId: "1",
+    orderDate: "2025-01-25T09:15:00",
+    totalAmount: 2990000,
     status: "processing",
     phoneNumber: "0123456789",
     address: "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
-    customer_Name: "Nguyễn Văn A",
+    customerName: "Nguyễn Văn A",
   },
-]
+];
 
 export const mockOrderDetails: OrderDetail[] = [
-  { order_id: 1, product_id: 1, quantity: 1, price: 15990000 },
-  { order_id: 1, product_id: 3, quantity: 1, price: 32990000 },
-  { order_id: 2, product_id: 2, quantity: 1, price: 14990000 },
-  { order_id: 2, product_id: 5, quantity: 1, price: 2990000 },
-  { order_id: 3, product_id: 5, quantity: 1, price: 2990000 },
-]
+  {
+    id: "1",
+    orderId: "1",
+    productId: "1",
+    productName: "Intel Core i9-14900K",
+    quantity: 1,
+    price: 15990000,
+    unitPrice: 15990000,
+  },
+  {
+    id: "2",
+    orderId: "1",
+    productId: "3",
+    productName: "NVIDIA RTX 4090",
+    quantity: 1,
+    price: 32990000,
+    unitPrice: 32990000,
+  },
+  {
+    id: "3",
+    orderId: "2",
+    productId: "2",
+    productName: "AMD Ryzen 9 7950X",
+    quantity: 1,
+    price: 14990000,
+    unitPrice: 14990000,
+  },
+  {
+    id: "4",
+    orderId: "2",
+    productId: "5",
+    productName: "Corsair Vengeance LPX 32GB",
+    quantity: 1,
+    price: 2990000,
+    unitPrice: 2990000,
+  },
+  {
+    id: "5",
+    orderId: "3",
+    productId: "5",
+    productName: "Corsair Vengeance LPX 32GB",
+    quantity: 1,
+    price: 2990000,
+    unitPrice: 2990000,
+  },
+];
 
 export function getOrderStatusText(status: string): string {
   const statusMap: Record<string, string> = {
@@ -48,8 +88,8 @@ export function getOrderStatusText(status: string): string {
     shipping: "Đang giao hàng",
     delivered: "Đã giao hàng",
     cancelled: "Đã hủy",
-  }
-  return statusMap[status] || status
+  };
+  return statusMap[status] || status;
 }
 
 export function getOrderStatusColor(status: string): string {
@@ -59,6 +99,6 @@ export function getOrderStatusColor(status: string): string {
     shipping: "bg-purple-500/10 text-purple-500 border-purple-500/20",
     delivered: "bg-green-500/10 text-green-500 border-green-500/20",
     cancelled: "bg-red-500/10 text-red-500 border-red-500/20",
-  }
-  return colorMap[status] || "bg-muted text-muted-foreground"
+  };
+  return colorMap[status] || "bg-muted text-muted-foreground";
 }

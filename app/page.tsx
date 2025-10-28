@@ -84,9 +84,9 @@ export default function HomePage() {
                 categoryProducts.length > 0 && (
                   <div key={category.id} className="mb-12 sm:mb-16 last:mb-0">
                     <FeaturedProductsCarousel
-                      title=""
+                      title={category.categoryName}
                       products={categoryProducts}
-                      categoryIcon=""
+                      categoryIcon={category.iconImg}
                     />
                   </div>
                 )

@@ -20,26 +20,24 @@ export function useProducts(params?: {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await ProductService.getProducts(params);
-        setProducts(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to fetch products"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await ProductService.getProducts(params);
+      setProducts(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchProducts();
   }, [JSON.stringify(params)]);
 
-  return { products, loading, error, refetch: () => fetchProducts() };
+  return { products, loading, error, refetch: fetchProducts };
 }
 
 export function useProduct(productId: string) {

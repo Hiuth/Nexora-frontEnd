@@ -16,13 +16,7 @@ export function CategorySidebar({
 }: CategorySidebarProps) {
   return (
     <div className="w-64 bg-gray-50 border-r border-gray-200">
-      <div className="p-4 bg-red-600 text-white">
-        <h2 className="font-bold text-base flex items-center gap-2">
-          <Menu className="h-4 w-4" />
-          Danh mục sản phẩm
-        </h2>
-      </div>
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-[520px] overflow-y-auto pt-4">
         {categories.map((category) => (
           <div
             key={category.id}

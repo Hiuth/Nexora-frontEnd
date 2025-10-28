@@ -9,7 +9,6 @@ import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
 import { CategoryMegaMenu } from "@/components/category-mega-menu";
 import { PCBuilderButton } from "@/components/pc-builder-button";
-import { WarrantyButton } from "@/components/warranty-button";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,11 +19,11 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex h-24 sm:h-26 lg:h-28 items-center gap-4 lg:gap-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center group flex-shrink-0">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <img
               src="/logo.png"
               alt="Logo"
-              className="h-20 w-auto sm:h-24 lg:h-32 group-hover:scale-105 transition-transform duration-300"
+              className="h-42 w-auto sm:h-48 lg:h-44"
             />
           </Link>
 
@@ -52,21 +51,16 @@ export function Header() {
               <PCBuilderButton />
             </div>
 
-            {/* Warranty Check */}
-            <div className="hidden md:flex">
-              <WarrantyButton />
-            </div>
-
             {/* Cart & Account */}
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
                 size="lg"
                 asChild
-                className="relative flex flex-col items-center justify-center gap-1 p-2 h-16 rounded-lg"
+                className="relative flex items-center gap-3 p-3 h-16 rounded-lg"
               >
                 <Link href="/cart">
-                  <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center relative">
                       <ShoppingCart className="h-5 w-5" />
                       {totalItems > 0 && (
@@ -75,24 +69,25 @@ export function Header() {
                         </Badge>
                       )}
                     </div>
-                    <span className="text-xs font-medium text-gray-700 text-center">
+                    <span className="text-sm font-medium text-gray-700 hidden xl:block">
                       Giỏ hàng
                     </span>
                   </div>
                 </Link>
               </Button>
+
               <Button
                 variant="ghost"
                 size="lg"
                 asChild
-                className="flex flex-col items-center justify-center gap-1 p-2 h-16 rounded-lg"
+                className="flex items-center gap-3 p-3 h-16 rounded-lg"
               >
                 <Link href="/account">
-                  <div className="flex flex-col items-center gap-1">
+                  <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                       <User className="h-5 w-5" />
                     </div>
-                    <span className="text-xs font-medium text-gray-700 text-center">
+                    <span className="text-sm font-medium text-gray-700 hidden xl:block">
                       Tài khoản
                     </span>
                   </div>
@@ -141,13 +136,6 @@ export function Header() {
               <div className="px-4 lg:hidden">
                 <div onClick={() => setIsMenuOpen(false)}>
                   <PCBuilderButton />
-                </div>
-              </div>
-
-              {/* Mobile Warranty Check */}
-              <div className="px-4 md:hidden">
-                <div onClick={() => setIsMenuOpen(false)}>
-                  <WarrantyButton />
                 </div>
               </div>
 

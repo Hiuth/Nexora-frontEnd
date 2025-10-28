@@ -1,63 +1,72 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { ProductCard } from "./product-card"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { products } from "@/lib/mock-data"
-import { ChevronLeft, ChevronRight } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useEffect, useRef, useState } from "react";
+import { ProductCard } from "./product-card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { products } from "@/lib/mock-data";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function FeaturedProductsSidebar() {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(true)
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
-    const scrollContainer = scrollRef.current
-    if (!scrollContainer) return
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer) return;
 
-    let scrollInterval: NodeJS.Timeout
+    let scrollInterval: NodeJS.Timeout;
 
     const startAutoScroll = () => {
       scrollInterval = setInterval(() => {
-        if (scrollContainer.scrollLeft >= scrollContainer.scrollWidth - scrollContainer.clientWidth) {
+        if (
+          scrollContainer.scrollLeft >=
+          scrollContainer.scrollWidth - scrollContainer.clientWidth
+        ) {
           // Reset to start when reaching the end
-          scrollContainer.scrollTo({ left: 0, behavior: "smooth" })
+          scrollContainer.scrollTo({ left: 0, behavior: "smooth" });
         } else {
           // Scroll right
-          scrollContainer.scrollBy({ left: scrollContainer.clientWidth, behavior: "smooth" })
+          scrollContainer.scrollBy({
+            left: scrollContainer.clientWidth,
+            behavior: "smooth",
+          });
         }
-      }, 3000) // Auto-scroll every 3 seconds
-    }
+      }, 3000); // Auto-scroll every 3 seconds
+    };
 
-    startAutoScroll()
+    startAutoScroll();
 
     return () => {
-      if (scrollInterval) clearInterval(scrollInterval)
-    }
-  }, [])
+      if (scrollInterval) clearInterval(scrollInterval);
+    };
+  }, []);
 
   const checkScroll = () => {
     if (scrollRef.current) {
-      setCanScrollLeft(scrollRef.current.scrollLeft > 0)
+      setCanScrollLeft(scrollRef.current.scrollLeft > 0);
       setCanScrollRight(
-        scrollRef.current.scrollLeft < scrollRef.current.scrollWidth - scrollRef.current.clientWidth - 10,
-      )
+        scrollRef.current.scrollLeft <
+          scrollRef.current.scrollWidth - scrollRef.current.clientWidth - 10
+      );
     }
-  }
+  };
 
   const scroll = (direction: "left" | "right") => {
     if (scrollRef.current) {
-      const scrollAmount = scrollRef.current.clientWidth
+      const scrollAmount = scrollRef.current.clientWidth;
       scrollRef.current.scrollBy({
         left: direction === "left" ? -scrollAmount : scrollAmount,
         behavior: "smooth",
-      })
+      });
     }
-  }
+  };
 
-  // Get featured products (products with id % 3 === 0)
-  const featuredProducts = products.filter((p) => p.id % 3 === 0).slice(0, 6)
+  // Get featured products (products with numeric id % 3 === 0)
+  const featuredProducts = products
+    .filter((p) => parseInt(p.id) % 3 === 0)
+    .slice(0, 6);
 
   return (
     <Card className="mb-6 border-2 shadow-lg overflow-hidden">
@@ -102,5 +111,5 @@ export function FeaturedProductsSidebar() {
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }

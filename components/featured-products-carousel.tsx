@@ -63,24 +63,26 @@ export function FeaturedProductsCarousel({
   return (
     <div className="mb-8 sm:mb-10 md:mb-12">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-3 sm:gap-0">
-          <div className="flex items-center gap-2 sm:gap-3">
-            {categoryIcon && (
-              <span className="text-lg sm:text-xl md:text-2xl">
-                {categoryIcon}
-              </span>
-            )}
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">
-              {title}
-            </h3>
-          </div>
-          <div className="flex justify-end">
-            <a
-              href="/products"
-              className="text-sm sm:text-base text-blue-600 hover:text-blue-800 font-medium hover:underline transition-colors"
-            >
-              Xem tất cả →
-            </a>
+        <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-6 py-4 rounded-lg shadow-md mb-4 sm:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center gap-2 sm:gap-3">
+              {categoryIcon && (
+                <span className="text-lg sm:text-xl md:text-2xl">
+                  {categoryIcon}
+                </span>
+              )}
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold">
+                {title}
+              </h3>
+            </div>
+            <div className="flex justify-end">
+              <a
+                href="/products"
+                className="text-sm sm:text-base text-white hover:text-blue-200 font-medium hover:underline transition-colors"
+              >
+                Xem tất cả →
+              </a>
+            </div>
           </div>
         </div>
 
