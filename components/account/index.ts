@@ -1,7 +1,7 @@
 // Account Components Barrel Export
-export { AccountSidebar } from "./account-sidebar";
 export { AccountStats } from "./account-stats";
-export { RecentOrders } from "./recent-orders";
 export { ProfileInfo } from "./profile-info";
-export { OrdersList } from "./orders-list";
+export { ProfileEditor } from "./profile-editor";
 export { AccountTabs } from "./account-tabs";
+export { OrdersManagement } from "./orders-management";
+export { AccountHeader } from "./account-header";

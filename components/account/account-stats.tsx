@@ -37,19 +37,19 @@ export function AccountStats({
         return (
           <div
             key={stat.id}
-            className="bg-white/70 backdrop-blur-md rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-primary/10 p-6"
+            className="bg-white/90 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 p-6"
           >
             <div className="flex items-center gap-4">
               <div
-                className={`h-14 w-14 rounded-xl ${stat.iconBg} flex items-center justify-center`}
+                className={`h-16 w-16 rounded-xl ${stat.iconBg} flex items-center justify-center shadow-md`}
               >
-                <Icon className={`h-7 w-7 ${stat.iconColor}`} />
+                <Icon className={`h-8 w-8 ${stat.iconColor}`} />
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-800">
+                <p className="text-4xl font-bold text-slate-800">
                   {stat.value}
                 </p>
-                <p className="text-sm font-medium text-slate-600">
+                <p className="text-sm font-medium text-slate-600 mt-1">
                   {stat.label}
                 </p>
               </div>
