@@ -38,7 +38,7 @@ export default function AccountPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="flex-1 gradient-background min-h-screen">
+      <main className="flex-1 bg-white min-h-screen">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12">
           {/* Modern Account Dashboard */}
           <div className="mb-8 sm:mb-12 lg:mb-16">

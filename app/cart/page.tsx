@@ -24,7 +24,7 @@ export default function CartPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col gradient-background">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
       <CartHeader itemCount={items.length} />
 

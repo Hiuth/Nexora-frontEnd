@@ -77,7 +77,7 @@ export default function HomePage() {
 
         <CategoryBanner />
 
-        <section className="py-6 sm:py-12 md:py-16 lg:py-24 gradient-background">
+        <section className="py-6 sm:py-12 md:py-16 lg:py-24 bg-white">
           <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
             {productsByCategory.slice(0, 3).map(
               ({ category, products: categoryProducts }) =>

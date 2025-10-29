@@ -71,7 +71,7 @@ export default function CheckoutPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col gradient-background">
+    <div className="flex min-h-screen flex-col bg-white">
       <Header />
       <CheckoutHeader itemCount={items.length} />
 

@@ -293,7 +293,7 @@ export default function PCBuilderPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
 
-      <main className="flex-1 gradient-background">
+      <main className="flex-1 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
           <PCBuilderHeader />
 
