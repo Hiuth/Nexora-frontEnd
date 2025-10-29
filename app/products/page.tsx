@@ -136,7 +136,7 @@ export default function ProductsPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-gradient-to-br from-gray-50 to-blue-50/30">
+    <div className="flex min-h-screen flex-col gradient-background">
       <Header />
 
       <main className="flex-1">

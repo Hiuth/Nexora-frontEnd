@@ -66,6 +66,15 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+/* Gradient background for entire system */
+.gradient-background {
+  background: linear-gradient(to bottom right, #eff6ff, #faf5ff, #fdf2f8);
+}
+
+.gradient-background-alt {
+  background: linear-gradient(to bottom right, #dbeafe, #f3e8ff, #fce7f3);
+}
+
 /* Added infinite scroll animation for brand logos */
 @keyframes scroll {
   0% {

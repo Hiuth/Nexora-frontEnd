@@ -54,7 +54,7 @@ export default function ProductDetailPage() {
     .slice(0, 4);
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col gradient-background">
       <Header />
 
       <main className="flex-1">
