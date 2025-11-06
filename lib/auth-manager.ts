@@ -14,6 +14,7 @@ export class AuthManager {
   private static readonly ACCESS_TOKEN_KEY = "accessToken";
   private static readonly REFRESH_TOKEN_KEY = "refreshToken";
   private static readonly USER_NAME_KEY = "userName";
+  private static readonly USER_AVATAR_KEY = "userAvatar";
 
   // Token storage
   static setTokens(accessToken: string, refreshToken: string): void {
@@ -39,9 +40,10 @@ export class AuthManager {
     localStorage.removeItem(this.ACCESS_TOKEN_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     localStorage.removeItem(this.USER_NAME_KEY);
+    localStorage.removeItem(this.USER_AVATAR_KEY);
   }
 
-  // User info - chỉ lưu userName
+  // User info - userName và avatar
   static setUserName(userName: string): void {
     if (typeof window === "undefined") return;
     localStorage.setItem(this.USER_NAME_KEY, userName);
@@ -52,16 +54,43 @@ export class AuthManager {
     return localStorage.getItem(this.USER_NAME_KEY);
   }
 
-  // Legacy method for compatibility - now only returns userName
-  static getUserInfo(): { userName: string | null } | null {
+  static setUserAvatar(avatar: string): void {
+    if (typeof window === "undefined") return;
+    localStorage.setItem(this.USER_AVATAR_KEY, avatar);
+  }
+
+  static getUserAvatar(): string | null {
+    if (typeof window === "undefined") return null;
+    return localStorage.getItem(this.USER_AVATAR_KEY);
+  }
+
+  // Set user profile info
+  static setUserProfile(userName?: string, avatar?: string): void {
+    if (userName) this.setUserName(userName);
+    if (avatar) this.setUserAvatar(avatar);
+  }
+
+  // Legacy method for compatibility - now returns userName và avatar
+  static getUserInfo(): {
+    userName: string | null;
+    avatar: string | null;
+  } | null {
     const userName = this.getUserName();
-    return userName ? { userName } : null;
+    const avatar = this.getUserAvatar();
+
+    if (userName || avatar) {
+      return { userName, avatar };
+    }
+    return null;
   }
 
   // Legacy method for compatibility
   static setUserInfo(userInfo: any): void {
     if (userInfo?.userName) {
       this.setUserName(userInfo.userName);
+    }
+    if (userInfo?.avatar) {
+      this.setUserAvatar(userInfo.avatar);
     }
   }
 

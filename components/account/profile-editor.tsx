@@ -9,6 +9,8 @@ import { Camera, Save, X, Loader2 } from "lucide-react";
 import { accountService } from "@/services/account.service";
 import { UpdateAccountRequest } from "@/types/account";
 import { useToast } from "@/hooks/use-toast";
+import { AuthManager } from "@/lib/auth-manager";
+import { useAuth } from "@/lib/auth-context";
 
 interface UserProfile {
   name: string;
@@ -34,6 +36,7 @@ export function ProfileEditor({
   onReloadAccount,
 }: ProfileEditorProps) {
   const { toast } = useToast();
+  const { refreshAuth } = useAuth();
   const [formData, setFormData] = useState(user);
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || "");
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -118,6 +121,17 @@ export function ProfileEditor({
 
       // Call API to update account
       const updatedAccount = await accountService.updateAccount(request);
+
+      // Cập nhật localStorage với thông tin mới
+      if (updatedAccount.userName) {
+        AuthManager.setUserName(updatedAccount.userName);
+      }
+      if (updatedAccount.accountImg) {
+        AuthManager.setUserAvatar(updatedAccount.accountImg);
+      }
+
+      // Refresh auth context để cập nhật header
+      await refreshAuth();
 
       toast({
         title: "Thành công",

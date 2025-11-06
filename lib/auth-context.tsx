@@ -8,12 +8,14 @@ import React, {
   ReactNode,
 } from "react";
 import { authService } from "@/services/auth.service";
+import { accountService } from "@/services/account.service";
 import { AuthManager } from "@/lib/auth-manager";
 
 interface User {
   userId: string;
   email: string;
   userName?: string;
+  avatar?: string;
   role: string;
 }
 
@@ -23,7 +25,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   loading: boolean;
-  refreshAuth: () => void;
+  refreshAuth: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,18 +35,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const refreshAuth = () => {
+  const refreshAuth = async () => {
     const authenticated = authService.isAuthenticated();
     setIsAuthenticated(authenticated);
 
     if (authenticated) {
       const currentUser = authService.getCurrentUser(); // từ token
       const storedUserName = AuthManager.getUserName(); // từ localStorage
+      const storedAvatar = AuthManager.getUserAvatar(); // từ localStorage
 
+      // Nếu không có userName hoặc avatar trong localStorage, lấy từ API
+      if (!storedUserName || !storedAvatar) {
+        try {
+          const accountData = await accountService.getAccountById();
+          if (accountData) {
+            // Cập nhật localStorage với thông tin mới
+            if (accountData.userName) {
+              AuthManager.setUserName(accountData.userName);
+            }
+            if (accountData.accountImg) {
+              AuthManager.setUserAvatar(accountData.accountImg);
+            }
+
+            setUser({
+              userId: currentUser?.userId || "",
+              email: currentUser?.email || "",
+              userName: accountData.userName || currentUser?.email || "",
+              avatar: accountData.accountImg || "",
+              role: currentUser?.role || "USER",
+            });
+            return;
+          }
+        } catch (error) {
+          console.error("Error fetching account data:", error);
+          // Fallback to stored/token data if API fails
+        }
+      }
+
+      // Sử dụng dữ liệu từ localStorage hoặc token
       setUser({
         userId: currentUser?.userId || "",
         email: currentUser?.email || "",
         userName: storedUserName || currentUser?.email || "",
+        avatar: storedAvatar || "",
         role: currentUser?.role || "USER",
       });
     } else {
@@ -54,12 +87,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Initial auth check
-    refreshAuth();
-    setLoading(false);
+    const initAuth = async () => {
+      await refreshAuth();
+      setLoading(false);
+    };
+    initAuth();
 
     // Listen for storage changes (login/logout from other tabs)
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "accessToken" || e.key === "userName") {
+      if (
+        e.key === "accessToken" ||
+        e.key === "userName" ||
+        e.key === "userAvatar"
+      ) {
         refreshAuth();
       }
     };
@@ -67,7 +107,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     window.addEventListener("storage", handleStorageChange);
 
     // Periodic auth check
-    const interval = setInterval(refreshAuth, 30000); // Check every 30 seconds
+    const interval = setInterval(() => {
+      refreshAuth();
+    }, 30000); // Check every 30 seconds
 
     return () => {
       window.removeEventListener("storage", handleStorageChange);
@@ -78,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     try {
       await authService.login(email, password);
-      refreshAuth();
+      await refreshAuth();
     } catch (error) {
       throw error;
     }

@@ -56,8 +56,8 @@ export function ProfileInfo({
       <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
         <div className="text-center text-gray-500">
           <p>Không thể tải thông tin tài khoản</p>
-          <button 
-            onClick={onReloadAccount} 
+          <button
+            onClick={onReloadAccount}
             className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             Thử lại

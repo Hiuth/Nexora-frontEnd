@@ -50,12 +50,32 @@ export class AuthService {
           data.result.refreshToken
         );
 
-        // Extract userName from token and store it
+        // Extract và lưu thông tin user từ token
         const userInfo = AuthManager.getCurrentUser();
         if (userInfo?.email) {
-          // You can set userName from email or get it from token if available
-          const userName = userInfo.email.split("@")[0]; // Use email prefix as default userName
-          AuthManager.setUserName(userName);
+          // Lấy thông tin chi tiết từ account service để có userName và avatar
+          try {
+            const { accountService } = await import(
+              "@/services/account.service"
+            );
+            const accountData = await accountService.getAccountById();
+
+            if (accountData) {
+              AuthManager.setUserProfile(
+                accountData.userName,
+                accountData.accountImg
+              );
+            } else {
+              // Fallback nếu không lấy được account data
+              const userName = userInfo.email.split("@")[0];
+              AuthManager.setUserName(userName);
+            }
+          } catch (error) {
+            console.error("Error fetching account data after login:", error);
+            // Fallback: sử dụng email prefix làm userName
+            const userName = userInfo.email.split("@")[0];
+            AuthManager.setUserName(userName);
+          }
         }
 
         return data.result;
