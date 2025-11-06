@@ -1,9 +1,9 @@
-import { categories, subCategories } from "@/lib/mock-data";
-import { Category, SubCategory } from "@/lib/types";
+import { subCategories } from "@/lib/mock-data";
+import { SubCategory } from "@/lib/types";
 import { apiGet } from "@/lib/api-base";
 import { API_CONFIG, ApiResponse } from "@/config/api.config";
 
-export class CategoryService {
+export class SubCategoryService {
   // Use real API now
   private static USE_API = true;
 
@@ -12,17 +12,17 @@ export class CategoryService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  // Get all categories
-  static async getCategories(): Promise<Category[]> {
+  // Get all subcategories
+  static async getAllSubCategories(): Promise<SubCategory[]> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<Category[]>(
-          API_CONFIG.ENDPOINTS.CATEGORY.GET_ALL
+        const response = await apiGet<SubCategory[]>(
+          API_CONFIG.ENDPOINTS.SUBCATEGORY.GET_ALL
         );
         return response.result;
       } catch (error) {
         console.error(
-          "Failed to fetch categories from API, using mock data:",
+          "Failed to fetch subcategories from API, using mock data:",
           error
         );
         // Fallback to mock data
@@ -31,11 +31,13 @@ export class CategoryService {
 
     // Mock data with simulated delay
     await this.delay();
-    return categories;
+    return subCategories;
   }
 
   // Get subcategories by category ID
-  static async getSubCategories(categoryId: string): Promise<SubCategory[]> {
+  static async getSubCategoriesByCategoryId(
+    categoryId: string
+  ): Promise<SubCategory[]> {
     if (this.USE_API) {
       try {
         const response = await apiGet<SubCategory[]>(
@@ -56,17 +58,19 @@ export class CategoryService {
     return subCategories.filter((sub) => sub.categoryId === categoryId);
   }
 
-  // Get category by ID
-  static async getCategoryById(categoryId: string): Promise<Category | null> {
+  // Get subcategory by ID
+  static async getSubCategoryById(
+    subCategoryId: string
+  ): Promise<SubCategory | null> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<Category>(
-          `${API_CONFIG.ENDPOINTS.CATEGORY.GET_BY_ID}/${categoryId}`
+        const response = await apiGet<SubCategory>(
+          `${API_CONFIG.ENDPOINTS.SUBCATEGORY.GET_BY_ID}/${subCategoryId}`
         );
         return response.result;
       } catch (error) {
         console.error(
-          "Failed to fetch category from API, using mock data:",
+          "Failed to fetch subcategory from API, using mock data:",
           error
         );
         // Fallback to mock data
@@ -75,12 +79,14 @@ export class CategoryService {
 
     // Mock data with simulated delay
     await this.delay();
-    return categories.find((cat) => cat.id === categoryId) || null;
+    return subCategories.find((sub) => sub.id === subCategoryId) || null;
   }
 
   // Method to switch to API mode (for future use)
   static enableApiMode(enable: boolean = true): void {
     this.USE_API = enable;
-    console.log(`CategoryService API mode: ${enable ? "enabled" : "disabled"}`);
+    console.log(
+      `SubCategoryService API mode: ${enable ? "enabled" : "disabled"}`
+    );
   }
 }

@@ -1,14 +1,8 @@
 "use client";
 
-import { MenuColumn } from "./menu-column";
 import { ViewAllButton } from "./view-all-button";
-import {
-  MENU_COLUMNS,
-  MENU_COLUMNS_2,
-  MENU_COLUMNS_3,
-  MENU_COLUMNS_4,
-} from "@/data/menu-data";
 import { Category, SubCategory } from "@/lib/types";
+import Link from "next/link";
 
 interface MenuContentProps {
   hoveredCategory: string;
@@ -77,23 +71,60 @@ export function MenuContent({
 
   // Regular category content
   if (categorySubCategories.length === 0) {
-    return null;
+    return (
+      <div className="flex-1 p-6 bg-white">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">📂</div>
+          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+            Không có danh mục con
+          </h3>
+          <p className="text-gray-600">
+            Danh mục này hiện tại chưa có danh mục con nào.
+          </p>
+        </div>
+        {/* View All Button */}
+        <ViewAllButton categoryId={hoveredCategory} categories={categories} />
+      </div>
+    );
   }
 
   return (
     <div className="flex-1 p-6 bg-white">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {/* Column 1 */}
-        <MenuColumn menuItems={MENU_COLUMNS} />
+      <h3 className="text-lg font-semibold text-gray-800 mb-4">Danh mục con</h3>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-6">
+        {categorySubCategories.map((subCategory) => (
+          <Link
+            key={subCategory.id}
+            href={`/products?subcategory=${subCategory.id}`}
+            className="group p-4 bg-gray-50 rounded-lg hover:bg-blue-50 hover:shadow-md transition-all duration-200"
+          >
+            <div className="flex flex-col items-center text-center">
+              {/* Enhanced image display area */}
+              <div className="w-20 h-20 mb-3 bg-white rounded-lg shadow-sm border border-gray-200 flex items-center justify-center overflow-hidden">
+                {subCategory.subCategoryImg ? (
+                  <img
+                    src={subCategory.subCategoryImg}
+                    alt={subCategory.subCategoryName}
+                    className="w-full h-full object-cover rounded-lg group-hover:scale-105 transition-transform duration-200"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg flex items-center justify-center">
+                    <span className="text-2xl text-gray-400">📦</span>
+                  </div>
+                )}
+              </div>
 
-        {/* Column 2 */}
-        <MenuColumn menuItems={MENU_COLUMNS_2} />
-
-        {/* Column 3 */}
-        <MenuColumn menuItems={MENU_COLUMNS_3} />
-
-        {/* Column 4 */}
-        <MenuColumn menuItems={MENU_COLUMNS_4} />
+              <h4 className="font-medium text-sm text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
+                {subCategory.subCategoryName}
+              </h4>
+              {subCategory.description && (
+                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+                  {subCategory.description}
+                </p>
+              )}
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* View All Button */}

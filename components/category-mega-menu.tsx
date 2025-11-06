@@ -4,8 +4,10 @@ import { useCategoryMenu } from "@/hooks/use-category-menu";
 import { CategoryMenuButton } from "./category-menu/category-menu-button";
 import { CategorySidebar } from "./category-menu/category-sidebar";
 import { MenuContent } from "./category-menu/menu-content";
-import { categories, subCategories } from "@/lib/mock-data";
+import { CategoryService } from "@/services/category.service";
+import { SubCategoryService } from "@/services/subcategory.service";
 import { useState, useEffect } from "react";
+import { Category, SubCategory } from "@/lib/types";
 
 export function CategoryMegaMenu() {
   const {
@@ -19,6 +21,51 @@ export function CategoryMegaMenu() {
   // local toggle for mobile (click) open
   const [openByClick, setOpenByClick] = useState(false);
   const [headerHeight, setHeaderHeight] = useState(85);
+
+  // State for API data
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [categorySubCategories, setCategorySubCategories] = useState<
+    SubCategory[]
+  >([]);
+  const [loading, setLoading] = useState(true);
+
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoriesData = await CategoryService.getCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Load subcategories when hoveredCategory changes
+  useEffect(() => {
+    const loadSubCategories = async () => {
+      if (hoveredCategory && hoveredCategory !== "pc-builder") {
+        try {
+          const subCategoriesData =
+            await SubCategoryService.getSubCategoriesByCategoryId(
+              hoveredCategory
+            );
+          setCategorySubCategories(subCategoriesData);
+        } catch (error) {
+          console.error("Failed to load subcategories:", error);
+          setCategorySubCategories([]);
+        }
+      } else {
+        setCategorySubCategories([]);
+      }
+    };
+
+    loadSubCategories();
+  }, [hoveredCategory]);
 
   // close mobile open when viewport becomes large to avoid stuck state
   useEffect(() => {
@@ -38,11 +85,21 @@ export function CategoryMegaMenu() {
     return () => window.removeEventListener("resize", updateHeaderHeight);
   }, []);
 
-  const categorySubCategories = hoveredCategory
-    ? subCategories.filter((sub) => sub.categoryId === hoveredCategory)
-    : [];
-
   const effectiveOpen = isOpen || openByClick;
+
+  // Don't render until categories are loaded
+  if (loading) {
+    return (
+      <div className="relative">
+        <div className="block lg:hidden">
+          <div className="p-2 bg-gray-200 rounded-lg animate-pulse h-9 w-9"></div>
+        </div>
+        <div className="hidden lg:block">
+          <div className="bg-gray-200 rounded-lg animate-pulse h-14 w-[200px]"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div

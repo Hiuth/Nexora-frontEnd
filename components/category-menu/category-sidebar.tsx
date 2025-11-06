@@ -35,9 +35,29 @@ export function CategorySidebar({
               }
             }}
           >
-            <span className="text-lg">{category.iconImg}</span>
-            <span className="font-medium text-sm">{category.categoryName}</span>
-            <ChevronRight className="h-4 w-4 ml-auto text-gray-400" />
+            {/* Enhanced category icon/image area */}
+            <div className="w-8 h-8 flex items-center justify-center bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden">
+              {category.iconImg && (
+                <img
+                  src={category.iconImg}
+                  alt={category.categoryName}
+                  className="w-6 h-6 object-contain"
+                  onError={(e) => {
+                    // Fallback to emoji if image fails to load
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = "none";
+                    target.nextElementSibling!.classList.remove("hidden");
+                  }}
+                />
+              )}
+              {/* Fallback emoji icon */}
+              <span className="text-sm hidden">{category.iconImg || "📦"}</span>
+            </div>
+
+            <span className="font-medium text-sm flex-1">
+              {category.categoryName}
+            </span>
+            <ChevronRight className="h-4 w-4 text-gray-400" />
           </div>
         ))}
       </div>

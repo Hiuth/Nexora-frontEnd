@@ -15,7 +15,8 @@ export async function apiCall<T>(
     endpoint.includes("/Auth/login") ||
     endpoint.includes("/Auth/refresh") ||
     endpoint.includes("/Account/create") ||
-    endpoint.includes("/Account/send-email");
+    endpoint.includes("/Account/send-email") ||
+    endpoint.includes("/Category/getAll");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

@@ -1,18 +1,86 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { categories, subCategories } from "@/lib/mock-data";
+import { CategoryService } from "@/services/category.service";
+import { SubCategoryService } from "@/services/subcategory.service";
+import { Category, SubCategory } from "@/lib/types";
 
 export function CategoryBrowser() {
-  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [subCategories, setSubCategories] = useState<SubCategory[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filteredSubCategories = selectedCategory
-    ? subCategories.filter((sub) => sub.category_id === selectedCategory)
-    : [];
+  // Load categories on component mount
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoriesData = await CategoryService.getCategories();
+        setCategories(categoriesData);
+      } catch (error) {
+        console.error("Failed to load categories:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  // Load subcategories when selectedCategory changes
+  useEffect(() => {
+    const loadSubCategories = async () => {
+      if (selectedCategory) {
+        try {
+          const subCategoriesData =
+            await SubCategoryService.getSubCategoriesByCategoryId(
+              selectedCategory
+            );
+          setSubCategories(subCategoriesData);
+        } catch (error) {
+          console.error("Failed to load subcategories:", error);
+          setSubCategories([]);
+        }
+      } else {
+        setSubCategories([]);
+      }
+    };
+
+    loadSubCategories();
+  }, [selectedCategory]);
+
+  const filteredSubCategories = selectedCategory ? subCategories : [];
+
+  if (loading) {
+    return (
+      <div className="grid lg:grid-cols-[300px_1fr] gap-6">
+        <div className="space-y-2">
+          <div className="h-6 bg-gray-200 rounded animate-pulse mb-4"></div>
+          {Array.from({ length: 6 }, (_, i) => (
+            <div
+              key={i}
+              className="h-16 bg-gray-200 rounded-xl animate-pulse"
+            ></div>
+          ))}
+        </div>
+        <div className="space-y-4">
+          <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }, (_, i) => (
+              <div
+                key={i}
+                className="h-48 bg-gray-200 rounded-lg animate-pulse"
+              ></div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid lg:grid-cols-[300px_1fr] gap-6">
@@ -56,38 +124,57 @@ export function CategoryBrowser() {
               Danh mục con -{" "}
               {categories.find((c) => c.id === selectedCategory)?.categoryName}
             </h3>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredSubCategories.map((subCategory) => (
-                <Link
-                  key={subCategory.id}
-                  href={`/products?subcategory=${subCategory.id}`}
-                >
-                  <Card className="group cursor-pointer transition-all hover:shadow-xl hover:scale-105 border-2 hover:border-primary">
-                    <CardContent className="p-6">
-                      <div className="aspect-square rounded-lg bg-gradient-to-br from-primary/10 to-accent/20 mb-4 flex items-center justify-center overflow-hidden">
-                        <img
-                          src={
-                            subCategory.subCategory_img ||
-                            "/placeholder.svg?height=200&width=200"
-                          }
-                          alt={subCategory.subcategoryName}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <h4 className="font-semibold mb-2 group-hover:text-primary transition-colors text-balance">
-                        {subCategory.subcategoryName}
-                      </h4>
-                      <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">
-                        {subCategory.description}
-                      </p>
-                      <Badge variant="secondary" className="mt-3">
-                        Xem sản phẩm
-                      </Badge>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+            {filteredSubCategories.length > 0 ? (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredSubCategories.map((subCategory) => (
+                  <Link
+                    key={subCategory.id}
+                    href={`/products?subcategory=${subCategory.id}`}
+                  >
+                    <Card className="group cursor-pointer transition-all hover:shadow-xl hover:scale-105 border-2 hover:border-primary">
+                      <CardContent className="p-6">
+                        {/* Enhanced image display area */}
+                        <div className="aspect-square rounded-lg bg-gradient-to-br from-primary/5 to-accent/10 mb-4 flex items-center justify-center overflow-hidden border border-gray-100">
+                          {subCategory.subCategoryImg ? (
+                            <img
+                              src={subCategory.subCategoryImg}
+                              alt={subCategory.subCategoryName}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+                              <span className="text-4xl text-gray-400">📦</span>
+                            </div>
+                          )}
+                        </div>
+                        <h4 className="font-semibold mb-2 group-hover:text-primary transition-colors text-balance">
+                          {subCategory.subCategoryName}
+                        </h4>
+                        <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">
+                          {subCategory.description}
+                        </p>
+                        <Badge variant="secondary" className="mt-3">
+                          Xem sản phẩm
+                        </Badge>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
+            ) : (
+              <div className="flex items-center justify-center h-64 text-center">
+                <div className="max-w-md">
+                  <div className="text-6xl mb-4">📂</div>
+                  <h3 className="text-xl font-semibold mb-2 text-foreground">
+                    Không có danh mục con
+                  </h3>
+                  <p className="text-muted-foreground text-pretty">
+                    Danh mục này hiện tại chưa có danh mục con nào. Vui lòng thử
+                    chọn danh mục khác.
+                  </p>
+                </div>
+              </div>
+            )}
           </>
         ) : (
           <div className="flex items-center justify-center h-full min-h-[400px] text-center">
