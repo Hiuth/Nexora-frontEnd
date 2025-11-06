@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ProfileEditor } from "./profile-editor";
 import { Edit, LogOut } from "lucide-react";
+import { AccountResponse } from "@/types/account";
 
 interface UserProfile {
   name: string;
@@ -16,20 +17,39 @@ interface UserProfile {
 
 interface ProfileInfoProps {
   user: UserProfile;
+  accountData?: AccountResponse | null;
+  isLoading?: boolean;
   onEdit?: () => void;
   onLogout?: () => void;
+  onAccountUpdate?: (data: AccountResponse) => void;
 }
 
-export function ProfileInfo({ user, onEdit, onLogout }: ProfileInfoProps) {
+export function ProfileInfo({
+  user,
+  accountData,
+  isLoading,
+  onEdit,
+  onLogout,
+  onAccountUpdate,
+}: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [currentUser, setCurrentUser] = useState(user);
+
+  // Use accountData if available, otherwise use fallback user data
+  const currentUser = {
+    name: accountData?.userName || user.name,
+    email: accountData?.email || user.email,
+    phone: accountData?.phoneNumber || user.phone,
+    address: accountData?.address || user.address,
+    avatar: accountData?.accountImg || user.avatar,
+  };
 
   const handleEdit = () => {
     setIsEditing(true);
   };
 
   const handleSave = (updatedUser: UserProfile) => {
-    setCurrentUser(updatedUser);
+    // TODO: Call API to update user profile
+    console.log("Updated user:", updatedUser);
     setIsEditing(false);
     if (onEdit) {
       onEdit();

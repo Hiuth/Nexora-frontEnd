@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import {
@@ -10,28 +11,72 @@ import {
 } from "@/components/account";
 import { mockOrders, mockOrderDetails } from "@/lib/mock-orders";
 import { products } from "@/lib/mock-data";
+import { accountService } from "@/services/account.service";
+import { AccountResponse } from "@/types/account";
+import { useAuth } from "@/lib/auth-context";
+import { useToast } from "@/hooks/use-toast";
 
 export default function AccountPage() {
+  const { toast } = useToast();
+  const { logout } = useAuth();
+  const [accountData, setAccountData] = useState<AccountResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Fallback user data khi chưa load API hoặc có lỗi
   const user = {
-    name: "Nguyễn Văn A",
-    email: "nguyenvana@example.com",
-    phone: "0123456789",
-    address: "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
+    name: accountData?.userName || "Nguyễn Văn A",
+    email: accountData?.email || "nguyenvana@example.com",
+    phone: accountData?.phoneNumber || "0123456789",
+    address:
+      accountData?.address || "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
   };
+
+  // Load account data from API
+  useEffect(() => {
+    const loadAccountData = async () => {
+      try {
+        const data = await accountService.getAccountById();
+        setAccountData(data);
+      } catch (error: any) {
+        console.error("Failed to load account data:", error);
+        toast({
+          title: "Thông báo",
+          description:
+            "Không thể tải thông tin tài khoản. Hiển thị dữ liệu mẫu.",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadAccountData();
+  }, [toast]);
 
   const recentOrders = mockOrders.slice(0, 3);
   const completedOrders = mockOrders.filter(
     (o) => o.status === "delivered"
   ).length;
 
-  const handleLogout = () => {
-    console.log("Logout clicked");
-    // Implement logout logic here
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast({
+        title: "Đăng xuất thành công",
+        description: "Bạn đã đăng xuất khỏi hệ thống",
+      });
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
 
   const handleEditProfile = () => {
     console.log("Edit profile clicked");
-    // Implement edit profile logic here
+    // TODO: Implement edit profile logic or navigate to edit page
+    toast({
+      title: "Thông báo",
+      description: "Tính năng chỉnh sửa hồ sơ đang được phát triển",
+    });
   };
 
   return (
@@ -45,7 +90,10 @@ export default function AccountPage() {
             {/* Welcome Section */}
             <div className="text-center mb-8 sm:mb-12">
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-4 animate-in slide-in-from-top-4 duration-700">
-                Xin chào, <span className="text-blue-600">{user.name}</span>
+                Xin chào,{" "}
+                <span className="text-blue-600">
+                  {isLoading ? "..." : user.name}
+                </span>
               </h1>
 
               <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
@@ -60,8 +108,11 @@ export default function AccountPage() {
             profileContent={
               <ProfileInfo
                 user={user}
+                accountData={accountData}
+                isLoading={isLoading}
                 onEdit={handleEditProfile}
                 onLogout={handleLogout}
+                onAccountUpdate={setAccountData}
               />
             }
             ordersManagementContent={<OrdersManagement />}

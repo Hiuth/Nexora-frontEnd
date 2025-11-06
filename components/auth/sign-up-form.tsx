@@ -20,6 +20,7 @@ import {
   UserPlus,
   Loader2,
   UserCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { accountService } from "@/services/account.service";
@@ -40,6 +41,7 @@ interface SignUpFormData {
 
 export function SignUpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
@@ -140,9 +142,14 @@ export function SignUpForm() {
 
       await accountService.createAccount(request);
 
+      // Set success state for animation
+      setIsSuccess(true);
+
       toast({
         title: "Đăng ký thành công! 🎉",
-        description: "Chào mừng bạn đến với PC Store. Vui lòng đăng nhập.",
+        description:
+          "Chào mừng bạn đến với PC Store. Đang chuyển đến trang đăng nhập...",
+        duration: 3000,
       });
 
       // Reset form
@@ -157,16 +164,21 @@ export function SignUpForm() {
         otp: "",
       });
 
-      // Redirect to login
-      router.push("/login");
+      // Add delay and animation before redirect
+      setTimeout(() => {
+        router.push("/login");
+      }, 2500); // 2.5 second delay
     } catch (error: any) {
+      setIsSuccess(false); // Reset success state on error
       toast({
         title: "Đăng ký thất bại",
         description: error.message || "Vui lòng thử lại sau",
         variant: "destructive",
       });
     } finally {
-      setIsSubmitting(false);
+      if (!isSuccess) {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -345,10 +357,19 @@ export function SignUpForm() {
       <div className="pt-2">
         <Button
           type="submit"
-          disabled={isSubmitting}
-          className="w-full h-12 text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all"
+          disabled={isSubmitting || isSuccess}
+          className={`w-full h-12 text-base font-semibold text-white shadow-md hover:shadow-lg transition-all duration-300 ${
+            isSuccess
+              ? "bg-green-600 hover:bg-green-600"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          {isSubmitting ? (
+          {isSuccess ? (
+            <>
+              <CheckCircle2 className="h-5 w-5 mr-2 animate-pulse" />
+              Đăng ký thành công! Đang chuyển trang...
+            </>
+          ) : isSubmitting ? (
             <>
               <Loader2 className="h-5 w-5 mr-2 animate-spin" />
               Đang xử lý...

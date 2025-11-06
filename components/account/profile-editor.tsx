@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, Save, X } from "lucide-react";
+import { Camera, Save, X, Loader2 } from "lucide-react";
+import { accountService } from "@/services/account.service";
+import { UpdateAccountRequest } from "@/types/account";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserProfile {
   name: string;
@@ -28,8 +31,11 @@ export function ProfileEditor({
   onCancel,
   onLogout,
 }: ProfileEditorProps) {
+  const { toast } = useToast();
   const [formData, setFormData] = useState(user);
   const [avatarPreview, setAvatarPreview] = useState(user.avatar || "");
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -44,21 +50,72 @@ export function ProfileEditor({
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Lỗi",
+          description: "Vui lòng chọn file hình ảnh",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "Lỗi",
+          description: "Kích thước file không được vượt quá 5MB",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setAvatarFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
         setAvatarPreview(result);
-        setFormData((prev) => ({
-          ...prev,
-          avatar: result,
-        }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSave = () => {
-    onSave(formData);
+  const handleSave = async () => {
+    setIsSaving(true);
+    try {
+      // Prepare update request
+      const request: UpdateAccountRequest = {
+        userName: formData.name,
+        gender: "Nam", // TODO: Add gender field to form if needed
+        phoneNumber: formData.phone,
+        address: formData.address,
+        ...(avatarFile && { file: avatarFile }),
+      };
+
+      // Call API to update account
+      const updatedAccount = await accountService.updateAccount(request);
+
+      // Update the form data with new avatar URL if available
+      const updatedUser = {
+        ...formData,
+        avatar: updatedAccount.accountImg || avatarPreview,
+      };
+
+      toast({
+        title: "Thành công",
+        description: "Cập nhật thông tin cá nhân thành công",
+      });
+
+      onSave(updatedUser);
+    } catch (error: any) {
+      toast({
+        title: "Lỗi",
+        description: error.message || "Cập nhật thông tin thất bại",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const getInitials = (name: string) => {
@@ -176,14 +233,25 @@ export function ProfileEditor({
           <div className="pt-6 border-t border-slate-200/50 flex flex-col sm:flex-row gap-3">
             <Button
               onClick={handleSave}
+              disabled={isSaving}
               className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors flex items-center justify-center gap-2 h-12"
             >
-              <Save className="h-5 w-5" />
-              <span>Lưu thay đổi</span>
+              {isSaving ? (
+                <>
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>Đang lưu...</span>
+                </>
+              ) : (
+                <>
+                  <Save className="h-5 w-5" />
+                  <span>Lưu thay đổi</span>
+                </>
+              )}
             </Button>
             <Button
               variant="outline"
               onClick={onCancel}
+              disabled={isSaving}
               className="text-slate-700 hover:bg-slate-50 font-semibold px-8 py-3 rounded-xl transition-colors h-12"
             >
               <span>Hủy bỏ</span>
