@@ -1,7 +1,8 @@
 import { subCategories } from "@/lib/mock-data";
 import { SubCategory } from "@/lib/types";
 import { apiGet } from "@/lib/api-base";
-import { API_CONFIG, ApiResponse } from "@/config/api.config";
+import { API_CONFIG } from "@/config/api.config";
+import { SubCategoryResponse } from "@/types/api";
 
 export class SubCategoryService {
   // Use real API now
@@ -16,10 +17,18 @@ export class SubCategoryService {
   static async getAllSubCategories(): Promise<SubCategory[]> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<SubCategory[]>(
+        const response = await apiGet<SubCategoryResponse[]>(
           API_CONFIG.ENDPOINTS.SUBCATEGORY.GET_ALL
         );
-        return response.result;
+        // Map response to entity types
+        return response.result.map((sub) => ({
+          id: sub.id,
+          categoryId: sub.categoryId,
+          subCategoryName: sub.subCategoryName,
+          subCategoryImg: sub.subCategoryImg,
+          description: sub.description,
+          categoryName: sub.categoryName,
+        }));
       } catch (error) {
         console.error(
           "Failed to fetch subcategories from API, using mock data:",
@@ -40,10 +49,18 @@ export class SubCategoryService {
   ): Promise<SubCategory[]> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<SubCategory[]>(
+        const response = await apiGet<SubCategoryResponse[]>(
           `${API_CONFIG.ENDPOINTS.SUBCATEGORY.GET_BY_CATEGORY_ID}/${categoryId}`
         );
-        return response.result;
+        // Map response to entity types
+        return response.result.map((sub) => ({
+          id: sub.id,
+          categoryId: sub.categoryId,
+          subCategoryName: sub.subCategoryName,
+          subCategoryImg: sub.subCategoryImg,
+          description: sub.description,
+          categoryName: sub.categoryName,
+        }));
       } catch (error) {
         console.error(
           "Failed to fetch subcategories from API, using mock data:",
@@ -64,10 +81,19 @@ export class SubCategoryService {
   ): Promise<SubCategory | null> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<SubCategory>(
+        const response = await apiGet<SubCategoryResponse>(
           `${API_CONFIG.ENDPOINTS.SUBCATEGORY.GET_BY_ID}/${subCategoryId}`
         );
-        return response.result;
+        // Map response to entity type
+        const sub = response.result;
+        return {
+          id: sub.id,
+          categoryId: sub.categoryId,
+          subCategoryName: sub.subCategoryName,
+          subCategoryImg: sub.subCategoryImg,
+          description: sub.description,
+          categoryName: sub.categoryName,
+        };
       } catch (error) {
         console.error(
           "Failed to fetch subcategory from API, using mock data:",

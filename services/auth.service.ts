@@ -1,4 +1,4 @@
-import { API_CONFIG, ApiResponse } from "@/config/api.config";
+import { API_CONFIG } from "@/config/api.config";
 import { AuthManager } from "@/lib/auth-manager";
 import {
   apiPost,
@@ -13,11 +13,14 @@ import {
   ResetPasswordRequest,
   SendOTPRequest,
   VerifyOTPRequest,
+} from "@/types/requests";
+import {
+  ApiResponse,
   LoginResponse,
   SignUpResponse,
   SendOTPResponse,
   VerifyOTPResponse,
-} from "@/types/auth";
+} from "@/types/api";
 
 export class AuthService {
   private static instance: AuthService;

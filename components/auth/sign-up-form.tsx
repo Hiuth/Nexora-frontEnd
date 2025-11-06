@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { accountService } from "@/services/account.service";
-import { CreateAccountRequest } from "@/types/account";
+import { CreateAccountRequest } from "@/types/requests";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 

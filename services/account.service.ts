@@ -1,14 +1,17 @@
-import { API_CONFIG, ApiResponse } from "@/config/api.config";
+import { API_CONFIG } from "@/config/api.config";
 import { apiGet, apiPostFormData, apiPutFormData } from "@/lib/api-base";
 import {
-  AccountRequest,
   CreateAccountRequest,
   UpdateAccountRequest,
+  SendOTPRegisterRequest,
+} from "@/types/requests";
+import {
+  ApiResponse,
   AccountResponse,
   SendOTPRegisterResponse,
   CreateAccountResponse,
   UpdateAccountResponse,
-} from "@/types/account";
+} from "@/types/api";
 
 export class AccountService {
   private static instance: AccountService;

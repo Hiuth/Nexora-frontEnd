@@ -117,11 +117,6 @@ export function MenuContent({
               <h4 className="font-medium text-sm text-gray-800 group-hover:text-blue-600 transition-colors line-clamp-2">
                 {subCategory.subCategoryName}
               </h4>
-              {subCategory.description && (
-                <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                  {subCategory.description}
-                </p>
-              )}
             </div>
           </Link>
         ))}

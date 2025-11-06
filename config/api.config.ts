@@ -104,26 +104,6 @@ export const API_CONFIG = {
   },
 };
 
-// API response types (matching backend structure)
-export interface ApiResponse<T> {
-  code?: number;
-  message: string;
-  result: T;
-}
-
-export interface PaginatedApiResponse<T> {
-  success: boolean;
-  data: {
-    items: T[];
-    currentPage: number;
-    pageSize: number;
-    totalPages: number;
-    totalCount: number;
-  };
-  message?: string;
-  error?: string;
-}
-
 // Helper function to build full URL
 export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.BASE_URL}${endpoint}`;

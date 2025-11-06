@@ -19,6 +19,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "Xây dựng PC",
     subCategoryImg: "/icon-buildPc.png",
     description: "Tạo cấu hình PC của bạn",
+    categoryName: "Xây dựng cấu hình",
   },
   {
     id: "1",
@@ -26,6 +27,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "Intel CPU",
     subCategoryImg: "/test.png",
     description: "Intel Processors",
+    categoryName: "CPU",
   },
   {
     id: "2",
@@ -33,6 +35,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "AMD CPU",
     subCategoryImg: "/test.png",
     description: "AMD Processors",
+    categoryName: "CPU",
   },
   {
     id: "3",
@@ -40,6 +43,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "NVIDIA GPU",
     subCategoryImg: "/test.png",
     description: "NVIDIA Graphics Cards",
+    categoryName: "GPU",
   },
   {
     id: "4",
@@ -47,6 +51,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "AMD GPU",
     subCategoryImg: "/test.png",
     description: "AMD Graphics Cards",
+    categoryName: "GPU",
   },
   {
     id: "5",
@@ -54,6 +59,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "DDR4 RAM",
     subCategoryImg: "/test.png",
     description: "DDR4 Memory",
+    categoryName: "RAM",
   },
   {
     id: "6",
@@ -61,6 +67,7 @@ export const subCategories: SubCategory[] = [
     subCategoryName: "DDR5 RAM",
     subCategoryImg: "/test.png",
     description: "DDR5 Memory",
+    categoryName: "RAM",
   },
 ];
 

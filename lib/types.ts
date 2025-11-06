@@ -1,4 +1,6 @@
-// Database types matching the API response schema
+// Entity types for application data models
+// These are used internally in the app after mapping from API responses
+
 export interface Category {
   id: string;
   categoryName: string;
@@ -11,6 +13,7 @@ export interface SubCategory {
   subCategoryName: string;
   subCategoryImg?: string;
   description?: string;
+  categoryName: string;
 }
 
 export interface Brand {
@@ -99,7 +102,6 @@ export interface Account {
   accountImg: string;
 }
 
-// Additional interfaces based on API responses
 export interface Comment {
   id: string;
   accountId: string;
@@ -163,12 +165,4 @@ export interface PcBuildItem {
   productName: string;
   price: number;
   thumbnail: string;
-}
-
-export interface PaginatedResponse<T> {
-  items: T[];
-  currentPage: number;
-  pageSize: number;
-  totalPages: number;
-  totalCount: number;
 }

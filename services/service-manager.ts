@@ -34,9 +34,6 @@ export class ServiceManager {
     WarrantyService.enableApiMode(enabled);
     PcBuildService.enableApiMode(enabled);
     BrandService.enableApiMode(enabled);
-
-    console.log(`All services API mode: ${enabled ? "enabled" : "disabled"}`);
-    console.log("Note: AuthService always uses API mode");
   }
 
   public getApiMode(): boolean {
@@ -46,20 +43,13 @@ export class ServiceManager {
   // Initialize services with environment-based configuration
   public initialize(): void {
     // Check if API is available based on environment
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-    const isDevelopment = process.env.NODE_ENV === "development";
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || process.env.NEXT_PUBLIC_API_BASE_URL;
 
-    // Enable API mode if URL is provided and not in development
-    // You can modify this logic based on your needs
-    const shouldUseApi = apiUrl && !isDevelopment;
+    // Enable API mode if URL is provided (allow in development for testing)
+    const shouldUseApi = Boolean(apiUrl);
 
-    this.setApiMode(Boolean(shouldUseApi));
-
-    console.log("ServiceManager initialized:", {
-      apiMode: this.isApiMode,
-      apiUrl,
-      environment: process.env.NODE_ENV,
-    });
+    this.setApiMode(shouldUseApi);
   }
 
   // Health check for API services

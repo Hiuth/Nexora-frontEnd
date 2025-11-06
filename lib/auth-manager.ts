@@ -1,5 +1,6 @@
 // Authentication manager for token handling and user state
-import { RefreshTokenResponse } from "@/types/auth";
+import { TokenManager } from "./token-manager";
+import { RefreshTokenResponse } from "@/types/api";
 
 export interface DecodedToken {
   userId: string;

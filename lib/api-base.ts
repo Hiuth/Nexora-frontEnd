@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/config/api.config";
+import { ApiResponse } from "@/types/api";
 import { API_CONFIG } from "@/config/api.config";
 import { TokenManager } from "./token-manager";
 

@@ -1,54 +1,109 @@
-# Auth Types Documentation
+# Types Documentation# Auth Types Documentation
 
-## Tổ chức file types
+## 📁 Cấu trúc Types mới## Tổ chức file types
 
-### 📁 Cấu trúc thư mục
+### 🎯 **Tổ chức file types:**### 📁 Cấu trúc thư mục
 
-```
-types/
-├── README.md            # Documentation
-└── auth/                # Auth types folder
-    ├── index.ts         # Export auth types
-    ├── requests.ts      # Auth request types
+````
+
+types/types/
+
+├── README.md        # Documentation này├── README.md            # Documentation
+
+├── index.ts         # Export tất cả types└── auth/                # Auth types folder
+
+├── requests.ts      # Request types cho API calls    ├── index.ts         # Export auth types
+
+└── api.ts           # Response types và API wrappers    ├── requests.ts      # Auth request types
+
     ├── responses.ts     # Auth response types
-    └── README.md        # Auth documentation
+
+lib/    └── README.md        # Auth documentation
+
+└── types.ts         # Entity types cho internal data models```
+
 ```
 
 ### 🔐 Auth Request Types
 
+## 🔄 **Separation of Concerns:**
+
 File: `types/auth/requests.ts`
 
-- `LoginRequest` - Đăng nhập
-- `SignUpRequest` - Đăng ký
-- `ResetPasswordRequest` - Đổi mật khẩu
+### 📤 **Request Types** (`types/requests.ts`)
+
+- Chứa tất cả interface cho API requests- `LoginRequest` - Đăng nhập
+
+- Được sử dụng khi gọi API- `SignUpRequest` - Đăng ký
+
+- Ví dụ: `LoginRequest`, `CreateProductRequest`, `UpdateOrderRequest`- `ResetPasswordRequest` - Đổi mật khẩu
+
 - `SendOTPRequest` - Gửi OTP
-- `VerifyOTPRequest` - Xác thực OTP
-- `RefreshTokenRequest` - Refresh token
 
-### 📨 Auth Response Types
+### 📥 **Response Types** (`types/api.ts`) - `VerifyOTPRequest` - Xác thực OTP
 
-File: `types/auth/responses.ts`
+- Chứa tất cả interface cho API responses- `RefreshTokenRequest` - Refresh token
 
-- `LoginResponse` - Phản hồi đăng nhập
-- `SignUpResponse` - Phản hồi đăng ký
-- `SendOTPResponse` - Phản hồi gửi OTP
+- Chứa wrapper types như `ApiResponse<T>`, `PaginatedResponse<T>`
+
+- Ví dụ: `CategoryResponse`, `ProductResponse`, `LoginResponse`### 📨 Auth Response Types
+
+
+
+### 🗄️ **Entity Types** (`lib/types.ts`)File: `types/auth/responses.ts`
+
+- Chứa data models cho internal app usage
+
+- Được map từ API responses- `LoginResponse` - Phản hồi đăng nhập
+
+- Là "single source of truth" cho app data structures- `SignUpResponse` - Phản hồi đăng ký
+
+- Ví dụ: `Category`, `Product`, `Account`- `SendOTPResponse` - Phản hồi gửi OTP
+
 - `VerifyOTPResponse` - Phản hồi xác thực OTP
-- `ResetPasswordResponse` - Phản hồi đổi mật khẩu
+
+## 🎭 **Usage Flow:**- `ResetPasswordResponse` - Phản hồi đổi mật khẩu
+
 - `LogoutResponse` - Phản hồi đăng xuất
-- `RefreshTokenResponse` - Phản hồi refresh token
 
-### 📖 Cách sử dụng
+```typescript- `RefreshTokenResponse` - Phản hồi refresh token
 
-```typescript
-// Import từ thư mục auth (khuyến khích)
+// 1. Import request type
+
+import { CreateProductRequest } from "@/types/requests";### 📖 Cách sử dụng
+
+
+
+// 2. Import response type```typescript
+
+import { ProductResponse } from "@/types/api";// Import từ thư mục auth (khuyến khích)
+
 import { LoginRequest, LoginResponse } from "@/types/auth";
 
-// Hoặc import từ file cụ thể
+// 3. Import entity type
+
+import { Product } from "@/lib/types";// Hoặc import từ file cụ thể
+
 import { LoginRequest } from "@/types/auth/requests";
-import { LoginResponse } from "@/types/auth/responses";
+
+// 4. API call flowimport { LoginResponse } from "@/types/auth/responses";
+
+const request: CreateProductRequest = { ... };```
+
+const response: ApiResponse<ProductResponse> = await api.createProduct(request);
+
+const product: Product = mapToEntity(response.result);### ✅ Thay đổi validation
+
 ```
 
-### ✅ Thay đổi validation
-
 - **Mật khẩu**: Giảm từ 6 ký tự xuống 5 ký tự
-- **Áp dụng cho**: Login form và Sign up form
+
+## ✨ **Benefits:**- **Áp dụng cho**: Login form và Sign up form
+
+
+- 🎯 **Clear separation** giữa API contracts và business logic
+- 🔄 **Type safety** ở mọi layer
+- 🧹 **Clean architecture** dễ maintain
+- 📚 **Scalable** cho team lớn
+- 🔧 **Easy refactoring** khi API thay đổi
+````

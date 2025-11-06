@@ -10,7 +10,7 @@ import {
   OrdersManagement,
 } from "@/components/account";
 import { accountService } from "@/services/account.service";
-import { AccountResponse } from "@/types/account";
+import { AccountResponse } from "@/types/api";
 import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 

@@ -150,9 +150,6 @@ export function CategoryBrowser() {
                         <h4 className="font-semibold mb-2 group-hover:text-primary transition-colors text-balance">
                           {subCategory.subCategoryName}
                         </h4>
-                        <p className="text-sm text-muted-foreground line-clamp-2 text-pretty">
-                          {subCategory.description}
-                        </p>
                         <Badge variant="secondary" className="mt-3">
                           Xem sản phẩm
                         </Badge>

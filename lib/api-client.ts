@@ -1,8 +1,5 @@
-import {
-  API_CONFIG,
-  ApiResponse,
-  PaginatedApiResponse,
-} from "@/config/api.config";
+import { API_CONFIG } from "@/config/api.config";
+import { ApiResponse, PaginatedResponse } from "@/types/api";
 import { TokenManager } from "./token-manager";
 
 class ApiClient {
@@ -140,15 +137,15 @@ class ApiClient {
     return this.request<ApiResponse<T>>(endpoint, { method: "DELETE" });
   }
 
-  async getPaginated<T>(
+  async getWithPagination<T>(
     endpoint: string,
     params?: Record<string, string>
-  ): Promise<PaginatedApiResponse<T>> {
+  ): Promise<PaginatedResponse<T>> {
     const url = params
       ? `${endpoint}?${new URLSearchParams(params).toString()}`
       : endpoint;
 
-    return this.request<PaginatedApiResponse<T>>(url, { method: "GET" });
+    return this.request<PaginatedResponse<T>>(url, { method: "GET" });
   }
 }
 

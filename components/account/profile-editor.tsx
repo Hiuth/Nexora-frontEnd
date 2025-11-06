@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Camera, Save, X, Loader2 } from "lucide-react";
 import { accountService } from "@/services/account.service";
-import { UpdateAccountRequest } from "@/types/account";
+import { UpdateAccountRequest } from "@/types/requests";
 import { useToast } from "@/hooks/use-toast";
 import { AuthManager } from "@/lib/auth-manager";
 import { useAuth } from "@/lib/auth-context";
