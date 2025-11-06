@@ -123,6 +123,42 @@ body {
   display: none;
 }
 
+/* Custom scrollbar styles for category menu */
+.scrollbar-thin {
+  scrollbar-width: thin;
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+  border-radius: 3px;
+  transition: background 0.2s ease;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgb(148 163 184);
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225);
+}
+
+.scrollbar-track-slate-100::-webkit-scrollbar-track {
+  background: rgb(241 245 249);
+}
+
+.hover\:scrollbar-thumb-slate-400:hover::-webkit-scrollbar-thumb {
+  background: rgb(148 163 184);
+}
+
 @keyframes dotActive {
   0%,
   20% {
