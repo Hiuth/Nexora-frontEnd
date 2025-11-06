@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Mail, Send, CheckCircle, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { accountService } from "@/services/account.service";
 
 interface EmailOTPInputProps {
   email: string;
@@ -49,11 +50,7 @@ export function EmailOTPInput({
     setIsSending(true);
 
     try {
-      // TODO: Gọi API gửi OTP tại đây
-      // await authService.sendOTP(email);
-
-      // Giả lập delay API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await accountService.sendOTPRegister(email);
 
       setOtpSent(true);
       setCountdown(60);
@@ -73,10 +70,10 @@ export function EmailOTPInput({
         title: "Gửi OTP thành công",
         description: `Mã OTP đã được gửi đến ${email}`,
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Gửi OTP thất bại",
-        description: "Vui lòng thử lại sau",
+        description: error.message || "Vui lòng thử lại sau",
         variant: "destructive",
       });
     } finally {
@@ -113,7 +110,7 @@ export function EmailOTPInput({
             type="button"
             onClick={handleSendOTP}
             disabled={!isEmailValid || isSending || countdown > 0}
-            className={`h-12 px-6 font-medium transition-all ${
+            className={`h-12 px-6 font-medium text-white transition-all ${
               otpSent && countdown > 0
                 ? "bg-green-600 hover:bg-green-700"
                 : "bg-blue-600 hover:bg-blue-700"

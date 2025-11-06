@@ -14,7 +14,8 @@ export async function apiCall<T>(
   const isPublicEndpoint =
     endpoint.includes("/Auth/login") ||
     endpoint.includes("/Auth/refresh") ||
-    endpoint.includes("/Account/create");
+    endpoint.includes("/Account/create") ||
+    endpoint.includes("/Account/send-email");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

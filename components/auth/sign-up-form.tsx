@@ -22,7 +22,10 @@ import {
   UserCircle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { accountService } from "@/services/account.service";
+import { CreateAccountRequest } from "@/types/account";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface SignUpFormData {
   userName: string;
@@ -38,6 +41,7 @@ interface SignUpFormData {
 export function SignUpForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<SignUpFormData>({
     userName: "",
@@ -112,14 +116,36 @@ export function SignUpForm() {
     setIsSubmitting(true);
 
     try {
-      // TODO: Gọi API đăng ký tại đây
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create an empty file as default avatar since backend requires it
+      const emptyFile = new File([""], "default-avatar.png", {
+        type: "image/png",
+      });
+
+      // Map form data to CreateAccountRequest
+      const request: CreateAccountRequest = {
+        userName: formData.userName,
+        email: formData.email,
+        password: formData.password,
+        gender:
+          formData.gender === "male"
+            ? "Nam"
+            : formData.gender === "female"
+            ? "Nữ"
+            : "Khác",
+        phoneNumber: formData.phoneNumber,
+        address: formData.address,
+        otp: formData.otp,
+        file: emptyFile,
+      };
+
+      await accountService.createAccount(request);
 
       toast({
         title: "Đăng ký thành công! 🎉",
-        description: "Chào mừng bạn đến với PC Store",
+        description: "Chào mừng bạn đến với PC Store. Vui lòng đăng nhập.",
       });
 
+      // Reset form
       setFormData({
         userName: "",
         password: "",
@@ -130,10 +156,13 @@ export function SignUpForm() {
         address: "",
         otp: "",
       });
-    } catch (error) {
+
+      // Redirect to login
+      router.push("/login");
+    } catch (error: any) {
       toast({
         title: "Đăng ký thất bại",
-        description: "Vui lòng thử lại sau",
+        description: error.message || "Vui lòng thử lại sau",
         variant: "destructive",
       });
     } finally {

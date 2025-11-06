@@ -64,13 +64,11 @@ export const API_CONFIG = {
 
     // Account endpoints
     ACCOUNT: {
-      GET_ALL: "/Account/getAll",
-      GET_BY_ID: "/Account/getById",
-      GET_BY_EMAIL: "/Account/getByEmail",
-      GET_BY_PHONE: "/Account/getByPhone",
+      SEND_OTP_REGISTER: "/Account/send-email",
       CREATE: "/Account/create",
       UPDATE: "/Account/update",
-      DELETE: "/Account/delete",
+      GET_BY_ID: "/Account/getAccountById",
+      GET_ALL: "/Account/getAllAccount",
     },
 
     // PC Build endpoints
