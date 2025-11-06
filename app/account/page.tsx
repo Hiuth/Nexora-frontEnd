@@ -9,8 +9,6 @@ import {
   AccountTabs,
   OrdersManagement,
 } from "@/components/account";
-import { mockOrders, mockOrderDetails } from "@/lib/mock-orders";
-import { products } from "@/lib/mock-data";
 import { accountService } from "@/services/account.service";
 import { AccountResponse } from "@/types/account";
 import { useAuth } from "@/lib/auth-context";
@@ -22,41 +20,27 @@ export default function AccountPage() {
   const [accountData, setAccountData] = useState<AccountResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fallback user data khi chưa load API hoặc có lỗi
-  const user = {
-    name: accountData?.userName || "Nguyễn Văn A",
-    email: accountData?.email || "nguyenvana@example.com",
-    phone: accountData?.phoneNumber || "0123456789",
-    address:
-      accountData?.address || "123 Đường ABC, Phường Bến Nghé, Quận 1, TP.HCM",
+  // Load account data from API
+  const loadAccountData = async () => {
+    try {
+      setIsLoading(true);
+      const data = await accountService.getAccountById();
+      setAccountData(data);
+    } catch (error: any) {
+      console.error("Failed to load account data:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể tải thông tin tài khoản. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Load account data from API
   useEffect(() => {
-    const loadAccountData = async () => {
-      try {
-        const data = await accountService.getAccountById();
-        setAccountData(data);
-      } catch (error: any) {
-        console.error("Failed to load account data:", error);
-        toast({
-          title: "Thông báo",
-          description:
-            "Không thể tải thông tin tài khoản. Hiển thị dữ liệu mẫu.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadAccountData();
   }, [toast]);
-
-  const recentOrders = mockOrders.slice(0, 3);
-  const completedOrders = mockOrders.filter(
-    (o) => o.status === "delivered"
-  ).length;
 
   const handleLogout = async () => {
     try {
@@ -92,7 +76,7 @@ export default function AccountPage() {
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-800 mb-4 animate-in slide-in-from-top-4 duration-700">
                 Xin chào,{" "}
                 <span className="text-blue-600">
-                  {isLoading ? "..." : user.name}
+                  {isLoading ? "..." : accountData?.userName || "Bạn"}
                 </span>
               </h1>
 
@@ -107,12 +91,12 @@ export default function AccountPage() {
             defaultValue="profile"
             profileContent={
               <ProfileInfo
-                user={user}
                 accountData={accountData}
                 isLoading={isLoading}
                 onEdit={handleEditProfile}
                 onLogout={handleLogout}
                 onAccountUpdate={setAccountData}
+                onReloadAccount={loadAccountData}
               />
             }
             ordersManagementContent={<OrdersManagement />}

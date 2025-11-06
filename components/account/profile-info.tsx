@@ -16,31 +16,64 @@ interface UserProfile {
 }
 
 interface ProfileInfoProps {
-  user: UserProfile;
   accountData?: AccountResponse | null;
   isLoading?: boolean;
   onEdit?: () => void;
   onLogout?: () => void;
   onAccountUpdate?: (data: AccountResponse) => void;
+  onReloadAccount?: () => Promise<void>;
 }
 
 export function ProfileInfo({
-  user,
   accountData,
   isLoading,
   onEdit,
   onLogout,
   onAccountUpdate,
+  onReloadAccount,
 }: ProfileInfoProps) {
   const [isEditing, setIsEditing] = useState(false);
 
-  // Use accountData if available, otherwise use fallback user data
+  // Return loading state if data is not available
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+        <div className="animate-pulse">
+          <div className="h-6 bg-gray-200 rounded w-1/3 mb-6"></div>
+          <div className="space-y-4">
+            <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-200 rounded w-2/3"></div>
+            <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Return error state if no account data
+  if (!accountData) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm border border-slate-100 p-8">
+        <div className="text-center text-gray-500">
+          <p>Không thể tải thông tin tài khoản</p>
+          <button 
+            onClick={onReloadAccount} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Use accountData for all user information
   const currentUser = {
-    name: accountData?.userName || user.name,
-    email: accountData?.email || user.email,
-    phone: accountData?.phoneNumber || user.phone,
-    address: accountData?.address || user.address,
-    avatar: accountData?.accountImg || user.avatar,
+    name: accountData.userName,
+    email: accountData.email,
+    phone: accountData.phoneNumber,
+    address: accountData.address,
+    avatar: accountData.accountImg,
   };
 
   const handleEdit = () => {
@@ -82,6 +115,7 @@ export function ProfileInfo({
         onSave={handleSave}
         onCancel={handleCancel}
         onLogout={handleLogout}
+        onReloadAccount={onReloadAccount}
       />
     );
   }

@@ -76,6 +76,12 @@ export class AccountService {
       if (request.address) formData.append("address", request.address);
       if (request.file) formData.append("file", request.file);
 
+      // Check if FormData has any entries
+      const hasData = Array.from(formData.entries()).length > 0;
+      if (!hasData) {
+        throw new Error("Không có dữ liệu để cập nhật");
+      }
+
       const data = await apiPutFormData<AccountResponse>(
         API_CONFIG.ENDPOINTS.ACCOUNT.UPDATE,
         formData

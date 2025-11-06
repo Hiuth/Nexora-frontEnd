@@ -23,6 +23,7 @@ interface ProfileEditorProps {
   onSave: (user: UserProfile) => void;
   onCancel: () => void;
   onLogout: () => void;
+  onReloadAccount?: () => Promise<void>;
 }
 
 export function ProfileEditor({
@@ -30,6 +31,7 @@ export function ProfileEditor({
   onSave,
   onCancel,
   onLogout,
+  onReloadAccount,
 }: ProfileEditorProps) {
   const { toast } = useToast();
   const [formData, setFormData] = useState(user);
@@ -83,30 +85,52 @@ export function ProfileEditor({
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      // Prepare update request
-      const request: UpdateAccountRequest = {
-        userName: formData.name,
-        gender: "Nam", // TODO: Add gender field to form if needed
-        phoneNumber: formData.phone,
-        address: formData.address,
-        ...(avatarFile && { file: avatarFile }),
-      };
+      // Build request with only changed fields
+      const request: UpdateAccountRequest = {};
+
+      // Check each field for changes
+      if (formData.name !== user.name) {
+        request.userName = formData.name;
+      }
+
+      if (formData.phone !== user.phone) {
+        request.phoneNumber = formData.phone;
+      }
+
+      if (formData.address !== user.address) {
+        request.address = formData.address;
+      }
+
+      // Always include avatar file if changed
+      if (avatarFile) {
+        request.file = avatarFile;
+      }
+
+      // Only call API if there are changes
+      if (Object.keys(request).length === 0) {
+        toast({
+          title: "Thông báo",
+          description: "Không có thay đổi nào để lưu",
+        });
+        setIsSaving(false);
+        return;
+      }
 
       // Call API to update account
       const updatedAccount = await accountService.updateAccount(request);
-
-      // Update the form data with new avatar URL if available
-      const updatedUser = {
-        ...formData,
-        avatar: updatedAccount.accountImg || avatarPreview,
-      };
 
       toast({
         title: "Thành công",
         description: "Cập nhật thông tin cá nhân thành công",
       });
 
-      onSave(updatedUser);
+      // Reload account data from API to get fresh data
+      if (onReloadAccount) {
+        await onReloadAccount();
+      }
+
+      // Close editor
+      onSave(formData);
     } catch (error: any) {
       toast({
         title: "Lỗi",
