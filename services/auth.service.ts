@@ -1,199 +1,188 @@
-/**
- * Auth Service
- * Service để xử lý authentication và authorization
- * TODO: Kết nối với API backend
- */
+import { API_CONFIG, ApiResponse } from "@/config/api.config";
+import { AuthManager } from "@/lib/auth-manager";
+import {
+  apiPost,
+  apiGet,
+  apiPut,
+  apiPostFormData,
+  apiPutFormData,
+} from "@/lib/api-base";
+import {
+  LoginRequest,
+  SignUpRequest,
+  ResetPasswordRequest,
+  SendOTPRequest,
+  VerifyOTPRequest,
+  LoginResponse,
+  SignUpResponse,
+  SendOTPResponse,
+  VerifyOTPResponse,
+} from "@/types/auth";
 
-export interface SignUpRequest {
-  userName: string;
-  password: string;
-  gender: string;
-  email: string;
-  phoneNumber: string;
-  address: string;
-  otp: string;
-}
+export class AuthService {
+  private static instance: AuthService;
 
-export interface SignUpResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    userId: string;
-    userName: string;
-    email: string;
-  };
-}
+  private constructor() {}
 
-export interface SendOTPRequest {
-  email: string;
-}
+  public static getInstance(): AuthService {
+    if (!AuthService.instance) {
+      AuthService.instance = new AuthService();
+    }
+    return AuthService.instance;
+  }
 
-export interface SendOTPResponse {
-  success: boolean;
-  message: string;
-  expiresIn?: number; // Thời gian hết hạn OTP (seconds)
-}
-
-export interface VerifyOTPRequest {
-  email: string;
-  otp: string;
-}
-
-export interface VerifyOTPResponse {
-  success: boolean;
-  message: string;
-  isValid: boolean;
-}
-
-class AuthService {
-  private baseURL =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
-
-  /**
-   * Đăng ký tài khoản mới
-   */
-  async signUp(data: SignUpRequest): Promise<SignUpResponse> {
+  // Login
+  async login(email: string, password: string): Promise<LoginResponse> {
     try {
-      // TODO: Thay thế bằng API call thực tế
-      const response = await fetch(`${this.baseURL}/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
 
-      if (!response.ok) {
-        throw new Error("Đăng ký thất bại");
+      const data = await apiPostFormData<LoginResponse>(
+        API_CONFIG.ENDPOINTS.LOGIN,
+        formData
+      );
+
+      if (data.result?.accessToken && data.result?.refreshToken) {
+        // Store tokens
+        AuthManager.setTokens(
+          data.result.accessToken,
+          data.result.refreshToken
+        );
+
+        // Extract userName from token and store it
+        const userInfo = AuthManager.getCurrentUser();
+        if (userInfo?.email) {
+          // You can set userName from email or get it from token if available
+          const userName = userInfo.email.split("@")[0]; // Use email prefix as default userName
+          AuthManager.setUserName(userName);
+        }
+
+        return data.result;
+      } else {
+        throw new Error("Không nhận được token từ server");
       }
-
-      return await response.json();
-    } catch (error) {
-      console.error("SignUp Error:", error);
-      throw error;
+    } catch (error: any) {
+      console.error("Login error:", error);
+      throw new Error(error.message || "Đăng nhập thất bại");
     }
   }
 
-  /**
-   * Gửi mã OTP đến email
-   */
-  async sendOTP(email: string): Promise<SendOTPResponse> {
-    try {
-      // TODO: Thay thế bằng API call thực tế
-      const response = await fetch(`${this.baseURL}/auth/send-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Gửi OTP thất bại");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("SendOTP Error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Xác thực mã OTP
-   */
-  async verifyOTP(email: string, otp: string): Promise<VerifyOTPResponse> {
-    try {
-      // TODO: Thay thế bằng API call thực tế
-      const response = await fetch(`${this.baseURL}/auth/verify-otp`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, otp }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Xác thực OTP thất bại");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("VerifyOTP Error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Đăng nhập
-   */
-  async login(userName: string, password: string): Promise<any> {
-    try {
-      // TODO: Thay thế bằng API call thực tế
-      const response = await fetch(`${this.baseURL}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userName, password }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Đăng nhập thất bại");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("Login Error:", error);
-      throw error;
-    }
-  }
-
-  /**
-   * Đăng xuất
-   */
+  // Logout
   async logout(): Promise<void> {
     try {
-      // TODO: Thay thế bằng API call thực tế
-      // Clear token, session, etc.
-      localStorage.removeItem("authToken");
-      sessionStorage.clear();
+      await AuthManager.logout();
     } catch (error) {
-      console.error("Logout Error:", error);
-      throw error;
+      console.error("Logout error:", error);
+      // Clear tokens anyway
+      AuthManager.clearTokens();
     }
   }
 
-  /**
-   * Lấy thông tin user hiện tại
-   */
-  async getCurrentUser(): Promise<any> {
+  // Send OTP for forgot password
+  async sendOtpForgotPassword(): Promise<string> {
     try {
-      // TODO: Thay thế bằng API call thực tế
-      const token = localStorage.getItem("authToken");
+      const data = await apiGet<string>(
+        API_CONFIG.ENDPOINTS.SEND_OTP_FORGOT_PASSWORD
+      );
 
-      if (!token) {
-        return null;
-      }
-
-      const response = await fetch(`${this.baseURL}/auth/me`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Lấy thông tin user thất bại");
-      }
-
-      return await response.json();
-    } catch (error) {
-      console.error("GetCurrentUser Error:", error);
-      throw error;
+      return data.result || data.message;
+    } catch (error: any) {
+      console.error("Send OTP error:", error);
+      throw new Error(error.message || "Gửi OTP thất bại");
     }
+  }
+
+  // Reset password
+  async resetPassword(otp: string, newPassword: string): Promise<string> {
+    try {
+      const formData = new FormData();
+      formData.append("otp", otp);
+      formData.append("newPassword", newPassword);
+
+      const data = await apiPutFormData<string>(
+        API_CONFIG.ENDPOINTS.RESET_PASSWORD,
+        formData
+      );
+
+      return data.result || data.message;
+    } catch (error: any) {
+      console.error("Reset password error:", error);
+      throw new Error(error.message || "Đổi mật khẩu thất bại");
+    }
+  }
+
+  // Sign up
+  async signUp(data: SignUpRequest): Promise<SignUpResponse> {
+    try {
+      // TODO: Implement with backend API when available
+      // For now, return mock response
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return {
+        success: true,
+        message: "Đăng ký thành công",
+        data: {
+          userId: "mock-user-id",
+          userName: data.userName,
+          email: data.email,
+        },
+      };
+    } catch (error: any) {
+      console.error("SignUp Error:", error);
+      throw new Error(error.message || "Đăng ký thất bại");
+    }
+  }
+
+  // Send OTP for sign up
+  async sendOTP(email: string): Promise<SendOTPResponse> {
+    try {
+      // TODO: Implement with backend API when available
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return {
+        success: true,
+        message: "OTP đã được gửi đến email của bạn",
+        expiresIn: 300, // 5 minutes
+      };
+    } catch (error: any) {
+      console.error("SendOTP Error:", error);
+      throw new Error(error.message || "Gửi OTP thất bại");
+    }
+  }
+
+  // Verify OTP
+  async verifyOTP(email: string, otp: string): Promise<VerifyOTPResponse> {
+    try {
+      // TODO: Implement with backend API when available
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      return {
+        success: true,
+        message: "OTP hợp lệ",
+        isValid: true,
+      };
+    } catch (error: any) {
+      console.error("VerifyOTP Error:", error);
+      throw new Error(error.message || "Xác thực OTP thất bại");
+    }
+  }
+
+  // Check authentication status
+  isAuthenticated(): boolean {
+    return AuthManager.isAuthenticated();
+  }
+
+  // Get current user
+  getCurrentUser() {
+    return AuthManager.getCurrentUser();
+  }
+
+  // Get user info
+  getUserInfo() {
+    return AuthManager.getUserInfo();
   }
 }
 
-export const authService = new AuthService();
+// Export singleton instance
+export const authService = AuthService.getInstance();

@@ -7,6 +7,7 @@ import { OrderService } from "./order.service";
 import { WarrantyService } from "./warranty.service";
 import { PcBuildService } from "./pc-build.service";
 import { BrandService } from "./brand.service";
+import { AuthService } from "./auth.service";
 
 export class ServiceManager {
   private static instance: ServiceManager;
@@ -25,7 +26,7 @@ export class ServiceManager {
   public setApiMode(enabled: boolean): void {
     this.isApiMode = enabled;
 
-    // Update all services
+    // Update all services (except AuthService which now always uses API)
     CategoryService.enableApiMode(enabled);
     ProductService.enableApiMode(enabled);
     CartService.enableApiMode(enabled);
@@ -35,6 +36,7 @@ export class ServiceManager {
     BrandService.enableApiMode(enabled);
 
     console.log(`All services API mode: ${enabled ? "enabled" : "disabled"}`);
+    console.log("Note: AuthService always uses API mode");
   }
 
   public getApiMode(): boolean {
@@ -81,6 +83,7 @@ export class ServiceManager {
     return {
       apiMode: this.isApiMode,
       services: {
+        auth: "ready",
         category: "ready",
         product: "ready",
         cart: "ready",

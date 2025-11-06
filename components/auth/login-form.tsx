@@ -1,11 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Mail, Lock, LogIn, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/auth-context";
 import Link from "next/link";
 
 interface LoginFormData {
@@ -16,6 +18,8 @@ interface LoginFormData {
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const { login } = useAuth();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<LoginFormData>({
     email: "",
@@ -37,8 +41,8 @@ export function LoginForm() {
 
     if (!formData.password) {
       newErrors.password = "Vui lòng nhập mật khẩu";
-    } else if (formData.password.length < 6) {
-      newErrors.password = "Mật khẩu phải có ít nhất 6 ký tự";
+    } else if (formData.password.length < 5) {
+      newErrors.password = "Mật khẩu phải có ít nhất 5 ký tự";
     }
 
     setErrors(newErrors);
@@ -60,20 +64,19 @@ export function LoginForm() {
     setIsSubmitting(true);
 
     try {
-      // TODO: Gọi API đăng nhập tại đây
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await login(formData.email, formData.password);
 
       toast({
         title: "Đăng nhập thành công! 🎉",
         description: "Chào mừng bạn quay trở lại",
       });
 
-      // TODO: Redirect đến trang chủ hoặc trang trước đó
-      // router.push('/');
-    } catch (error) {
+      // Redirect to home page or previous page
+      router.push("/");
+    } catch (error: any) {
       toast({
         title: "Đăng nhập thất bại",
-        description: "Email hoặc mật khẩu không chính xác",
+        description: error.message || "Email hoặc mật khẩu không chính xác",
         variant: "destructive",
       });
     } finally {

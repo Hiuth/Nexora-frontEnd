@@ -3,6 +3,7 @@ import {
   ApiResponse,
   PaginatedApiResponse,
 } from "@/config/api.config";
+import { TokenManager } from "./token-manager";
 
 class ApiClient {
   private baseUrl: string;
@@ -19,11 +20,57 @@ class ApiClient {
   ): Promise<T> {
     const url = `${this.baseUrl}${endpoint}`;
 
+    // Get auth headers with automatic token refresh
+    const authHeaders = await TokenManager.getAuthHeaders();
+
     const config: RequestInit = {
       headers: {
         "Content-Type": "application/json",
+        ...authHeaders,
         ...options.headers,
       },
+      ...options,
+    };
+
+    // Add timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    config.signal = controller.signal;
+
+    try {
+      const response = await fetch(url, config);
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timeoutId);
+      console.error(`API request failed: ${url}`, error);
+      throw error;
+    }
+  }
+
+  // For form data requests (like login)
+  private async requestWithFormData<T>(
+    endpoint: string,
+    formData: FormData,
+    options: RequestInit = {}
+  ): Promise<T> {
+    const url = `${this.baseUrl}${endpoint}`;
+
+    // Get auth headers with automatic token refresh
+    const authHeaders = await TokenManager.getAuthHeaders();
+
+    const config: RequestInit = {
+      method: "POST",
+      headers: {
+        ...authHeaders,
+        ...options.headers,
+      },
+      body: formData,
       ...options,
     };
 
@@ -66,10 +113,26 @@ class ApiClient {
     });
   }
 
+  async postFormData<T>(
+    endpoint: string,
+    formData: FormData
+  ): Promise<ApiResponse<T>> {
+    return this.requestWithFormData<ApiResponse<T>>(endpoint, formData);
+  }
+
   async put<T>(endpoint: string, data?: any): Promise<ApiResponse<T>> {
     return this.request<ApiResponse<T>>(endpoint, {
       method: "PUT",
       body: data ? JSON.stringify(data) : undefined,
+    });
+  }
+
+  async putFormData<T>(
+    endpoint: string,
+    formData: FormData
+  ): Promise<ApiResponse<T>> {
+    return this.requestWithFormData<ApiResponse<T>>(endpoint, formData, {
+      method: "PUT",
     });
   }
 

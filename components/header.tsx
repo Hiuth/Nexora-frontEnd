@@ -10,6 +10,7 @@ import { useCart } from "@/lib/cart-context";
 import { useState } from "react";
 import { CategoryMegaMenu } from "@/components/category-mega-menu";
 import { PCBuilderButton } from "@/components/pc-builder-button";
+import { AccountDropdown } from "@/components/auth/account-dropdown";
 
 export function Header() {
   const { totalItems } = useCart();
@@ -76,23 +77,7 @@ export function Header() {
                 </Link>
               </Button>
 
-              <Button
-                variant="ghost"
-                size="lg"
-                asChild
-                className="flex items-center gap-3 p-3 h-16 rounded-lg"
-              >
-                <Link href="/account">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <User className="h-5 w-5" />
-                    </div>
-                    <span className="text-sm font-medium text-gray-700 hidden xl:block">
-                      Tài khoản
-                    </span>
-                  </div>
-                </Link>
-              </Button>
+              <AccountDropdown />
             </div>
           </div>
         </div>
@@ -131,18 +116,10 @@ export function Header() {
                 </Link>
               </Button>
 
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="p-2 h-10 rounded-lg"
-              >
-                <Link href="/account">
-                  <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-4 w-4" />
-                  </div>
-                </Link>
-              </Button>
+              {/* Mobile Account Dropdown */}
+              <div className="scale-75 origin-right">
+                <AccountDropdown />
+              </div>
             </div>
           </div>
 
