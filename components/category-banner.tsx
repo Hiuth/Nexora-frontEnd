@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CategoryService } from "@/services/category.service";
 import { Category } from "@/lib/types";
 
@@ -69,6 +69,9 @@ const categoriesWithImages = [
 export function CategoryBanner() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -85,6 +88,87 @@ export function CategoryBanner() {
     loadCategories();
   }, []);
 
+  // Auto-scroll functionality - Ultra smooth continuous scrolling
+  useEffect(() => {
+    const scrollContainer = scrollRef.current;
+    if (!scrollContainer || loading) return;
+
+    let animationId: number;
+    let lastTime = 0;
+    const scrollSpeed = 30; // pixels per second for ultra smooth movement
+
+    const smoothScroll = (currentTime: number) => {
+      if (lastTime === 0) lastTime = currentTime;
+
+      const deltaTime = currentTime - lastTime;
+      const scrollDistance = (scrollSpeed * deltaTime) / 1000; // Convert to pixels per frame
+
+      // Check if we've reached the end
+      if (
+        scrollContainer.scrollLeft >=
+        scrollContainer.scrollWidth - scrollContainer.clientWidth
+      ) {
+        // Smooth reset to start
+        scrollContainer.scrollLeft = 0;
+      } else {
+        // Smooth continuous scroll to the right
+        scrollContainer.scrollLeft += scrollDistance;
+      }
+
+      lastTime = currentTime;
+      animationId = requestAnimationFrame(smoothScroll);
+    };
+
+    // Start scrolling after 2 seconds
+    const timer = setTimeout(() => {
+      animationId = requestAnimationFrame(smoothScroll);
+    }, 2000);
+
+    // Pause on hover
+    const handleMouseEnter = () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+
+    const handleMouseLeave = () => {
+      lastTime = 0; // Reset timing
+      animationId = requestAnimationFrame(smoothScroll);
+    };
+
+    scrollContainer.addEventListener("mouseenter", handleMouseEnter);
+    scrollContainer.addEventListener("mouseleave", handleMouseLeave);
+
+    return () => {
+      clearTimeout(timer);
+      if (animationId) cancelAnimationFrame(animationId);
+      scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
+      scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [loading]);
+
+  // Check scroll position
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      setCanScrollLeft(scrollRef.current.scrollLeft > 0);
+      setCanScrollRight(
+        scrollRef.current.scrollLeft <
+          scrollRef.current.scrollWidth - scrollRef.current.clientWidth - 10
+      );
+    }
+  };
+
+  // Manual scroll controls
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const scrollAmount = 300;
+      scrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
+
   // Merge API data with local images
   const categoriesWithImagesData = categories.map((category) => {
     const localData = categoriesWithImages.find(
@@ -99,18 +183,25 @@ export function CategoryBanner() {
 
   if (loading) {
     return (
-      <section className="py-3 sm:py-4 md:py-6 bg-gray-50">
+      <section className="py-6 md:py-8 bg-gradient-to-b from-slate-50/50 to-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-            <div className="text-center py-2 sm:py-3 px-4">
-              <div className="h-6 bg-gray-200 rounded animate-pulse"></div>
-            </div>
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-0 p-4">
+          {/* Loading Title Section */}
+          <div className="mb-8 text-center">
+            <div className="h-8 bg-slate-200 rounded-lg mx-auto mb-3 w-64 animate-pulse"></div>
+            <div className="w-20 h-0.5 bg-slate-200 rounded-full mx-auto mb-6 animate-pulse"></div>
+            <div className="h-4 bg-slate-200 rounded mx-auto w-96 animate-pulse"></div>
+          </div>
+
+          {/* Loading Grid - Single Row */}
+          <div className="bg-white rounded-2xl border border-slate-200/60 shadow-lg overflow-hidden relative">
+            <div className="flex gap-4 p-6">
               {Array.from({ length: 8 }, (_, i) => (
                 <div
                   key={i}
-                  className="aspect-square bg-gray-200 rounded animate-pulse"
-                ></div>
+                  className="flex-shrink-0 bg-white rounded-xl shadow-sm border border-slate-100 p-4 w-40 min-h-[120px] flex items-center justify-center"
+                >
+                  <div className="h-4 bg-slate-200 rounded w-16 animate-pulse"></div>
+                </div>
               ))}
             </div>
           </div>
@@ -119,105 +210,91 @@ export function CategoryBanner() {
     );
   }
   return (
-    <section className="py-3 sm:py-4 md:py-6 bg-gray-50">
+    <section className="py-6 md:py-8 bg-gradient-to-b from-slate-50/50 to-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
-        {/* Title Banner */}
-        <div className="bg-white rounded-t-lg border border-gray-200 shadow-sm mb-0">
-          <div className="text-center py-2 sm:py-3 px-4">
-            <h2 className="text-base sm:text-lg md:text-xl font-bold text-gray-800">
-              DANH MỤC NỔI BẬT
-            </h2>
-          </div>
+        {/* Enhanced Title Section */}
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-800 mb-3 tracking-tight">
+            Danh mục sản phẩm
+          </h2>
+          <div className="w-20 h-0.5 bg-gradient-to-r from-blue-500 to-blue-300 rounded-full mx-auto mb-6"></div>
+          <p className="text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            Khám phá các danh mục sản phẩm phong phú với chất lượng hàng đầu
+          </p>
         </div>
 
-        {/* Categories Grid - Responsive */}
-        <div className="bg-white border-x border-b border-gray-200 rounded-b-lg shadow-sm overflow-hidden">
-          {/* Mobile: 2 rows x 4 columns */}
-          <div className="grid grid-cols-4 sm:hidden gap-0">
-            {categoriesWithImagesData.slice(0, 8).map((category, index) => (
-              <Link
-                key={category.id}
-                href={`/products?category=${category.id}`}
-                className="group relative aspect-square border-r border-b border-gray-200 last:border-r-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 bg-white hover:bg-gray-50"
-              >
-                {/* Enhanced Product Image Area */}
-                <div className="absolute inset-1 bg-white rounded overflow-hidden shadow-sm">
-                  {/* Image container */}
-                  <div className="w-full h-2/3 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-                    {category.iconImg && (
-                      <img
-                        src={category.iconImg}
-                        alt={category.categoryName}
-                        className="w-8 h-8 sm:w-10 sm:h-10 object-contain"
-                        onError={(e) => {
-                          // Fallback to emoji if image fails to load
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.nextElementSibling!.classList.remove("hidden");
-                        }}
-                      />
-                    )}
-                    {/* Fallback emoji icon */}
-                    <div className="text-base sm:text-lg opacity-60 hidden">
-                      {category.iconImg || "📦"}
-                    </div>
-                  </div>
+        {/* Categories Grid - Horizontal Scrollable */}
+        <div className="bg-white rounded-2xl border border-slate-200/60 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden relative">
+          {/* Scroll Buttons */}
+          {canScrollLeft && (
+            <button
+              onClick={() => scroll("left")}
+              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+            >
+              <ChevronLeft className="h-5 w-5 text-slate-600 group-hover:text-slate-800" />
+            </button>
+          )}
+          {canScrollRight && (
+            <button
+              onClick={() => scroll("right")}
+              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
+            >
+              <ChevronRight className="h-5 w-5 text-slate-600 group-hover:text-slate-800" />
+            </button>
+          )}
 
-                  {/* Category Name */}
-                  <div className="absolute bottom-0.5 left-0.5 right-0.5 bg-white/90 backdrop-blur-sm rounded-sm">
-                    <span className="text-[8px] sm:text-[10px] font-semibold text-gray-700 group-hover:text-blue-600 transition-colors line-clamp-1 text-center block py-0.5">
-                      {category.categoryName}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Tablet and Desktop: Single row */}
-          <div className="hidden sm:grid sm:grid-cols-6 md:grid-cols-8 gap-0">
+          {/* Scrollable Categories */}
+          <div
+            ref={scrollRef}
+            onScroll={checkScroll}
+            className="flex gap-4 bg-white p-6 overflow-x-auto scrollbar-hide"
+            style={{
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+              willChange: "scroll-position",
+              transform: "translateZ(0)", // Force hardware acceleration
+            }}
+          >
             {categoriesWithImagesData.map((category, index) => (
               <Link
                 key={category.id}
                 href={`/products?category=${category.id}`}
-                className="group relative aspect-[4/3] sm:aspect-square md:aspect-[4/3] border-r border-gray-200 last:border-r-0 hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 bg-white hover:bg-gray-50"
+                className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
               >
-                {/* Enhanced Product Image Area */}
-                <div className="absolute inset-1 bg-white rounded overflow-hidden shadow-sm">
-                  {/* Image container */}
-                  <div className="w-full h-2/3 bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center relative overflow-hidden">
-                    {category.iconImg && (
+                {/* Content Container */}
+                <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
+                  {/* Image Container */}
+                  <div className="w-full h-16 mb-3 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                    {category.iconImg ? (
                       <img
                         src={category.iconImg}
                         alt={category.categoryName}
-                        className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 object-contain"
+                        className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
                         onError={(e) => {
-                          // Fallback to emoji if image fails to load
                           const target = e.target as HTMLImageElement;
                           target.style.display = "none";
                           target.nextElementSibling!.classList.remove("hidden");
                         }}
                       />
+                    ) : (
+                      <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
+                        <span className="text-xl text-slate-400">📦</span>
+                      </div>
                     )}
-                    {/* Fallback emoji icon */}
-                    <div className="text-sm sm:text-base md:text-lg opacity-60 hidden">
-                      {category.iconImg || "📦"}
+                    {/* Fallback icon */}
+                    <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hidden">
+                      <span className="text-xl text-slate-400">📦</span>
                     </div>
                   </div>
 
                   {/* Category Name */}
-                  <div className="absolute bottom-0.5 left-0.5 right-0.5 bg-white/90 backdrop-blur-sm rounded-sm">
-                    <span className="text-[9px] sm:text-[10px] md:text-[11px] font-semibold text-gray-700 group-hover:text-blue-600 transition-colors line-clamp-1 text-center block py-0.5">
-                      {category.categoryName}
-                    </span>
-                  </div>
+                  <h3 className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-tight">
+                    {category.categoryName}
+                  </h3>
                 </div>
 
-                {/* Hover overlay */}
-                <div className="absolute inset-0 bg-blue-50/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                {/* Subtle bottom accent */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
               </Link>
             ))}
           </div>
