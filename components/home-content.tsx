@@ -6,6 +6,8 @@ import { ArrowRight, Cpu, Zap, Shield, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FeaturedProductsCarousel } from "@/components/featured-products-carousel";
+import { HeroBanner } from "@/components/home/hero-banner";
+import { CategorySections } from "@/components/home/category-sections";
 import { BrandLogosScroll } from "@/components/brand-logos-scroll";
 import { CategoryBanner } from "@/components/category-banner";
 import { CategoryService } from "@/services/category.service";
@@ -144,95 +146,13 @@ export function HomeContent() {
   return (
     <main className="flex-1">
       {/* Auto-sliding Banner Section */}
-      <section className="relative h-[160px] xs:h-[180px] sm:h-[280px] md:h-[360px] lg:h-[480px] xl:h-[560px] overflow-hidden">
-        <div className="absolute inset-0">
-          {/* Banner 1 */}
-          <div className="absolute inset-0 animate-[slideShow_20s_infinite_0s]">
-            <img
-              src="/banner1.png"
-              alt="Gaming Banner 1"
-              className="w-full h-full object-cover object-center"
-            />
-          </div>
-
-          {/* Banner 2 */}
-          <div className="absolute inset-0 animate-[slideShow_20s_infinite_5s]">
-            <img
-              src="/banner2.png"
-              alt="Gaming Banner 2"
-              className="w-full h-full object-cover object-center"
-            />
-          </div>
-
-          {/* Banner 3 */}
-          <div className="absolute inset-0 animate-[slideShow_20s_infinite_10s]">
-            <img
-              src="/banner3.png"
-              alt="Gaming Banner 3"
-              className="w-full h-full object-cover object-center"
-            />
-          </div>
-
-          {/* Banner 4 */}
-          <div className="absolute inset-0 animate-[slideShow_20s_infinite_15s]">
-            <img
-              src="/banner4.png"
-              alt="Gaming Banner 4"
-              className="w-full h-full object-cover object-center"
-            />
-          </div>
-
-          {/* Mobile-optimized overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 sm:bg-gradient-to-r sm:from-black/20 sm:via-black/5 sm:to-transparent"></div>
-
-          {/* Mobile-optimized dots indicator */}
-          <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-1.5 sm:space-x-2">
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-white/70 animate-[dotActive_20s_infinite_0s] transition-all duration-300"></div>
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-white/70 animate-[dotActive_20s_infinite_5s] transition-all duration-300"></div>
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-white/70 animate-[dotActive_20s_infinite_10s] transition-all duration-300"></div>
-            <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-3 md:h-3 rounded-full bg-white/70 animate-[dotActive_20s_infinite_15s] transition-all duration-300"></div>
-          </div>
-        </div>
-      </section>
+      <HeroBanner />
 
       <CategoryBanner />
 
       <section className="py-6 sm:py-12 md:py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
-          {(() => {
-            const visible = productsByCategory
-              .filter((item) => item.products.length > 0)
-              .slice(0, 3);
-
-            if (visible.length === 0) {
-              return (
-                <div className="w-full">
-                  <div className="text-center p-6 sm:p-8 md:p-10 bg-yellow-50 border border-yellow-200 rounded-lg">
-                    <h3 className="text-base sm:text-lg md:text-xl font-semibold text-yellow-800 mb-2">
-                      Dữ liệu chưa có
-                    </h3>
-                    <p className="text-yellow-700 text-sm sm:text-base">
-                      Hiện tại chưa có sản phẩm nào để hiển thị. Vui lòng thử
-                      lại sau.
-                    </p>
-                  </div>
-                </div>
-              );
-            }
-
-            return visible.map(({ category, products: categoryProducts }) => (
-              <div
-                key={category.id}
-                className="mb-8 sm:mb-12 md:mb-16 last:mb-0"
-              >
-                <FeaturedProductsCarousel
-                  title={category.categoryName}
-                  products={categoryProducts}
-                  categoryIcon={category.iconImg}
-                />
-              </div>
-            ));
-          })()}
+          <CategorySections items={productsByCategory} />
         </div>
       </section>
 

@@ -64,16 +64,20 @@ export function FeaturedProductsCarousel({
     <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
       <div className="max-w-7xl mx-auto px-2 sm:px-4 md:px-6">
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 sm:px-4 md:px-6 py-3 sm:py-4 rounded-lg shadow-md mb-3 sm:mb-4 md:mb-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
-            <div className="flex items-center gap-2 sm:gap-3">
+          <div className="grid grid-cols-[1fr_auto_1fr] items-center">
+            {/* Left spacer */}
+            <div className="hidden sm:block" />
+
+            {/* Centered title with icon */}
+            <div className="flex items-center justify-center gap-2 sm:gap-3 text-center">
               {categoryIcon &&
-                // If categoryIcon looks like a URL, render image; otherwise render as text/icon
                 (categoryIcon.startsWith("http") ||
                 categoryIcon.startsWith("/") ? (
                   <img
                     src={categoryIcon}
                     alt={title}
                     className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-contain rounded"
+                    style={{ filter: "brightness(0) invert(1)" }}
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
                       target.style.display = "none";
@@ -88,10 +92,12 @@ export function FeaturedProductsCarousel({
                 {title}
               </h3>
             </div>
+
+            {/* Right aligned link */}
             <div className="flex justify-end">
               <a
                 href="/products"
-                className="text-xs sm:text-sm md:text-base text-white hover:text-blue-200 font-medium hover:underline transition-colors"
+                className="text-xs sm:text-sm md:text-base text-white/90 hover:text-white font-medium hover:underline transition-colors"
               >
                 Xem tất cả →
               </a>
