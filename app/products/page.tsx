@@ -1,21 +1,27 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { ProductCard } from "@/components/product-card";
 import { FilterSidebar } from "@/components/products/filter-sidebar";
 import { ActiveFilters } from "@/components/products/active-filters";
 import { ProductsHeader } from "@/components/products/products-header";
-import { EmptyProducts } from "@/components/products/empty-products";
-import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+import { MobileFilters } from "@/components/products/mobile-filters";
+import { ProductsGrid } from "@/components/products/products-grid";
 import { products, categories, subCategories, brands } from "@/lib/mock-data";
+import { ProductService } from "@/services/product.service";
+import { BrandService } from "@/services/brand.service";
+import { Product, Brand } from "@/lib/types";
 
 export default function ProductsPage() {
+  const searchParams = useSearchParams();
+  const categoryId = searchParams.get("categoryId");
+  const subCategoryId = searchParams.get("subCategoryId");
+
+  const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  const [apiBrands, setApiBrands] = useState<Brand[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>(
     []
@@ -27,10 +33,66 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
+  // Load products from API when categoryId or subCategoryId is present
+  useEffect(() => {
+    const loadProducts = async () => {
+      if (categoryId || subCategoryId) {
+        setLoading(true);
+        try {
+          let products: Product[] = [];
+          if (subCategoryId) {
+            products = await ProductService.getProductBySubCategoryId(
+              subCategoryId
+            );
+          } else if (categoryId) {
+            products = await ProductService.getProductByCategoryID(categoryId);
+          }
+          setApiProducts(products);
+        } catch (error) {
+          console.error("Failed to load products:", error);
+          setApiProducts([]);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setApiProducts([]);
+      }
+    };
+
+    loadProducts();
+  }, [categoryId, subCategoryId]);
+
+  // Load brands from API
+  useEffect(() => {
+    const loadBrands = async () => {
+      try {
+        const brandsData = await BrandService.getBrands();
+        setApiBrands(brandsData);
+      } catch (error) {
+        console.error("Failed to load brands:", error);
+        setApiBrands([]);
+      }
+    };
+
+    loadBrands();
+  }, []);
+
+  // Generate page title based on query params
+  const pageTitle = useMemo(() => {
+    if (subCategoryId && apiProducts.length > 0) {
+      return apiProducts[0]?.subCategoryName || "S?n ph?m";
+    }
+    if (categoryId && apiProducts.length > 0) {
+      return apiProducts[0]?.categoryName || "S?n ph?m";
+    }
+    return undefined;
+  }, [subCategoryId, categoryId, apiProducts]);
+
   const maxPrice = 100000000;
 
   const filteredProducts = useMemo(() => {
-    let filtered = [...products];
+    const sourceProducts = apiProducts.length > 0 ? apiProducts : products;
+    let filtered = [...sourceProducts];
 
     // Filter by categories
     if (selectedCategories.length > 0) {
@@ -59,7 +121,7 @@ export default function ProductsPage() {
       (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
     );
 
-    // Sort
+    // Sort products
     switch (sortBy) {
       case "price-asc":
         filtered.sort((a, b) => a.price - b.price);
@@ -70,7 +132,6 @@ export default function ProductsPage() {
       case "name":
         filtered.sort((a, b) => a.productName.localeCompare(b.productName));
         break;
-      case "newest":
       default:
         filtered.sort(
           (a, b) =>
@@ -81,6 +142,7 @@ export default function ProductsPage() {
 
     return filtered;
   }, [
+    apiProducts,
     selectedCategories,
     selectedSubCategories,
     selectedBrands,
@@ -141,24 +203,22 @@ export default function ProductsPage() {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
-          {/* Active Filters */}
           <ActiveFilters
             selectedCategories={selectedCategories}
             selectedBrands={selectedBrands}
             categories={categories}
-            brands={brands}
+            brands={apiBrands.length > 0 ? apiBrands : brands}
             onRemoveCategory={handleRemoveCategory}
             onRemoveBrand={handleRemoveBrand}
             onClearAll={clearFilters}
           />
 
           <div className="flex gap-8">
-            {/* Desktop Sidebar */}
             <aside className="hidden lg:block w-80 flex-shrink-0">
               <FilterSidebar
                 categories={categories}
                 subCategories={subCategories}
-                brands={brands}
+                brands={apiBrands.length > 0 ? apiBrands : brands}
                 selectedCategories={selectedCategories}
                 selectedSubCategories={selectedSubCategories}
                 selectedBrands={selectedBrands}
@@ -173,85 +233,30 @@ export default function ProductsPage() {
               />
             </aside>
 
-            {/* Products Section */}
             <div className="flex-1">
-              {/* Products Header */}
               <ProductsHeader
                 sortBy={sortBy}
                 productsCount={filteredProducts.length}
                 onSortChange={setSortBy}
                 onToggleFilters={() => setShowFilters(!showFilters)}
+                title={pageTitle}
               />
 
-              {/* Mobile Filters */}
-              {showFilters && (
-                <Card className="lg:hidden mb-6 shadow-lg border-0">
-                  <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-4">
-                      <h2 className="font-semibold text-lg">Bộ lọc</h2>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setShowFilters(false)}
-                      >
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    <div className="space-y-4">
-                      <div>
-                        <Label className="text-sm font-semibold mb-2 block">
-                          Danh mục
-                        </Label>
-                        <div className="space-y-2">
-                          {categories.map((category) => (
-                            <div
-                              key={category.id}
-                              className="flex items-center space-x-2"
-                            >
-                              <Checkbox
-                                id={`cat-mobile-${category.id}`}
-                                checked={selectedCategories.includes(
-                                  category.id
-                                )}
-                                onCheckedChange={() =>
-                                  handleCategoryChange(category.id)
-                                }
-                              />
-                              <label
-                                htmlFor={`cat-mobile-${category.id}`}
-                                className="text-sm cursor-pointer flex-1"
-                              >
-                                {category.categoryName}
-                              </label>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      {hasActiveFilters && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={clearFilters}
-                          className="w-full"
-                        >
-                          Xóa bộ lọc
-                        </Button>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              <MobileFilters
+                showFilters={showFilters}
+                setShowFilters={setShowFilters}
+                brands={apiBrands.length > 0 ? apiBrands : brands}
+                selectedBrands={selectedBrands}
+                hasActiveFilters={hasActiveFilters}
+                onBrandChange={handleBrandChange}
+                onClearFilters={clearFilters}
+              />
 
-              {/* Products Grid */}
-              {filteredProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
-                  {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
-                </div>
-              ) : (
-                <EmptyProducts onClearFilters={clearFilters} />
-              )}
+              <ProductsGrid
+                loading={loading}
+                products={filteredProducts}
+                onClearFilters={clearFilters}
+              />
             </div>
           </div>
         </div>

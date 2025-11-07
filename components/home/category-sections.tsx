@@ -33,6 +33,7 @@ export function CategorySections({
             title={category.categoryName}
             products={products.slice(0, 5)}
             categoryIcon={category.iconImg}
+            categoryId={category.id}
           />
         </div>
       ))}

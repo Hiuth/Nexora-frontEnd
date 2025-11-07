@@ -15,6 +15,7 @@ interface ProductsHeaderProps {
   productsCount: number;
   onSortChange: (sort: string) => void;
   onToggleFilters: () => void;
+  title?: string;
 }
 
 export function ProductsHeader({
@@ -22,6 +23,7 @@ export function ProductsHeader({
   productsCount,
   onSortChange,
   onToggleFilters,
+  title,
 }: ProductsHeaderProps) {
   return (
     <div className="flex items-center justify-between mb-6 gap-4 flex-wrap bg-white p-4 rounded-lg shadow-sm border border-gray-100">
@@ -35,11 +37,16 @@ export function ProductsHeader({
           Bộ lọc
         </Button>
 
-        <span className="text-sm text-gray-600 font-medium">
-          Tìm thấy{" "}
-          <span className="text-blue-600 font-bold">{productsCount}</span> sản
-          phẩm
-        </span>
+        <div className="flex flex-col gap-1">
+          {title && (
+            <h1 className="text-lg font-semibold text-gray-900">{title}</h1>
+          )}
+          <span className="text-sm text-gray-600 font-medium">
+            Tìm thấy{" "}
+            <span className="text-blue-600 font-bold">{productsCount}</span> sản
+            phẩm
+          </span>
+        </div>
       </div>
 
       <Select value={sortBy} onValueChange={onSortChange}>

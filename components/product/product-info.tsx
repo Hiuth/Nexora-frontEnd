@@ -10,14 +10,13 @@ import { ShoppingCart, Minus, Plus, Share2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/mock-data";
-import type { Product, Brand } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 interface ProductInfoProps {
   product: Product;
-  brand?: Brand;
 }
 
-export function ProductInfo({ product, brand }: ProductInfoProps) {
+export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -53,7 +52,7 @@ export function ProductInfo({ product, brand }: ProductInfoProps) {
             variant="secondary"
             className="bg-blue-50 text-blue-700 border-blue-200"
           >
-            {brand?.brandName}
+            {product.brandName}
           </Badge>
           <Badge variant="outline" className="text-xs">
             SKU: PC-{product.id.toString().padStart(6, "0")}

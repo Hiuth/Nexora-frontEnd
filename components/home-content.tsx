@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ArrowRight, Cpu, Zap, Shield, Headphones } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FeaturedProductsCarousel } from "@/components/featured-products-carousel";
 import { HeroBanner } from "@/components/home/hero-banner";
 import { CategorySections } from "@/components/home/category-sections";
 import { BrandLogosScroll } from "@/components/brand-logos-scroll";

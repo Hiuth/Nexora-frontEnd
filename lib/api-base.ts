@@ -24,7 +24,10 @@ export async function apiCall<T>(
     endpoint.includes("/Product/getAll") ||
     endpoint.includes("/Product/getByCategoryId") ||
     endpoint.includes("/Product/getBysubCategoryId") ||
-    endpoint.includes("/Product/getByBrandId");
+    endpoint.includes("/Product/getByBrandId") ||
+    endpoint.includes("/Product/searchProduct") ||
+    endpoint.includes("/Product/getByPriceRange") ||
+    endpoint.includes("/ProductImg/getAllByProductId");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

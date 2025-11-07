@@ -118,6 +118,46 @@ export class ProductService {
     return products;
   }
 
+  // Get products by subcategory ID
+  static async getProductBySubCategoryId(
+    subCategoryId: string
+  ): Promise<Product[]> {
+    if (this.USE_API) {
+      try {
+        const pathResp = await apiGet<any>(
+          `${
+            API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_SUBCATEGORY_ID
+          }/${encodeURIComponent(subCategoryId)}`
+        );
+        console.log("API response for products by subcategory:", pathResp);
+        const normalize = (payload: any): Product[] => {
+          if (!payload) return [];
+          const items = (payload as any).items || [];
+          return Array.isArray(items) ? items : [];
+        };
+
+        if (pathResp && pathResp.result) {
+          const items = normalize(pathResp.result);
+          return items;
+        }
+
+        return [];
+      } catch (error) {
+        console.error(
+          "Failed to fetch products by subcategory from API:",
+          error
+        );
+        // Fallback to mock data
+        await this.delay();
+        return products.filter((p) => p.subCategoryId === subCategoryId);
+      }
+    }
+
+    // Mock data with simulated delay
+    await this.delay();
+    return products.filter((p) => p.subCategoryId === subCategoryId);
+  }
+
   // Get products by category ID
   static async getProductByCategoryID(categoryId: string): Promise<Product[]> {
     if (this.USE_API) {

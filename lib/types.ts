@@ -35,6 +35,8 @@ export interface Product {
   brandId: string;
   brandName: string;
   subCategoryName: string;
+  categoryId: string;
+  categoryName: string;
   warrantyPeriod: number;
 }
 

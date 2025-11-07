@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
@@ -8,7 +8,6 @@ import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
-import { brands, subCategories, categories } from "@/lib/mock-data";
 import { ProductService } from "@/services/product.service";
 import { Product } from "@/lib/types";
 import { useProductImages } from "@/hooks/use-product-images";
@@ -19,6 +18,7 @@ import { RelatedProducts } from "@/components/product/related-products";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id as string;
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
@@ -54,28 +54,39 @@ export default function ProductDetailPage() {
 
   useEffect(() => {
     const loadRelatedProducts = async () => {
-      if (product) {
-        const subCategory = subCategories.find(
-          (s) => s.id === product.subCategoryId
-        );
-        if (subCategory) {
-          try {
-            const allProducts = await ProductService.getProductByCategoryID(
-              subCategory.categoryId
-            );
-            const filtered = allProducts
-              .filter((p: Product) => p.id !== product.id)
-              .slice(0, 4);
-            setRelatedProducts(filtered);
-          } catch (error) {
-            console.error("Failed to load related products:", error);
-          }
+      if (product && product.categoryId) {
+        try {
+          const allProducts = await ProductService.getProductByCategoryID(
+            product.categoryId
+          );
+          const filtered = allProducts
+            .filter((p: Product) => p.id !== product.id)
+            .slice(0, 4);
+          setRelatedProducts(filtered);
+        } catch (error) {
+          console.error("Failed to load related products:", error);
         }
       }
     };
 
     loadRelatedProducts();
   }, [product]);
+
+  const handleNavigateToCategory = async (categoryId: string) => {
+    try {
+      router.push(`/products?categoryId=${categoryId}`);
+    } catch (error) {
+      console.error("Error navigating to category:", error);
+    }
+  };
+
+  const handleNavigateToSubCategory = async (subCategoryId: string) => {
+    try {
+      router.push(`/products?subCategoryId=${subCategoryId}`);
+    } catch (error) {
+      console.error("Error navigating to subcategory:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -122,10 +133,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  const brand = brands.find((b) => b.id === product.brandId);
-  const subCategory = subCategories.find((s) => s.id === product.subCategoryId);
-  const category = categories.find((c) => c.id === subCategory?.categoryId);
-
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
@@ -145,12 +152,19 @@ export default function ProductDetailPage() {
               Sản phẩm
             </Link>
             <span>/</span>
-            <Link
-              href={`/products?category=${category?.id}`}
-              className="hover:text-blue-600 transition-colors"
+            <button
+              onClick={() => handleNavigateToCategory(product.categoryId)}
+              className="hover:text-blue-600 transition-colors text-left"
             >
-              {category?.categoryName}
-            </Link>
+              {product.categoryName}
+            </button>
+            <span>/</span>
+            <button
+              onClick={() => handleNavigateToSubCategory(product.subCategoryId)}
+              className="hover:text-blue-600 transition-colors text-left"
+            >
+              {product.subCategoryName}
+            </button>
             <span>/</span>
             <span className="text-gray-900 font-medium">
               {product.productName}
@@ -179,18 +193,13 @@ export default function ProductDetailPage() {
               />
             </div>
             <div className="h-full">
-              <ProductInfo product={product} brand={brand} />
+              <ProductInfo product={product} />
             </div>
           </div>
 
           {/* Product Details */}
           <div className="mb-8 lg:mb-12">
-            <ProductTabs
-              product={product}
-              brand={brand}
-              category={category}
-              subCategory={subCategory}
-            />
+            <ProductTabs product={product} />
           </div>
 
           {/* Related Products */}

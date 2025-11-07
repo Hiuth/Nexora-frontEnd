@@ -60,35 +60,6 @@ export function FilterSidebar({
           )}
         </div>
 
-        {/* Categories */}
-        <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100">
-          <Label className="text-sm font-bold mb-3 block text-blue-800 flex items-center gap-2">
-            <span className="text-lg"></span>
-            Danh mục
-          </Label>
-          <div className="space-y-2">
-            {categories.map((category) => (
-              <div
-                key={category.id}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-blue-100/50 transition-colors"
-              >
-                <Checkbox
-                  id={`cat-${category.id}`}
-                  checked={selectedCategories.includes(category.id)}
-                  onCheckedChange={() => onCategoryChange(category.id)}
-                  className="border-blue-400 data-[state=checked]:bg-blue-500"
-                />
-                <label
-                  htmlFor={`cat-${category.id}`}
-                  className="text-sm cursor-pointer flex-1 font-medium text-gray-700"
-                >
-                  {category.categoryName}
-                </label>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Subcategories */}
         {selectedCategories.length > 0 && (
           <div className="mb-6 p-4 rounded-xl bg-green-50 border border-green-100">
@@ -127,29 +98,31 @@ export function FilterSidebar({
         {/* Brands */}
         <div className="mb-6 p-4 rounded-xl bg-amber-50 border border-amber-100">
           <Label className="text-sm font-bold mb-3 block text-amber-800 flex items-center gap-2">
-            <span className="text-lg"></span>
+            <span className="text-lg">🏷️</span>
             Thương hiệu
           </Label>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
-            {brands.map((brand) => (
-              <div
-                key={brand.id}
-                className="flex items-center space-x-2 p-2 rounded-lg hover:bg-amber-100/50 transition-colors"
-              >
-                <Checkbox
-                  id={`brand-${brand.id}`}
-                  checked={selectedBrands.includes(brand.id)}
-                  onCheckedChange={() => onBrandChange(brand.id)}
-                  className="border-amber-400 data-[state=checked]:bg-amber-500"
-                />
-                <label
-                  htmlFor={`brand-${brand.id}`}
-                  className="text-sm cursor-pointer flex-1 font-medium text-gray-700"
+          <div className="max-h-96 overflow-y-auto scrollbar-hide">
+            <div className="grid grid-cols-2 gap-2">
+              {brands.map((brand) => (
+                <div
+                  key={brand.id}
+                  className="flex items-center space-x-2 p-2 rounded-lg hover:bg-amber-100/50 transition-colors"
                 >
-                  {brand.brandName}
-                </label>
-              </div>
-            ))}
+                  <Checkbox
+                    id={`brand-${brand.id}`}
+                    checked={selectedBrands.includes(brand.id)}
+                    onCheckedChange={() => onBrandChange(brand.id)}
+                    className="border-amber-400 data-[state=checked]:bg-amber-500 flex-shrink-0"
+                  />
+                  <label
+                    htmlFor={`brand-${brand.id}`}
+                    className="text-xs cursor-pointer flex-1 font-medium text-gray-700 leading-tight"
+                  >
+                    {brand.brandName}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 

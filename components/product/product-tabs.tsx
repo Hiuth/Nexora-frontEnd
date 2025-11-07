@@ -8,13 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Star, Send } from "lucide-react";
-import type { Product, Brand, Category, SubCategory } from "@/lib/types";
+import type { Product } from "@/lib/types";
 
 interface ProductTabsProps {
   product: Product;
-  brand?: Brand;
-  category?: Category;
-  subCategory?: SubCategory;
 }
 
 interface Review {
@@ -25,12 +22,7 @@ interface Review {
   date: string;
 }
 
-export function ProductTabs({
-  product,
-  brand,
-  category,
-  subCategory,
-}: ProductTabsProps) {
+export function ProductTabs({ product }: ProductTabsProps) {
   const [newComment, setNewComment] = useState("");
   const [newRating, setNewRating] = useState(5);
 
@@ -118,12 +110,12 @@ export function ProductTabs({
             <p className="text-gray-600 leading-relaxed">
               {product.productName} là sản phẩm cao cấp từ thương hiệu{" "}
               <span className="font-semibold text-blue-600">
-                {brand?.brandName}
+                {product.brandName}
               </span>
               , được thiết kế để mang lại hiệu suất tối ưu cho mọi nhu cầu sử
               dụng. Với công nghệ tiên tiến và chất lượng vượt trội, sản phẩm
               này là lựa chọn hoàn hảo cho những ai đang tìm kiếm giải pháp{" "}
-              {category?.categoryName} đáng tin cậy.
+              {product.categoryName} đáng tin cậy.
             </p>
           </TabsContent>
 
@@ -136,19 +128,17 @@ export function ProductTabs({
                 <span className="font-medium w-1/3 text-gray-700">
                   Thương hiệu
                 </span>
-                <span className="text-gray-600">{brand?.brandName}</span>
+                <span className="text-gray-600">{product.brandName}</span>
               </div>
               <div className="flex py-3 border-b border-gray-100">
                 <span className="font-medium w-1/3 text-gray-700">
                   Danh mục
                 </span>
-                <span className="text-gray-600">{category?.categoryName}</span>
+                <span className="text-gray-600">{product.categoryName}</span>
               </div>
               <div className="flex py-3 border-b border-gray-100">
                 <span className="font-medium w-1/3 text-gray-700">Loại</span>
-                <span className="text-gray-600">
-                  {subCategory?.subCategoryName}
-                </span>
+                <span className="text-gray-600">{product.subCategoryName}</span>
               </div>
               <div className="flex py-3 border-b border-gray-100">
                 <span className="font-medium w-1/3 text-gray-700">

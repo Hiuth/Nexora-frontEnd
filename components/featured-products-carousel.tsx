@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ProductCard } from "@/components/product-card";
 import type { Product } from "@/lib/types";
 
@@ -7,13 +9,32 @@ interface FeaturedProductsCarouselProps {
   title: string;
   products: Product[];
   categoryIcon?: string;
+  categoryId?: string;
 }
 
 export function FeaturedProductsCarousel({
   title,
   products,
   categoryIcon,
+  categoryId,
 }: FeaturedProductsCarouselProps) {
+  const router = useRouter();
+  const [isNavigating, setIsNavigating] = useState(false);
+
+  const handleViewAll = async () => {
+    if (isNavigating) return; // Prevent multiple clicks
+
+    setIsNavigating(true);
+
+    // Add delay to ensure smooth transition and data loading
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    if (categoryId) {
+      router.push(`/products?categoryId=${categoryId}`);
+    } else {
+      router.push("/products");
+    }
+  };
   // If there is no product, render nothing for this section
   if (!products || products.length === 0) {
     return null;
@@ -54,12 +75,17 @@ export function FeaturedProductsCarousel({
 
             {/* Right aligned link */}
             <div className="flex justify-end">
-              <a
-                href="/products"
-                className="text-xs sm:text-sm md:text-base text-white/90 hover:text-white font-medium hover:underline transition-colors"
+              <button
+                onClick={handleViewAll}
+                disabled={isNavigating}
+                className={`text-xs sm:text-sm md:text-base font-medium hover:underline transition-colors cursor-pointer ${
+                  isNavigating
+                    ? "text-white/60 cursor-wait"
+                    : "text-white/90 hover:text-white"
+                }`}
               >
-                Xem tất cả →
-              </a>
+                {isNavigating ? "Đang chuyển..." : "Xem tất cả →"}
+              </button>
             </div>
           </div>
         </div>
