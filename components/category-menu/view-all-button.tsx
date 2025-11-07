@@ -18,7 +18,7 @@ export function ViewAllButton({ categoryId, categories }: ViewAllButtonProps) {
     <div className="mt-6 pt-4 border-t border-gray-200">
       <Link
         href={`/products?category=${categoryId}`}
-        className="inline-flex items-center gap-2 bg-red-600 text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-red-700 transition-colors"
+        className="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-3 rounded-lg font-medium text-sm hover:bg-blue-700 transition-colors"
       >
         Xem tất cả {category.categoryName}
         <ChevronRight className="h-4 w-4" />

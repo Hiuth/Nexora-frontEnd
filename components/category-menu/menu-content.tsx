@@ -148,7 +148,7 @@ export function MenuContent({
   }
 
   return (
-    <div className="flex-1 flex flex-col max-h-[80vh] bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20">
+    <div className="flex-1 flex flex-col max-h-[80vh] bg-gradient-to-br from-white via-slate-50/30 to-blue-50/20 w-full">
       {/* Enhanced header section - Fixed */}
       <div className="flex-shrink-0 p-8 pb-4">
         <h3 className="text-xl font-bold text-slate-800 mb-2 tracking-tight">
@@ -157,47 +157,49 @@ export function MenuContent({
         <div className="w-16 h-0.5 bg-gradient-to-r from-blue-500 to-blue-300 rounded-full"></div>
       </div>
 
-      {/* Scrollable content area */}
-      <div className="flex-1 px-8 pb-8 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400">
-        {/* Improved grid layout */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
-          {categorySubCategories.map((subCategory) => (
-            <Link
-              key={subCategory.id}
-              href={`/products?subcategory=${subCategory.id}`}
-              className="group relative overflow-hidden bg-white rounded-xl border border-slate-200/60 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 ease-out"
-            >
-              <div className="p-4">
-                {/* Enhanced image container with subtle effects */}
-                <div className="relative w-full h-28 mb-3 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg overflow-hidden">
-                  {subCategory.subCategoryImg ? (
-                    <img
-                      src={subCategory.subCategoryImg}
-                      alt={subCategory.subCategoryName}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50/30 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center">
-                        <span className="text-2xl text-slate-400">📦</span>
+      {/* Scrollable content area with fixed width */}
+      <div className="flex-1 px-8 pb-8 overflow-hidden">
+        {/* Grid container with scroll */}
+        <div className="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100 hover:scrollbar-thumb-slate-400 pr-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-8">
+            {categorySubCategories.map((subCategory) => (
+              <Link
+                key={subCategory.id}
+                href={`/products?subcategory=${subCategory.id}`}
+                className="group relative overflow-hidden bg-white rounded-xl border border-slate-200/60 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 ease-out"
+              >
+                <div className="p-4">
+                  {/* Enhanced image container with subtle effects */}
+                  <div className="relative w-full h-28 mb-3 bg-gradient-to-br from-slate-50 to-slate-100 rounded-lg overflow-hidden">
+                    {subCategory.subCategoryImg ? (
+                      <img
+                        src={subCategory.subCategoryImg}
+                        alt={subCategory.subCategoryName}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-slate-100 via-slate-50 to-blue-50/30 flex items-center justify-center">
+                        <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center">
+                          <span className="text-2xl text-slate-400">📦</span>
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
-                  {/* Subtle overlay effect */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    {/* Subtle overlay effect */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  </div>
+
+                  {/* Enhanced typography */}
+                  <h4 className="font-medium text-xs text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-relaxed line-clamp-2 min-h-[1.75rem] flex items-center">
+                    {subCategory.subCategoryName}
+                  </h4>
                 </div>
 
-                {/* Enhanced typography */}
-                <h4 className="font-medium text-xs text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-relaxed line-clamp-2 min-h-[1.75rem] flex items-center">
-                  {subCategory.subCategoryName}
-                </h4>
-              </div>
-
-              {/* Subtle hover indicator */}
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
-            </Link>
-          ))}
+                {/* Subtle hover indicator */}
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+              </Link>
+            ))}
+          </div>
         </div>
 
         {/* Enhanced View All Button container */}
