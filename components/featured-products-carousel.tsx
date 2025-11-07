@@ -66,11 +66,24 @@ export function FeaturedProductsCarousel({
         <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white px-3 sm:px-4 md:px-6 py-3 sm:py-4 rounded-lg shadow-md mb-3 sm:mb-4 md:mb-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
             <div className="flex items-center gap-2 sm:gap-3">
-              {categoryIcon && (
-                <span className="text-base sm:text-lg md:text-xl lg:text-2xl">
-                  {categoryIcon}
-                </span>
-              )}
+              {categoryIcon &&
+                // If categoryIcon looks like a URL, render image; otherwise render as text/icon
+                (categoryIcon.startsWith("http") ||
+                categoryIcon.startsWith("/") ? (
+                  <img
+                    src={categoryIcon}
+                    alt={title}
+                    className="h-5 w-5 sm:h-6 sm:w-6 md:h-8 md:w-8 object-contain rounded"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = "none";
+                    }}
+                  />
+                ) : (
+                  <span className="text-base sm:text-lg md:text-xl lg:text-2xl">
+                    {categoryIcon}
+                  </span>
+                ))}
               <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold">
                 {title}
               </h3>

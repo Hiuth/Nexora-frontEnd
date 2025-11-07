@@ -19,7 +19,12 @@ export async function apiCall<T>(
     endpoint.includes("/Category/getAll") ||
     endpoint.includes("/SubCategory/getAll") ||
     endpoint.includes("/Brand/getAll") ||
-    endpoint.includes("/SubCategory/getByCategoryId");
+    endpoint.includes("/SubCategory/getByCategoryId") ||
+    endpoint.includes("/Product/getById") ||
+    endpoint.includes("/Product/getAll") ||
+    endpoint.includes("/Product/getByCategoryId") ||
+    endpoint.includes("/Product/getBysubCategoryId") ||
+    endpoint.includes("/Product/getByBrandId");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

@@ -52,7 +52,16 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
         <CardContent className="p-3">
           <Link href={`/products/${product.id}`}>
-            <h3 className="font-medium text-xs mb-2 line-clamp-2 text-gray-700 leading-tight">
+            <h3
+              className="font-medium text-xs mb-2 text-gray-700 leading-tight"
+              title={product.productName}
+              style={{
+                display: "-webkit-box",
+                WebkitLineClamp: 2,
+                WebkitBoxOrient: "vertical" as any,
+                overflow: "hidden",
+              }}
+            >
               {product.productName}
             </h3>
           </Link>
@@ -96,7 +105,16 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
       <CardContent className="p-2 sm:p-3 md:p-4">
         <Link href={`/products/${product.id}`}>
-          <h3 className="font-medium text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2 text-gray-700 leading-tight min-h-[32px] sm:min-h-[40px]">
+          <h3
+            className="font-medium text-xs sm:text-sm mb-2 sm:mb-3 text-gray-700 leading-tight min-h-[32px] sm:min-h-[40px]"
+            title={product.productName}
+            style={{
+              display: "-webkit-box",
+              WebkitLineClamp: 2,
+              WebkitBoxOrient: "vertical" as any,
+              overflow: "hidden",
+            }}
+          >
             {product.productName}
           </h3>
         </Link>

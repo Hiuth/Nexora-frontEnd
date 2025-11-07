@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Product, PaginatedResponse } from "@/lib/types";
+import { Product } from "@/lib/types";
 import { ProductService } from "@/services/product.service";
 
 export function useProducts(params?: {
@@ -14,9 +14,7 @@ export function useProducts(params?: {
   maxPrice?: number;
   search?: string;
 }) {
-  const [products, setProducts] = useState<PaginatedResponse<Product> | null>(
-    null
-  );
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,7 +67,7 @@ export function useProduct(productId: string) {
   return { product, loading, error };
 }
 
-export function useFeaturedProducts(limit: number = 10) {
+export function useFeaturedProducts() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +77,7 @@ export function useFeaturedProducts(limit: number = 10) {
       try {
         setLoading(true);
         setError(null);
-        const data = await ProductService.getFeaturedProducts(limit);
+        const data = await ProductService.getFeaturedProducts();
         setProducts(data);
       } catch (err) {
         setError(
@@ -93,12 +91,12 @@ export function useFeaturedProducts(limit: number = 10) {
     };
 
     fetchFeaturedProducts();
-  }, [limit]);
+  }, []);
 
   return { products, loading, error };
 }
 
-export function useProductSearch(query: string, limit: number = 20) {
+export function useProductSearch(query: string) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -113,7 +111,7 @@ export function useProductSearch(query: string, limit: number = 20) {
       try {
         setLoading(true);
         setError(null);
-        const data = await ProductService.searchProducts(query, limit);
+        const data = await ProductService.searchProducts(query);
         setProducts(data);
       } catch (err) {
         setError(
@@ -126,7 +124,7 @@ export function useProductSearch(query: string, limit: number = 20) {
 
     const debounceTimer = setTimeout(searchProducts, 300);
     return () => clearTimeout(debounceTimer);
-  }, [query, limit]);
+  }, [query]);
 
   return { products, loading, error };
 }
