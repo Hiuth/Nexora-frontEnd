@@ -1,13 +1,17 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
-import { products, brands, subCategories, categories } from "@/lib/mock-data";
+import { brands, subCategories, categories } from "@/lib/mock-data";
+import { ProductService } from "@/services/product.service";
+import { Product } from "@/lib/types";
+import { useProductImages } from "@/hooks/use-product-images";
 import { ProductImageGallery } from "@/components/product/product-image-gallery";
 import { ProductInfo } from "@/components/product/product-info";
 import { ProductTabs } from "@/components/product/product-tabs";
@@ -16,9 +20,84 @@ import { RelatedProducts } from "@/components/product/related-products";
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
-  const product = products.find((p) => p.id.toString() === productId);
+  const [product, setProduct] = useState<Product | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
 
-  if (!product) {
+  // Hook to load product images
+  const {
+    images: productImages,
+    loading: imagesLoading,
+    error: imagesError,
+  } = useProductImages(product?.id || null);
+
+  useEffect(() => {
+    const loadProduct = async () => {
+      try {
+        console.log("Loading product with ID:", productId);
+        const productData = await ProductService.getProductById(productId);
+        console.log("Product loaded:", productData);
+        setProduct(productData);
+      } catch (error) {
+        console.error("Failed to load product:", error);
+        setError(error instanceof Error ? error.message : "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (productId) {
+      loadProduct();
+    }
+  }, [productId]);
+
+  useEffect(() => {
+    const loadRelatedProducts = async () => {
+      if (product) {
+        const subCategory = subCategories.find(
+          (s) => s.id === product.subCategoryId
+        );
+        if (subCategory) {
+          try {
+            const allProducts = await ProductService.getProductByCategoryID(
+              subCategory.categoryId
+            );
+            const filtered = allProducts
+              .filter((p: Product) => p.id !== product.id)
+              .slice(0, 4);
+            setRelatedProducts(filtered);
+          } catch (error) {
+            console.error("Failed to load related products:", error);
+          }
+        }
+      }
+    };
+
+    loadRelatedProducts();
+  }, [product]);
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex-1 flex items-center justify-center p-4">
+          <Card>
+            <CardContent className="p-8 md:p-12 text-center">
+              <div className="animate-pulse">
+                <div className="h-8 bg-gray-200 rounded mb-4 w-48 mx-auto"></div>
+                <div className="h-4 bg-gray-200 rounded mb-6 w-64 mx-auto"></div>
+                <div className="h-10 bg-gray-200 rounded w-40 mx-auto"></div>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !product) {
     return (
       <div className="flex min-h-screen flex-col">
         <Header />
@@ -26,10 +105,11 @@ export default function ProductDetailPage() {
           <Card>
             <CardContent className="p-8 md:p-12 text-center">
               <h2 className="text-xl md:text-2xl font-bold mb-4 text-gray-900">
-                Không tìm thấy sản phẩm
+                {error ? "Lỗi tải sản phẩm" : "Không tìm thấy sản phẩm"}
               </h2>
               <p className="text-gray-600 mb-6">
-                Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa.
+                {error ||
+                  "Sản phẩm bạn đang tìm kiếm không tồn tại hoặc đã bị xóa."}
               </p>
               <Button asChild className="bg-blue-600 hover:bg-blue-700">
                 <Link href="/products">Quay lại danh sách sản phẩm</Link>
@@ -45,13 +125,6 @@ export default function ProductDetailPage() {
   const brand = brands.find((b) => b.id === product.brandId);
   const subCategory = subCategories.find((s) => s.id === product.subCategoryId);
   const category = categories.find((c) => c.id === subCategory?.categoryId);
-
-  // Related products
-  const relatedProducts = products
-    .filter(
-      (p) => p.subCategoryId === product.subCategoryId && p.id !== product.id
-    )
-    .slice(0, 4);
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
@@ -99,7 +172,11 @@ export default function ProductDetailPage() {
           {/* Product Overview */}
           <div className="grid lg:grid-cols-2 gap-6 lg:gap-8 mb-8 lg:mb-12 lg:items-start">
             <div className="h-full">
-              <ProductImageGallery product={product} />
+              <ProductImageGallery
+                product={product}
+                productImages={productImages}
+                imagesLoading={imagesLoading}
+              />
             </div>
             <div className="h-full">
               <ProductInfo product={product} brand={brand} />

@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useEffect } from "react";
 import { ProductCard } from "@/components/product-card";
 import type { Product } from "@/lib/types";
 
@@ -15,50 +14,10 @@ export function FeaturedProductsCarousel({
   products,
   categoryIcon,
 }: FeaturedProductsCarouselProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
-  // Auto scroll effect
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer) return;
-
-    const scrollWidth = scrollContainer.scrollWidth;
-    const clientWidth = scrollContainer.clientWidth;
-
-    if (scrollWidth <= clientWidth) return; // No need to scroll if content fits
-
-    let scrollPosition = 0;
-    const scrollSpeed = 1; // pixels per frame
-    const pauseTime = 2000; // pause at end in ms
-    let isPaused = false;
-    let pauseStartTime = 0;
-
-    const scroll = () => {
-      if (!scrollContainer) return;
-
-      if (isPaused) {
-        const currentTime = Date.now();
-        if (currentTime - pauseStartTime >= pauseTime) {
-          isPaused = false;
-          scrollPosition = 0; // Reset to start
-        }
-      } else {
-        scrollPosition += scrollSpeed;
-
-        // If reached the end, pause and reset
-        if (scrollPosition >= scrollWidth - clientWidth) {
-          isPaused = true;
-          pauseStartTime = Date.now();
-        }
-      }
-
-      scrollContainer.scrollLeft = scrollPosition;
-    };
-
-    const intervalId = setInterval(scroll, 16); // ~60fps
-
-    return () => clearInterval(intervalId);
-  }, [products]);
+  // If there is no product, render nothing for this section
+  if (!products || products.length === 0) {
+    return null;
+  }
 
   return (
     <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-12">
@@ -105,19 +64,25 @@ export function FeaturedProductsCarousel({
           </div>
         </div>
 
-        <div
-          ref={scrollRef}
-          className="flex gap-2 sm:gap-3 md:gap-4 overflow-x-hidden pb-3 sm:pb-4 md:pb-6"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
-        >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="flex-shrink-0 w-40 sm:w-48 md:w-56 lg:w-64"
-            >
-              <ProductCard product={product} />
-            </div>
-          ))}
+        <div className="relative overflow-hidden pb-3 sm:pb-4 md:pb-6">
+          <div className="flex gap-2 sm:gap-3 md:gap-4 animate-scroll">
+            {products.map((product) => (
+              <div
+                key={`prod-a-${product.id}`}
+                className="flex-shrink-0 w-40 sm:w-48 md:w-56 lg:w-64"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+            {products.map((product) => (
+              <div
+                key={`prod-b-${product.id}`}
+                className="flex-shrink-0 w-40 sm:w-48 md:w-56 lg:w-64"
+              >
+                <ProductCard product={product} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>

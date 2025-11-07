@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { CategoryService } from "@/services/category.service";
 import { Category } from "@/lib/types";
 
@@ -69,9 +68,6 @@ const categoriesWithImages = [
 export function CategoryBanner() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(true);
 
   useEffect(() => {
     const loadCategories = async () => {
@@ -88,86 +84,7 @@ export function CategoryBanner() {
     loadCategories();
   }, []);
 
-  // Auto-scroll functionality - Ultra smooth continuous scrolling
-  useEffect(() => {
-    const scrollContainer = scrollRef.current;
-    if (!scrollContainer || loading) return;
-
-    let animationId: number;
-    let lastTime = 0;
-    const scrollSpeed = 30; // pixels per second for ultra smooth movement
-
-    const smoothScroll = (currentTime: number) => {
-      if (lastTime === 0) lastTime = currentTime;
-
-      const deltaTime = currentTime - lastTime;
-      const scrollDistance = (scrollSpeed * deltaTime) / 1000; // Convert to pixels per frame
-
-      // Check if we've reached the end
-      if (
-        scrollContainer.scrollLeft >=
-        scrollContainer.scrollWidth - scrollContainer.clientWidth
-      ) {
-        // Smooth reset to start
-        scrollContainer.scrollLeft = 0;
-      } else {
-        // Smooth continuous scroll to the right
-        scrollContainer.scrollLeft += scrollDistance;
-      }
-
-      lastTime = currentTime;
-      animationId = requestAnimationFrame(smoothScroll);
-    };
-
-    // Start scrolling after 2 seconds
-    const timer = setTimeout(() => {
-      animationId = requestAnimationFrame(smoothScroll);
-    }, 2000);
-
-    // Pause on hover
-    const handleMouseEnter = () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-
-    const handleMouseLeave = () => {
-      lastTime = 0; // Reset timing
-      animationId = requestAnimationFrame(smoothScroll);
-    };
-
-    scrollContainer.addEventListener("mouseenter", handleMouseEnter);
-    scrollContainer.addEventListener("mouseleave", handleMouseLeave);
-
-    return () => {
-      clearTimeout(timer);
-      if (animationId) cancelAnimationFrame(animationId);
-      scrollContainer.removeEventListener("mouseenter", handleMouseEnter);
-      scrollContainer.removeEventListener("mouseleave", handleMouseLeave);
-    };
-  }, [loading]);
-
-  // Check scroll position
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      setCanScrollLeft(scrollRef.current.scrollLeft > 0);
-      setCanScrollRight(
-        scrollRef.current.scrollLeft <
-          scrollRef.current.scrollWidth - scrollRef.current.clientWidth - 10
-      );
-    }
-  };
-
-  // Manual scroll controls
-  const scroll = (direction: "left" | "right") => {
-    if (scrollRef.current) {
-      const scrollAmount = 300;
-      scrollRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
+  // Auto scroll uses CSS marquee like BrandLogosScroll (animate-scroll)
 
   // Merge API data with local images
   const categoriesWithImagesData = categories.map((category) => {
@@ -223,80 +140,99 @@ export function CategoryBanner() {
           </p>
         </div>
 
-        {/* Categories Grid - Horizontal Scrollable */}
+        {/* Categories Grid - Auto marquee like brands */}
         <div className="bg-white rounded-2xl border border-slate-200/60 shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden relative">
-          {/* Scroll Buttons */}
-          {canScrollLeft && (
-            <button
-              onClick={() => scroll("left")}
-              className="absolute left-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
-            >
-              <ChevronLeft className="h-5 w-5 text-slate-600 group-hover:text-slate-800" />
-            </button>
-          )}
-          {canScrollRight && (
-            <button
-              onClick={() => scroll("right")}
-              className="absolute right-2 top-1/2 -translate-y-1/2 z-10 w-10 h-10 bg-white/95 hover:bg-white border border-slate-200 hover:border-slate-300 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 flex items-center justify-center group"
-            >
-              <ChevronRight className="h-5 w-5 text-slate-600 group-hover:text-slate-800" />
-            </button>
-          )}
-
-          {/* Scrollable Categories */}
-          <div
-            ref={scrollRef}
-            onScroll={checkScroll}
-            className="flex gap-4 bg-white p-6 overflow-x-auto scrollbar-hide"
-            style={{
-              scrollbarWidth: "none",
-              msOverflowStyle: "none",
-              willChange: "scroll-position",
-              transform: "translateZ(0)", // Force hardware acceleration
-            }}
-          >
-            {categoriesWithImagesData.map((category, index) => (
-              <Link
-                key={category.id}
-                href={`/products?category=${category.id}`}
-                className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
-              >
-                {/* Content Container */}
-                <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
-                  {/* Image Container */}
-                  <div className="w-full h-16 mb-3 bg-white rounded-lg flex items-center justify-center overflow-hidden">
-                    {category.iconImg ? (
-                      <img
-                        src={category.iconImg}
-                        alt={category.categoryName}
-                        className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                          target.nextElementSibling!.classList.remove("hidden");
-                        }}
-                      />
-                    ) : (
-                      <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
+          <div className="relative overflow-hidden">
+            <div className="flex gap-4 bg-white p-6 animate-scroll">
+              {categoriesWithImagesData.map((category) => (
+                <Link
+                  key={`cat-a-${category.id}`}
+                  href={`/products?category=${category.id}`}
+                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
+                >
+                  {/* Content Container */}
+                  <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
+                    {/* Image Container */}
+                    <div className="w-full h-16 mb-3 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                      {category.iconImg ? (
+                        <img
+                          src={category.iconImg}
+                          alt={category.categoryName}
+                          className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            target.nextElementSibling!.classList.remove(
+                              "hidden"
+                            );
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
+                          <span className="text-xl text-slate-400">📦</span>
+                        </div>
+                      )}
+                      {/* Fallback icon */}
+                      <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hidden">
                         <span className="text-xl text-slate-400">📦</span>
                       </div>
-                    )}
-                    {/* Fallback icon */}
-                    <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hidden">
-                      <span className="text-xl text-slate-400">📦</span>
                     </div>
+
+                    {/* Category Name */}
+                    <h3 className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-tight">
+                      {category.categoryName}
+                    </h3>
                   </div>
 
-                  {/* Category Name */}
-                  <h3 className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-tight">
-                    {category.categoryName}
-                  </h3>
-                </div>
+                  {/* Subtle bottom accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
+                </Link>
+              ))}
+              {categoriesWithImagesData.map((category) => (
+                <Link
+                  key={`cat-b-${category.id}`}
+                  href={`/products?category=${category.id}`}
+                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
+                >
+                  {/* Content Container */}
+                  <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
+                    {/* Image Container */}
+                    <div className="w-full h-16 mb-3 bg-white rounded-lg flex items-center justify-center overflow-hidden">
+                      {category.iconImg ? (
+                        <img
+                          src={category.iconImg}
+                          alt={category.categoryName}
+                          className="w-10 h-10 object-contain group-hover:scale-110 transition-transform duration-300"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.style.display = "none";
+                            target.nextElementSibling!.classList.remove(
+                              "hidden"
+                            );
+                          }}
+                        />
+                      ) : (
+                        <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center">
+                          <span className="text-xl text-slate-400">📦</span>
+                        </div>
+                      )}
+                      {/* Fallback icon */}
+                      <div className="w-10 h-10 bg-white rounded-lg shadow-sm flex items-center justify-center hidden">
+                        <span className="text-xl text-slate-400">📦</span>
+                      </div>
+                    </div>
 
-                {/* Subtle bottom accent */}
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
-              </Link>
-            ))}
+                    {/* Category Name */}
+                    <h3 className="text-sm font-medium text-slate-700 group-hover:text-blue-600 transition-colors duration-200 leading-tight">
+                      {category.categoryName}
+                    </h3>
+                  </div>
+
+                  {/* Subtle bottom accent */}
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
       </div>

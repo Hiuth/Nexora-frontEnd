@@ -2,6 +2,7 @@
 
 import { CategoryService } from "./category.service";
 import { ProductService } from "./product.service";
+import { ProductImgService } from "./product-img.service";
 import { CartService } from "./cart.service";
 import { OrderService } from "./order.service";
 import { WarrantyService } from "./warranty.service";
@@ -29,6 +30,7 @@ export class ServiceManager {
     // Update all services (except AuthService which now always uses API)
     CategoryService.enableApiMode(enabled);
     ProductService.enableApiMode(enabled);
+    ProductImgService.enableApiMode(enabled);
     CartService.enableApiMode(enabled);
     OrderService.enableApiMode(enabled);
     WarrantyService.enableApiMode(enabled);
@@ -76,6 +78,7 @@ export class ServiceManager {
         auth: "ready",
         category: "ready",
         product: "ready",
+        productImg: "ready",
         cart: "ready",
         order: "ready",
         warranty: "ready",

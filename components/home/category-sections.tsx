@@ -31,7 +31,7 @@ export function CategorySections({
         <div key={category.id} className="mb-8 sm:mb-12 md:mb-16 last:mb-0">
           <FeaturedProductsCarousel
             title={category.categoryName}
-            products={products}
+            products={products.slice(0, 5)}
             categoryIcon={category.iconImg}
           />
         </div>

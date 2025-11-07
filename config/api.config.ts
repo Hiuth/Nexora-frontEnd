@@ -53,6 +53,13 @@ export const API_CONFIG = {
       DELETE: "/Product/delete",
     },
 
+    // Product Image endpoints
+    PRODUCT_IMG: {
+      GET_BY_PRODUCT_ID: "/ProductImg/getAllByProductId",
+      CREATE: "/ProductImg/create",
+      DELETE: "/ProductImg/delete",
+    },
+
     // Order endpoints
     ORDER: {
       GET_ALL: "/Order/getAllOrders",
