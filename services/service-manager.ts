@@ -27,11 +27,10 @@ export class ServiceManager {
   public setApiMode(enabled: boolean): void {
     this.isApiMode = enabled;
 
-    // Update all services (except AuthService which now always uses API)
+    // Update all services (except AuthService and CartService which now always use API)
     CategoryService.enableApiMode(enabled);
     ProductService.enableApiMode(enabled);
     ProductImgService.enableApiMode(enabled);
-    CartService.enableApiMode(enabled);
     OrderService.enableApiMode(enabled);
     WarrantyService.enableApiMode(enabled);
     PcBuildService.enableApiMode(enabled);

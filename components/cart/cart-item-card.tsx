@@ -16,12 +16,14 @@ interface CartItemCardProps {
   item: CartItemData;
   onUpdateQuantity: (id: string, quantity: number) => void;
   onRemoveItem: (id: string) => void;
+  isUpdating?: boolean;
 }
 
 export function CartItemCard({
   item,
   onUpdateQuantity,
   onRemoveItem,
+  isUpdating = false,
 }: CartItemCardProps) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden group">
@@ -65,12 +67,12 @@ export function CartItemCard({
                   onClick={() =>
                     onUpdateQuantity(item.product.id, item.quantity - 1)
                   }
-                  disabled={item.quantity <= 1}
+                  disabled={item.quantity <= 1 || isUpdating}
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
                 <span className="w-16 text-center text-lg font-bold text-gray-900 px-2">
-                  {item.quantity}
+                  {isUpdating ? "..." : item.quantity}
                 </span>
                 <Button
                   variant="ghost"
@@ -79,7 +81,9 @@ export function CartItemCard({
                   onClick={() =>
                     onUpdateQuantity(item.product.id, item.quantity + 1)
                   }
-                  disabled={item.quantity >= item.product.stockQuantity}
+                  disabled={
+                    item.quantity >= item.product.stockQuantity || isUpdating
+                  }
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
@@ -103,6 +107,7 @@ export function CartItemCard({
             size="icon"
             className="flex-shrink-0 h-11 w-11 hover:bg-red-50 hover:text-red-600 transition-all duration-200 rounded-xl"
             onClick={() => onRemoveItem(item.product.id)}
+            disabled={isUpdating}
           >
             <Trash2 className="h-5 w-5" />
           </Button>

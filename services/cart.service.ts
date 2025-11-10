@@ -1,121 +1,131 @@
-import { CartItem } from "@/lib/types";
 import { apiClient } from "@/lib/api-client";
 import { API_CONFIG } from "@/config/api.config";
+import type { ApiResponse } from "@/types/api";
+import type { CartResponse } from "@/types/api";
+import type { AddToCartRequest, UpdateCartRequest } from "@/types/requests";
+import type { CartItem } from "@/lib/types";
 
 export class CartService {
-  // Use mock data for now, switch to API when ready
-  private static USE_API = false;
-
-  // Simulate API delay for mock data
-  private static async delay(ms: number = 150): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
-
-  // Get cart items for user
-  static async getCartItems(accountId: string): Promise<CartItem[]> {
-    if (this.USE_API) {
-      try {
-        const response = await apiClient.get<CartItem[]>(
-          `${API_CONFIG.ENDPOINTS.CART}/${accountId}`
-        );
-        return response.data;
-      } catch (error) {
-        console.error("Failed to fetch cart items from API:", error);
-        return [];
-      }
-    }
-
-    // Mock data with simulated delay
-    await this.delay();
-    return []; // TODO: Add mock cart data
-  }
-
-  // Add item to cart
+  /**
+   * Add product to cart
+   */
   static async addToCart(
-    accountId: string,
     productId: string,
     quantity: number = 1
-  ): Promise<CartItem> {
-    if (this.USE_API) {
-      try {
-        const response = await apiClient.post<CartItem>(
-          API_CONFIG.ENDPOINTS.CART,
-          { accountId, productId, quantity }
-        );
-        return response.data;
-      } catch (error) {
-        console.error("Failed to add item to cart:", error);
-        throw error;
-      }
-    }
+  ): Promise<CartResponse> {
+    try {
+      const formData = new FormData();
+      formData.append("quantity", quantity.toString());
 
-    // Mock data with simulated delay
-    await this.delay();
-    // TODO: Return mock cart item
-    throw new Error("Mock implementation not complete");
+      const response = await apiClient.postFormData<CartResponse>(
+        `${API_CONFIG.ENDPOINTS.CART.ADD}/${productId}`,
+        formData
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      throw error;
+    }
   }
 
-  // Update cart item quantity
+  /**
+   * Update cart item quantity
+   */
+  static async updateCart(
+    cartId: string,
+    quantity: number
+  ): Promise<CartResponse> {
+    try {
+      const formData = new FormData();
+      formData.append("quantity", quantity.toString());
+
+      const response = await apiClient.putFormData<CartResponse>(
+        `${API_CONFIG.ENDPOINTS.CART.UPDATE}/${cartId}`,
+        formData
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Error updating cart:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get cart items by account ID (current user)
+   */
+  static async getCartByAccount(): Promise<CartResponse[]> {
+    try {
+      const response = await apiClient.get<CartResponse[]>(
+        API_CONFIG.ENDPOINTS.CART.GET_BY_ACCOUNT
+      );
+      return response.result || [];
+    } catch (error) {
+      console.error("Error fetching cart:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Clear specific cart item
+   */
+  static async clearCart(cartId: string): Promise<string> {
+    try {
+      const response = await apiClient.delete<string>(
+        `${API_CONFIG.ENDPOINTS.CART.CLEAR}/${cartId}`
+      );
+      return response.result || "Cart item deleted successfully";
+    } catch (error) {
+      console.error("Error clearing cart item:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Clear all cart items for current user
+   */
+  static async clearAllCart(): Promise<string> {
+    try {
+      const response = await apiClient.delete<string>(
+        API_CONFIG.ENDPOINTS.CART.CLEAR_ALL
+      );
+      return response.result || "All cart items deleted successfully";
+    } catch (error) {
+      console.error("Error clearing all cart items:", error);
+      throw error;
+    }
+  }
+
+  // Legacy methods for backward compatibility with existing cart context
+  static async getCartItems(accountId: string): Promise<CartItem[]> {
+    const cartResponses = await this.getCartByAccount();
+    return cartResponses.map(this.mapCartResponseToCartItem);
+  }
+
   static async updateCartItem(
     cartItemId: string,
     quantity: number
   ): Promise<CartItem> {
-    if (this.USE_API) {
-      try {
-        const response = await apiClient.put<CartItem>(
-          `${API_CONFIG.ENDPOINTS.CART}/${cartItemId}`,
-          { quantity }
-        );
-        return response.data;
-      } catch (error) {
-        console.error("Failed to update cart item:", error);
-        throw error;
-      }
-    }
-
-    // Mock data with simulated delay
-    await this.delay();
-    // TODO: Return updated mock cart item
-    throw new Error("Mock implementation not complete");
+    const cartResponse = await this.updateCart(cartItemId, quantity);
+    return this.mapCartResponseToCartItem(cartResponse);
   }
 
-  // Remove item from cart
   static async removeFromCart(cartItemId: string): Promise<void> {
-    if (this.USE_API) {
-      try {
-        await apiClient.delete(`${API_CONFIG.ENDPOINTS.CART}/${cartItemId}`);
-      } catch (error) {
-        console.error("Failed to remove item from cart:", error);
-        throw error;
-      }
-    } else {
-      // Mock data with simulated delay
-      await this.delay();
-      // TODO: Mock remove implementation
-    }
+    await this.clearCart(cartItemId);
   }
 
-  // Clear entire cart
-  static async clearCart(accountId: string): Promise<void> {
-    if (this.USE_API) {
-      try {
-        await apiClient.delete(
-          `${API_CONFIG.ENDPOINTS.CART}/clear/${accountId}`
-        );
-      } catch (error) {
-        console.error("Failed to clear cart:", error);
-        throw error;
-      }
-    } else {
-      // Mock data with simulated delay
-      await this.delay();
-      // TODO: Mock clear implementation
-    }
-  }
-
-  // Method to switch to API mode
-  static enableApiMode(enable: boolean = true): void {
-    this.USE_API = enable;
-    console.log(`CartService API mode: ${enable ? "enabled" : "disabled"}`);
+  // Helper function to map API CartResponse to local CartItem type
+  private static mapCartResponseToCartItem(
+    cartResponse: CartResponse
+  ): CartItem {
+    return {
+      id: cartResponse.id,
+      productId: cartResponse.productId,
+      accountId: cartResponse.accountId,
+      quantity: cartResponse.quantity || 0,
+      productName: cartResponse.productName,
+      thumbnail: cartResponse.thumbnail,
+      price: cartResponse.price || 0,
+      stockQuantity: cartResponse.stockQuantity || 0,
+    };
   }
 }

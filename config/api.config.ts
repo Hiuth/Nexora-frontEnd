@@ -90,6 +90,15 @@ export const API_CONFIG = {
       DELETE: "/PcBuild/delete",
     },
 
+    // Cart endpoints
+    CART: {
+      ADD: "/Cart/add",
+      UPDATE: "/Cart/update",
+      GET_BY_ACCOUNT: "/Cart/getByAccount",
+      CLEAR: "/Cart/clear",
+      CLEAR_ALL: "/Cart/clearAll",
+    },
+
     // Warranty endpoints
     WARRANTY_RECORD: {
       CREATE: "/WarrantyRecord/create",

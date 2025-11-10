@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/lib/cart-context";
+import { useCartSync } from "@/hooks/use-cart-sync";
 import { useState } from "react";
 import { CategoryMegaMenu } from "@/components/category-mega-menu";
 import { PCBuilderButton } from "@/components/pc-builder-button";
@@ -14,6 +15,9 @@ import { AccountDropdown } from "@/components/auth/account-dropdown";
 
 export function Header() {
   const { totalItems } = useCart();
+
+  // Sync cart từ API khi component mount và khi auth thay đổi
+  useCartSync();
 
   return (
     <header

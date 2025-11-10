@@ -120,7 +120,6 @@ export interface UpdateProductRequest {
 
 // Cart request types
 export interface AddToCartRequest {
-  productId: string;
   quantity: number;
 }
 

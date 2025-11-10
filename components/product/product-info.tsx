@@ -10,6 +10,7 @@ import { ShoppingCart, Minus, Plus, Share2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/mock-data";
+import { CartService } from "@/services/cart.service";
 import type { Product } from "@/lib/types";
 
 interface ProductInfoProps {
@@ -18,6 +19,7 @@ interface ProductInfoProps {
 
 export function ProductInfo({ product }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { addItem } = useCart();
   const { toast } = useToast();
   const router = useRouter();
@@ -30,17 +32,54 @@ export function ProductInfo({ product }: ProductInfoProps) {
     if (quantity < product.stockQuantity) setQuantity(quantity + 1);
   };
 
-  const handleAddToCart = () => {
-    addItem(product, quantity);
-    toast({
-      title: "Đã thêm vào giỏ hàng",
-      description: `Đã thêm ${quantity} ${product.productName} vào giỏ hàng`,
-    });
+  const handleAddToCart = async () => {
+    setIsAddingToCart(true);
+
+    try {
+      // Add to cart via API
+      await CartService.addToCart(product.id, quantity);
+
+      // Also add to local cart context for immediate UI update
+      addItem(product, quantity);
+
+      toast({
+        title: "Đã thêm vào giỏ hàng",
+        description: `Đã thêm ${quantity} ${product.productName} vào giỏ hàng`,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
-  const handleBuyNow = () => {
-    addItem(product, quantity);
-    router.push("/checkout");
+  const handleBuyNow = async () => {
+    setIsAddingToCart(true);
+
+    try {
+      // Add to cart via API first
+      await CartService.addToCart(product.id, quantity);
+
+      // Add to local cart context
+      addItem(product, quantity);
+
+      // Navigate to checkout
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error adding to cart for buy now:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   return (
@@ -123,11 +162,11 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <Button
             size="lg"
             className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={product.stockQuantity === 0}
+            disabled={product.stockQuantity === 0 || isAddingToCart}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
-            Thêm vào giỏ hàng
+            {isAddingToCart ? "Đang thêm..." : "Thêm vào giỏ hàng"}
           </Button>
           <Button size="lg" variant="outline" className="border-gray-300">
             <Share2 className="h-5 w-5" />
@@ -138,10 +177,10 @@ export function ProductInfo({ product }: ProductInfoProps) {
           variant="secondary"
           size="lg"
           className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold border border-gray-300 shadow-sm"
-          disabled={product.stockQuantity === 0}
+          disabled={product.stockQuantity === 0 || isAddingToCart}
           onClick={handleBuyNow}
         >
-          Mua ngay
+          {isAddingToCart ? "Đang xử lý..." : "Mua ngay"}
         </Button>
       </div>
 

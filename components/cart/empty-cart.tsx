@@ -35,7 +35,7 @@ export function EmptyCart() {
             size="lg"
             className="w-full sm:w-60 h-12 px-6 text-base bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-md hover:shadow-lg transition-all duration-300"
           >
-            <Link href="/products">
+            <Link href="/">
               <Package className="mr-2 h-5 w-5" />
               Khám phá sản phẩm
             </Link>
