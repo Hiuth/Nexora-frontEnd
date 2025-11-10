@@ -175,7 +175,6 @@ export class CheckoutService {
    */
   static calculateCheckoutSummary(cartItems: CartResponse[]): {
     subtotal: number;
-    shipping: number;
     tax: number;
     total: number;
     itemCount: number;
@@ -185,9 +184,8 @@ export class CheckoutService {
       0
     );
 
-    const shipping = subtotal > 500000 ? 0 : 30000; // Free shipping over 500k VND
     const tax = 0; // No tax for now
-    const total = subtotal + shipping + tax;
+    const total = subtotal + tax;
     const itemCount = cartItems.reduce(
       (sum, item) => sum + (item.quantity || 0),
       0
@@ -195,7 +193,6 @@ export class CheckoutService {
 
     return {
       subtotal,
-      shipping,
       tax,
       total,
       itemCount,

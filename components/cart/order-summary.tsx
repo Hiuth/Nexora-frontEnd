@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Shield, Truck, Gift } from "lucide-react";
+import { ArrowRight, Shield, Gift } from "lucide-react";
 import { formatPrice } from "@/lib/mock-data";
 
 interface OrderSummaryProps {
@@ -11,9 +11,8 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ totalPrice, itemCount }: OrderSummaryProps) {
-  const shippingFee = totalPrice >= 500000 ? 0 : 30000;
   const discount = 0;
-  const finalTotal = totalPrice + shippingFee - discount;
+  const finalTotal = totalPrice - discount;
 
   return (
     <div className="lg:col-span-1">
@@ -35,16 +34,6 @@ export function OrderSummary({ totalPrice, itemCount }: OrderSummaryProps) {
               <span className="text-gray-600">Tạm tính</span>
               <span className="font-semibold text-gray-900">
                 {formatPrice(totalPrice)}
-              </span>
-            </div>
-            <div className="flex justify-between text-base">
-              <span className="text-gray-600">Phí vận chuyển</span>
-              <span
-                className={`font-semibold ${
-                  shippingFee === 0 ? "text-green-600" : "text-gray-900"
-                }`}
-              >
-                {shippingFee === 0 ? "Miễn phí" : formatPrice(shippingFee)}
               </span>
             </div>
             <div className="flex justify-between text-base">
@@ -82,20 +71,6 @@ export function OrderSummary({ totalPrice, itemCount }: OrderSummaryProps) {
 
           {/* Benefits */}
           <div className="space-y-3">
-            {shippingFee === 0 && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
-                <Truck className="h-5 w-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-green-800">
-                    Miễn phí vận chuyển
-                  </p>
-                  <p className="text-xs text-green-600">
-                    Đơn hàng trên 500.000đ
-                  </p>
-                </div>
-              </div>
-            )}
-
             <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
               <Shield className="h-5 w-5 text-blue-600 flex-shrink-0" />
               <div>

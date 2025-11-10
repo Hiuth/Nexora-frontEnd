@@ -138,17 +138,6 @@ export function CheckoutForm({ cartItems }: CheckoutFormProps) {
                 <span>{formatPrice(summary.subtotal)}</span>
               </div>
 
-              <div className="flex justify-between">
-                <span>Phí vận chuyển</span>
-                <span>
-                  {summary.shipping === 0 ? (
-                    <span className="text-green-600">Miễn phí</span>
-                  ) : (
-                    formatPrice(summary.shipping)
-                  )}
-                </span>
-              </div>
-
               {summary.tax > 0 && (
                 <div className="flex justify-between">
                   <span>Thuế</span>
@@ -175,16 +164,6 @@ export function CheckoutForm({ cartItems }: CheckoutFormProps) {
                 VNPay - Thanh toán an toàn qua ngân hàng
               </p>
             </div>
-
-            {/* Free shipping notice */}
-            {summary.shipping > 0 && (
-              <div className="bg-yellow-50 p-3 rounded-lg">
-                <p className="text-sm text-yellow-700">
-                  💡 Mua thêm {formatPrice(500000 - summary.subtotal)} để được
-                  miễn phí vận chuyển!
-                </p>
-              </div>
-            )}
           </CardContent>
         </Card>
       </div>

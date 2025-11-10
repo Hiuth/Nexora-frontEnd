@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle2, ShoppingBag, Truck, Shield } from "lucide-react";
+import { CheckCircle2, ShoppingBag, Shield } from "lucide-react";
 import { formatPrice } from "@/lib/mock-data";
 import { Product } from "@/lib/types";
 
@@ -26,8 +26,7 @@ export function OrderSummary({
   isProcessing,
   onSubmit,
 }: OrderSummaryProps) {
-  const shippingFee = totalPrice >= 500000 ? 0 : 30000;
-  const finalTotal = totalPrice + shippingFee;
+  const finalTotal = totalPrice;
 
   return (
     <div className="lg:col-span-1">
@@ -84,16 +83,6 @@ export function OrderSummary({
                 {formatPrice(totalPrice)}
               </span>
             </div>
-            <div className="flex justify-between text-base">
-              <span className="text-gray-600">Phí vận chuyển</span>
-              <span
-                className={`font-semibold ${
-                  shippingFee === 0 ? "text-green-600" : "text-gray-900"
-                }`}
-              >
-                {shippingFee === 0 ? "Miễn phí" : formatPrice(shippingFee)}
-              </span>
-            </div>
           </div>
 
           <Separator className="my-4" />
@@ -130,20 +119,6 @@ export function OrderSummary({
 
           {/* Benefits */}
           <div className="space-y-3 pt-4">
-            {shippingFee === 0 && (
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-green-50 border border-green-200">
-                <Truck className="h-5 w-5 text-green-600 flex-shrink-0" />
-                <div>
-                  <p className="text-sm font-semibold text-green-800">
-                    Miễn phí vận chuyển
-                  </p>
-                  <p className="text-xs text-green-600">
-                    Đơn hàng trên 500.000đ
-                  </p>
-                </div>
-              </div>
-            )}
-
             <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
               <Shield className="h-5 w-5 text-blue-600 flex-shrink-0" />
               <div>
