@@ -63,11 +63,18 @@ export const API_CONFIG = {
     // Order endpoints
     ORDER: {
       GET_ALL: "/Order/getAllOrders",
-      GET_BY_ID: "/Order/getById",
       GET_BY_ACCOUNT_ID: "/Order/getOrderByAccountId",
       CREATE: "/Order/create",
       UPDATE: "/Order/update",
       DELETE: "/Order/deleteOrder",
+    },
+
+    // OrderDetail endpoints
+    ORDER_DETAIL: {
+      CREATE: "/OrderDetail/createOrderDetail",
+      GET_BY_ORDER_ID: "/OrderDetail/getOrderDetails",
+      DELETE_BY_ORDER_ID: "/OrderDetail/deleteOrderDetails",
+      DELETE_BY_ID: "/OrderDetail/delete",
     },
 
     // Account endpoints
@@ -97,6 +104,13 @@ export const API_CONFIG = {
       GET_BY_ACCOUNT: "/Cart/getByAccount",
       CLEAR: "/Cart/clear",
       CLEAR_ALL: "/Cart/clearAll",
+    },
+
+    // Payment endpoints
+    PAYMENT: {
+      CREATE: "/Payment/create",
+      VNPAY_RETURN: "/Payment/vnpay-return",
+      VNPAY_IPN: "/Payment/vnpay-ipn",
     },
 
     // Warranty endpoints

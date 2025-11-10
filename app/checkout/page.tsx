@@ -1,106 +1,103 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { useCart } from "@/lib/cart-context";
-import { CheckoutHeader } from "@/components/checkout/checkout-header";
-import { CustomerInfo } from "@/components/checkout/customer-info";
-import { PaymentMethod } from "@/components/checkout/payment-method";
-import { OrderSummary } from "@/components/checkout/order-summary";
+import { CheckoutForm } from "@/components/checkout";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CartService } from "@/services/cart.service";
+import type { CartResponse } from "@/types/api";
+import { ShoppingCart } from "lucide-react";
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const { items, totalPrice, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState("cod");
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [cartItems, setCartItems] = useState<CartResponse[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    phone: "",
-    address: "",
-    city: "",
-    district: "",
-    ward: "",
-    notes: "",
-  });
+  useEffect(() => {
+    loadCartItems();
+  }, []);
 
-  const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
-  };
+  const loadCartItems = async () => {
+    try {
+      setIsLoading(true);
+      const items = await CartService.getCartByAccount();
+      setCartItems(items);
 
-  const handleSubmit = async () => {
-    setIsProcessing(true);
-
-    // Simulate order processing
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-
-    clearCart();
-    router.push("/order-success");
-  };
-
-  const isFormValid = () => {
-    return (
-      formData.fullName &&
-      formData.email &&
-      formData.phone &&
-      formData.address &&
-      formData.city &&
-      formData.district &&
-      formData.ward
-    );
-  };
-
-  if (items.length === 0) {
-    router.push("/cart");
-    return null;
-  }
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (isFormValid()) {
-      handleSubmit();
+      // Redirect if cart is empty
+      if (items.length === 0) {
+        router.push("/cart");
+      }
+    } catch (error) {
+      console.error("Error loading cart items:", error);
+      router.push("/cart");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen flex-col bg-white">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Đang tải thông tin giỏ hàng...</p>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (cartItems.length === 0) {
+    return (
+      <div className="flex min-h-screen flex-col bg-white">
+        <Header />
+        <main className="flex-1 flex items-center justify-center">
+          <Card className="max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <ShoppingCart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+              <CardTitle>Giỏ hàng trống</CardTitle>
+            </CardHeader>
+            <CardContent className="text-center">
+              <p className="text-gray-600 mb-4">
+                Bạn chưa có sản phẩm nào trong giỏ hàng.
+              </p>
+              <Button
+                onClick={() => router.push("/products")}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                Tiếp tục mua sắm
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
-      <CheckoutHeader itemCount={items.length} />
+
+      {/* Page Header */}
+      <div className="bg-gray-50 border-b">
+        <div className="container mx-auto px-4 py-6">
+          <h1 className="text-2xl font-bold text-gray-900">Thanh toán</h1>
+          <p className="text-gray-600 mt-1">
+            Hoàn tất thông tin để đặt hàng ({cartItems.length} sản phẩm)
+          </p>
+        </div>
+      </div>
 
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
-          <form onSubmit={handleFormSubmit}>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Checkout Form */}
-              <div className="lg:col-span-2 space-y-6">
-                <CustomerInfo
-                  formData={formData}
-                  onChange={handleInputChange}
-                />
-
-                <PaymentMethod
-                  paymentMethod={paymentMethod}
-                  onPaymentMethodChange={setPaymentMethod}
-                />
-              </div>
-
-              {/* Order Summary */}
-              <OrderSummary
-                items={items}
-                totalPrice={totalPrice}
-                isProcessing={isProcessing}
-                onSubmit={handleSubmit}
-              />
-            </div>
-          </form>
+          <CheckoutForm cartItems={cartItems} />
         </div>
       </main>
 

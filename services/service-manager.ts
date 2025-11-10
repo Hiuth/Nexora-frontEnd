@@ -5,6 +5,9 @@ import { ProductService } from "./product.service";
 import { ProductImgService } from "./product-img.service";
 import { CartService } from "./cart.service";
 import { OrderService } from "./order.service";
+import { OrderDetailService } from "./order-detail.service";
+import { PaymentService } from "./payment.service";
+import { CheckoutService } from "./checkout.service";
 import { WarrantyService } from "./warranty.service";
 import { PcBuildService } from "./pc-build.service";
 import { BrandService } from "./brand.service";
@@ -27,11 +30,11 @@ export class ServiceManager {
   public setApiMode(enabled: boolean): void {
     this.isApiMode = enabled;
 
-    // Update all services (except AuthService and CartService which now always use API)
+    // Update all services (except AuthService, CartService, OrderService, OrderDetailService,
+    // PaymentService, and CheckoutService which always use API)
     CategoryService.enableApiMode(enabled);
     ProductService.enableApiMode(enabled);
     ProductImgService.enableApiMode(enabled);
-    OrderService.enableApiMode(enabled);
     WarrantyService.enableApiMode(enabled);
     PcBuildService.enableApiMode(enabled);
     BrandService.enableApiMode(enabled);
@@ -80,6 +83,9 @@ export class ServiceManager {
         productImg: "ready",
         cart: "ready",
         order: "ready",
+        orderDetail: "ready",
+        payment: "ready",
+        checkout: "ready",
         warranty: "ready",
         pcBuild: "ready",
         brand: "ready",
