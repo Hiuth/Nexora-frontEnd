@@ -27,7 +27,8 @@ export async function apiCall<T>(
     endpoint.includes("/Product/getByBrandId") ||
     endpoint.includes("/Product/searchProduct") ||
     endpoint.includes("/Product/getByPriceRange") ||
-    endpoint.includes("/ProductImg/getAllByProductId");
+    endpoint.includes("/ProductImg/getAllByProductId") ||
+    endpoint.includes("/Payment/vnpay-return");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

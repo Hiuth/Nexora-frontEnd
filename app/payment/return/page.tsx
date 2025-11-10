@@ -6,7 +6,7 @@ import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PaymentService } from "@/services/payment.service";
+// import { PaymentService } from "@/services/payment.service"; // Not needed in approach B
 import { CheckoutService } from "@/services/checkout.service";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
@@ -20,10 +20,29 @@ export default function PaymentReturnPage() {
   const [status, setStatus] = useState<PaymentStatus>("processing");
   const [orderCode, setOrderCode] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const [redirectIn, setRedirectIn] = useState<number>(5);
 
   useEffect(() => {
     handlePaymentReturn();
   }, [searchParams]);
+
+  // Auto redirect to home after success
+  useEffect(() => {
+    if (status !== "success") return;
+    setRedirectIn(5);
+    const interval = setInterval(() => {
+      setRedirectIn((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [status]);
+
+  // Navigate when countdown finishes
+  useEffect(() => {
+    if (status === "success" && redirectIn === 0) {
+      router.replace("/");
+    }
+  }, [status, redirectIn, router]);
 
   const handlePaymentReturn = async () => {
     try {
@@ -44,46 +63,47 @@ export default function PaymentReturnPage() {
         });
         return;
       }
+      // Approach B: derive result directly from VNPay params (backend already validated & redirected)
+      const responseCode = params.get("vnp_ResponseCode");
+      const txnRef = params.get("vnp_TxnRef") || "";
 
-      // Use PaymentService to handle VNPay return
-      const result = await PaymentService.handleVNPayReturn(params);
+      // Store order code for UI
+      setOrderCode(txnRef);
 
-      if (result.success && result.orderId) {
-        // Payment successful
-        await CheckoutService.handlePaymentSuccess(result.orderId);
+      if (responseCode === "00") {
+        // Success
+        try {
+          // Optional: notify backend about success (can be skipped if IPN handles it)
+          await CheckoutService.handlePaymentSuccess(txnRef);
+        } catch (e) {
+          // Don't block UI on this
+          console.warn("handlePaymentSuccess failed (non-blocking)", e);
+        }
 
         setStatus("success");
-        setOrderCode(result.orderId);
         toast({
           title: "Thanh toán thành công!",
-          description: `Đơn hàng ${result.orderId} đã được thanh toán thành công`,
+          description: `Đơn hàng ${txnRef} đã được thanh toán thành công`,
         });
+      } else if (responseCode === "24") {
+        // Cancelled by user
+        setStatus("cancelled");
+        setErrorMessage("Bạn đã hủy thanh toán");
       } else {
-        // Payment failed or cancelled
-        const responseCode = params.get("vnp_ResponseCode");
-
-        if (responseCode === "24") {
-          // Payment cancelled by user
-          setStatus("cancelled");
-          setErrorMessage("Bạn đã hủy thanh toán");
-          setOrderCode(result.orderId || "");
-        } else {
-          // Payment failed
-          const errorMsg =
-            result.message || getVNPayErrorMessage(responseCode || "");
-          if (result.orderId) {
-            await CheckoutService.handlePaymentFailure(result.orderId);
-          }
-          setStatus("error");
-          setErrorMessage(errorMsg);
-          setOrderCode(result.orderId || "");
-
-          toast({
-            title: "Thanh toán thất bại",
-            description: errorMsg,
-            variant: "destructive",
-          });
+        // Failed
+        const errorMsg = getVNPayErrorMessage(responseCode || "");
+        try {
+          await CheckoutService.handlePaymentFailure(txnRef);
+        } catch (e) {
+          console.warn("handlePaymentFailure failed (non-blocking)", e);
         }
+        setStatus("error");
+        setErrorMessage(errorMsg);
+        toast({
+          title: "Thanh toán thất bại",
+          description: errorMsg,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Payment return error:", error);
@@ -155,7 +175,18 @@ export default function PaymentReturnPage() {
                 Chúng tôi sẽ xử lý đơn hàng và giao hàng trong thời gian sớm
                 nhất.
               </p>
+              <div className="bg-green-50 border border-green-200 rounded-md p-3">
+                <p className="text-green-800 text-sm">
+                  Sẽ tự động chuyển về trang chủ sau {redirectIn}s
+                </p>
+              </div>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button
+                  onClick={() => router.replace("/")}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  Về trang chủ ngay
+                </Button>
                 <Button
                   onClick={() => router.push(`/account/orders`)}
                   className="bg-blue-600 hover:bg-blue-700"
