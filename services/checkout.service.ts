@@ -98,9 +98,6 @@ export class CheckoutService {
    */
   static async handlePaymentSuccess(orderId: string): Promise<void> {
     try {
-      // Update order status to CONFIRMED
-      await OrderService.updateOrder(orderId, { status: "CONFIRMED" });
-
       // Clear cart
       await CartService.clearAllCart();
 
