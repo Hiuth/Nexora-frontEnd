@@ -4,12 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 // import { PaymentService } from "@/services/payment.service"; // Not needed in approach B
 import { CheckoutService } from "@/services/checkout.service";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { ReturnProcessing } from "@/components/payment/return-processing";
+import { ReturnSuccess } from "@/components/payment/return-success";
+import { ReturnCancelled } from "@/components/payment/return-cancelled";
+import { ReturnError } from "@/components/payment/return-error";
 
 type PaymentStatus = "processing" | "success" | "error" | "cancelled";
 
@@ -144,129 +147,16 @@ export default function PaymentReturnPage() {
   const renderContent = () => {
     switch (status) {
       case "processing":
-        return (
-          <Card className="max-w-lg mx-auto">
-            <CardHeader className="text-center">
-              <AlertCircle className="h-12 w-12 mx-auto text-blue-600 mb-4" />
-              <CardTitle>Đang xử lý thanh toán</CardTitle>
-            </CardHeader>
-            <CardContent className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Vui lòng đợi trong giây lát...</p>
-            </CardContent>
-          </Card>
-        );
+        return <ReturnProcessing />;
 
       case "success":
-        return (
-          <Card className="max-w-lg mx-auto">
-            <CardHeader className="text-center">
-              <CheckCircle className="h-12 w-12 mx-auto text-green-600 mb-4" />
-              <CardTitle className="text-green-600">
-                Thanh toán thành công!
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-gray-600">
-                Đơn hàng <span className="font-semibold">{orderCode}</span> đã
-                được thanh toán thành công.
-              </p>
-              <p className="text-sm text-gray-500">
-                Chúng tôi sẽ xử lý đơn hàng và giao hàng trong thời gian sớm
-                nhất.
-              </p>
-              <div className="bg-green-50 border border-green-200 rounded-md p-3">
-                <p className="text-green-800 text-sm">
-                  Sẽ tự động chuyển về trang chủ sau {redirectIn}s
-                </p>
-              </div>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  onClick={() => router.replace("/")}
-                  className="bg-green-600 hover:bg-green-700"
-                >
-                  Về trang chủ ngay
-                </Button>
-                <Button
-                  onClick={() => router.push(`/account/orders`)}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Xem đơn hàng
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => router.push("/products")}
-                >
-                  Tiếp tục mua sắm
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <ReturnSuccess orderCode={orderCode} redirectIn={redirectIn} />;
 
       case "cancelled":
-        return (
-          <Card className="max-w-lg mx-auto">
-            <CardHeader className="text-center">
-              <AlertCircle className="h-12 w-12 mx-auto text-yellow-600 mb-4" />
-              <CardTitle className="text-yellow-600">
-                Thanh toán đã bị hủy
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-gray-600">
-                Bạn đã hủy thanh toán cho đơn hàng {orderCode}.
-              </p>
-              <p className="text-sm text-gray-500">
-                Đơn hàng vẫn được lưu và bạn có thể tiếp tục thanh toán sau.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  onClick={() => router.push("/checkout")}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Thử lại thanh toán
-                </Button>
-                <Button variant="outline" onClick={() => router.push("/cart")}>
-                  Quay về giỏ hàng
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <ReturnCancelled orderCode={orderCode} message={errorMessage} />;
 
       case "error":
-        return (
-          <Card className="max-w-lg mx-auto">
-            <CardHeader className="text-center">
-              <XCircle className="h-12 w-12 mx-auto text-red-600 mb-4" />
-              <CardTitle className="text-red-600">
-                Thanh toán thất bại
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-gray-600">
-                {errorMessage || "Có lỗi xảy ra trong quá trình thanh toán."}
-              </p>
-              {orderCode && (
-                <p className="text-sm text-gray-500">
-                  Mã đơn hàng: {orderCode}
-                </p>
-              )}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Button
-                  onClick={() => router.push("/checkout")}
-                  className="bg-blue-600 hover:bg-blue-700"
-                >
-                  Thử lại thanh toán
-                </Button>
-                <Button variant="outline" onClick={() => router.push("/cart")}>
-                  Quay về giỏ hàng
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
+        return <ReturnError orderCode={orderCode} message={errorMessage} />;
 
       default:
         return null;
