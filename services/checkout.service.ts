@@ -34,11 +34,11 @@ export class CheckoutService {
         (sum, item) => sum + (item.price || 0) * (item.quantity || 0),
         0
       );
-
+      const price = 0;
       // 2. Create order
       const orderRequest: CreateOrderRequest = {
         status: "PENDING",
-        totalAmount,
+        totalAmount: price,
         customerName: customerInfo.customerName,
         phoneNumber: customerInfo.phoneNumber,
         address: customerInfo.address,

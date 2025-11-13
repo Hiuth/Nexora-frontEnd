@@ -117,10 +117,10 @@ export class OrderService {
    */
   static getOrderStatuses(): Array<{ value: string; label: string }> {
     return [
-      { value: "PENDING", label: "Chờ xác nhận" },
+      { value: "PENDING", label: "Chờ xử lý" },
       { value: "CONFIRMED", label: "Đã xác nhận" },
       { value: "PROCESSING", label: "Đang xử lý" },
-      { value: "SHIPPING", label: "Đang giao hàng" },
+      { value: "SHIPPED", label: "Đã gửi hàng" },
       { value: "DELIVERED", label: "Đã giao hàng" },
       { value: "CANCELLED", label: "Đã hủy" },
       { value: "RETURNED", label: "Đã trả hàng" },
@@ -132,10 +132,10 @@ export class OrderService {
    */
   static getOrderStatusLabel(status: string): string {
     const statusMap: Record<string, string> = {
-      PENDING: "Chờ xác nhận",
+      PENDING: "Chờ xử lý",
       CONFIRMED: "Đã xác nhận",
       PROCESSING: "Đang xử lý",
-      SHIPPING: "Đang giao hàng",
+      SHIPPED: "Đã gửi hàng",
       DELIVERED: "Đã giao hàng",
       CANCELLED: "Đã hủy",
       RETURNED: "Đã trả hàng",
@@ -151,7 +151,7 @@ export class OrderService {
       PENDING: "text-yellow-600 bg-yellow-50 border-yellow-200",
       CONFIRMED: "text-blue-600 bg-blue-50 border-blue-200",
       PROCESSING: "text-purple-600 bg-purple-50 border-purple-200",
-      SHIPPING: "text-orange-600 bg-orange-50 border-orange-200",
+      SHIPPED: "text-orange-600 bg-orange-50 border-orange-200",
       DELIVERED: "text-green-600 bg-green-50 border-green-200",
       CANCELLED: "text-red-600 bg-red-50 border-red-200",
       RETURNED: "text-gray-600 bg-gray-50 border-gray-200",
