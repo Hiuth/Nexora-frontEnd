@@ -253,7 +253,7 @@ function OrderList({ orders, onOrderUpdate }: OrderListProps) {
 
       {/* Cancel Order Confirmation Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white border border-slate-200 shadow-xl">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               ⚠️ Xác nhận hủy đơn hàng
@@ -273,10 +273,12 @@ function OrderList({ orders, onOrderUpdate }: OrderListProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Giữ đơn hàng</AlertDialogCancel>
+            <AlertDialogCancel className="bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-300">
+              Giữ đơn hàng
+            </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleConfirmCancel}
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white border border-red-600"
             >
               Xác nhận hủy
             </AlertDialogAction>
