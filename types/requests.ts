@@ -174,6 +174,11 @@ export interface UpdatePcBuildItemRequest {
   quantity?: number;
 }
 
+// Product Attribute request types
+export interface ProductAttributeRequest {
+  value: string;
+}
+
 // Warranty request types
 export interface CreateWarrantyRequest {
   productId: string;

@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Star, Send } from "lucide-react";
 import type { Product } from "@/lib/types";
+import { ProductAttributes } from "./product-attributes";
 
 interface ProductTabsProps {
   product: Product;
@@ -123,44 +124,55 @@ export function ProductTabs({ product }: ProductTabsProps) {
             <h3 className="font-semibold text-lg mb-4 text-gray-900">
               Thông số kỹ thuật
             </h3>
-            <div className="grid gap-3">
-              <div className="flex py-3 border-b border-gray-100">
-                <span className="font-medium w-1/3 text-gray-700">
-                  Thương hiệu
-                </span>
-                <span className="text-gray-600">{product.brandName}</span>
+
+            {/* Thông số cơ bản */}
+            <div className="mb-6">
+              <div className="grid gap-3">
+                <div className="flex py-3 border-b border-gray-100">
+                  <span className="font-medium w-1/3 text-gray-700">
+                    Thương hiệu
+                  </span>
+                  <span className="text-gray-600">{product.brandName}</span>
+                </div>
+                <div className="flex py-3 border-b border-gray-100">
+                  <span className="font-medium w-1/3 text-gray-700">
+                    Danh mục
+                  </span>
+                  <span className="text-gray-600">{product.categoryName}</span>
+                </div>
+                <div className="flex py-3 border-b border-gray-100">
+                  <span className="font-medium w-1/3 text-gray-700">Loại</span>
+                  <span className="text-gray-600">
+                    {product.subCategoryName}
+                  </span>
+                </div>
+                <div className="flex py-3 border-b border-gray-100">
+                  <span className="font-medium w-1/3 text-gray-700">
+                    Tình trạng
+                  </span>
+                  <Badge
+                    variant={
+                      product.stockQuantity > 0 ? "default" : "destructive"
+                    }
+                    className="text-xs"
+                  >
+                    {product.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}
+                  </Badge>
+                </div>
+                <div className="flex py-3 border-b border-gray-100">
+                  <span className="font-medium w-1/3 text-gray-700">
+                    Bảo hành
+                  </span>
+                  <span className="text-gray-600">
+                    {product.warrantyPeriod || 36} tháng
+                  </span>
+                </div>
               </div>
-              <div className="flex py-3 border-b border-gray-100">
-                <span className="font-medium w-1/3 text-gray-700">
-                  Danh mục
-                </span>
-                <span className="text-gray-600">{product.categoryName}</span>
-              </div>
-              <div className="flex py-3 border-b border-gray-100">
-                <span className="font-medium w-1/3 text-gray-700">Loại</span>
-                <span className="text-gray-600">{product.subCategoryName}</span>
-              </div>
-              <div className="flex py-3 border-b border-gray-100">
-                <span className="font-medium w-1/3 text-gray-700">
-                  Tình trạng
-                </span>
-                <Badge
-                  variant={
-                    product.stockQuantity > 0 ? "default" : "destructive"
-                  }
-                  className="text-xs"
-                >
-                  {product.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}
-                </Badge>
-              </div>
-              <div className="flex py-3 border-b border-gray-100">
-                <span className="font-medium w-1/3 text-gray-700">
-                  Bảo hành
-                </span>
-                <span className="text-gray-600">
-                  {product.warrantyPeriod || 36} tháng
-                </span>
-              </div>
+            </div>
+
+            {/* Thông số kỹ thuật chi tiết từ API */}
+            <div>
+              <ProductAttributes productId={product.id} />
             </div>
           </TabsContent>
 

@@ -60,6 +60,14 @@ export const API_CONFIG = {
       DELETE: "/ProductImg/delete",
     },
 
+    // Product Attribute endpoints
+    PRODUCT_ATTRIBUTE: {
+      GET_BY_PRODUCT_ID: "/ProductAttribute/getByProductId",
+      CREATE: "/ProductAttribute/create",
+      UPDATE: "/ProductAttribute/update",
+      DELETE: "/ProductAttribute/delete",
+    },
+
     // Order endpoints
     ORDER: {
       GET_ALL: "/Order/getAllOrders",
