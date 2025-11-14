@@ -165,7 +165,7 @@ export function MenuContent({
             {categorySubCategories.map((subCategory) => (
               <Link
                 key={subCategory.id}
-                href={`/products?subcategory=${subCategory.id}`}
+                href={`/products?subCategoryId=${subCategory.id}`}
                 className="group relative overflow-hidden bg-white rounded-xl border border-slate-200/60 hover:border-blue-200 hover:shadow-lg hover:shadow-blue-100/50 transition-all duration-300 ease-out"
               >
                 <div className="p-4">

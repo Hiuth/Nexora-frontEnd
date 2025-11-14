@@ -31,7 +31,8 @@ export function CategorySidebar({
                 // Navigate to PC Builder page
                 window.location.href = "/pc-builder";
               } else {
-                onCategoryHover(category.id);
+                // Navigate to products page with category filter
+                window.location.href = `/products?categoryId=${category.id}`;
               }
             }}
           >
