@@ -132,6 +132,16 @@ export const API_CONFIG = {
       GET_BY_SERIAL_NUMBER: "/WarrantyRecord/GetBySerialNumber",
       GET_BY_IMEI: "/WarrantyRecord/GetByImei",
     },
+
+    // Comment endpoints
+    COMMENT: {
+      CREATE: "/Comment/create",
+      UPDATE: "/Comment/update",
+      DELETE: "/Comment/delete",
+      GET_BY_PRODUCT: "/Comment/getByProduct",
+      GET_BY_ACCOUNT: "/Comment/getByAccount",
+      GET_RATING_SUMMARY: "/Comment/summary",
+    },
   },
   // Request timeouts
   TIMEOUT: 10000,

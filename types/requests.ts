@@ -179,6 +179,22 @@ export interface ProductAttributeRequest {
   value: string;
 }
 
+// Comment request types
+export interface CommentRequest {
+  content: string;
+  rating: number;
+}
+
+export interface CreateCommentRequest {
+  content: string;
+  rating: number;
+}
+
+export interface UpdateCommentRequest {
+  content?: string;
+  rating?: number;
+}
+
 // Warranty request types
 export interface CreateWarrantyRequest {
   productId: string;

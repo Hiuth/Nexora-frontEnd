@@ -244,6 +244,7 @@ export interface CommentResponse {
   id: string;
   accountId: string;
   accountName: string;
+  accountAvatar: string;
   productId: string;
   content: string;
   rating: number;
