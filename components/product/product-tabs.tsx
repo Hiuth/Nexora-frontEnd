@@ -150,14 +150,15 @@ export function ProductTabs({ product }: ProductTabsProps) {
                   <span className="font-medium w-1/3 text-gray-700">
                     Tình trạng
                   </span>
-                  <Badge
-                    variant={
-                      product.stockQuantity > 0 ? "default" : "destructive"
-                    }
-                    className="text-xs"
+                  <span
+                    className={`text-gray-600 ${
+                      product.stockQuantity > 0
+                        ? "text-green-600"
+                        : "text-red-600"
+                    }`}
                   >
                     {product.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}
-                  </Badge>
+                  </span>
                 </div>
                 <div className="flex py-3 border-b border-gray-100">
                   <span className="font-medium w-1/3 text-gray-700">
