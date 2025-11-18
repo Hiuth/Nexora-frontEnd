@@ -100,9 +100,11 @@ export const API_CONFIG = {
       GET_BY_ID: "/PcBuild/getById",
       GET_BY_CATEGORY_ID: "/PcBuild/getByCategory",
       GET_BY_SUBCATEGORY_ID: "/PcBuild/getBySubCategory",
-      CREATE: "/PcBuild/create",
-      UPDATE: "/PcBuild/update",
-      DELETE: "/PcBuild/delete",
+    },
+
+    // PC Build Item endpoints
+    PC_BUILD_ITEM: {
+      GET_BY_PC_BUILD_ID: "/PcBuildItem/getAllByPcBuildById",
     },
 
     // Cart endpoints
