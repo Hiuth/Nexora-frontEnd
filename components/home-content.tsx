@@ -270,7 +270,7 @@ export function HomeContent() {
               className="bg-white text-blue-700 shadow-lg sm:shadow-xl font-semibold px-6 sm:px-8 md:px-12 py-3 sm:py-4 md:py-5 text-base sm:text-lg md:text-xl w-[160px] hover:bg-blue-50"
               asChild
             >
-              <Link href="/products">Xem sản phẩm</Link>
+              <Link href="/products?getAll">Xem sản phẩm</Link>
             </Button>
           </div>
         </div>
