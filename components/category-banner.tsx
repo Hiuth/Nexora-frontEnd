@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useEffect } from "react";
 import { CategoryService } from "@/services/category.service";
 import { Category } from "@/lib/types";
@@ -145,10 +144,18 @@ export function CategoryBanner() {
           <div className="relative overflow-hidden">
             <div className="flex gap-4 bg-white p-6 animate-scroll">
               {categoriesWithImagesData.map((category) => (
-                <Link
+                <div
                   key={`cat-a-${category.id}`}
-                  href={`/products?category=${category.id}`}
-                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
+                  onClick={() => {
+                    if (category.categoryName === "Máy Bộ Nexora" || category.id === "pc-builder") {
+                      // Navigate to PC Build products page
+                      window.location.href = `/products?pcBuild=true&categoryId=${category.id}`;
+                    } else {
+                      // Navigate to regular products page with category filter
+                      window.location.href = `/products?categoryId=${category.id}`;
+                    }
+                  }}
+                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100 cursor-pointer"
                 >
                   {/* Content Container */}
                   <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
@@ -186,13 +193,21 @@ export function CategoryBanner() {
 
                   {/* Subtle bottom accent */}
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
-                </Link>
+                </div>
               ))}
               {categoriesWithImagesData.map((category) => (
-                <Link
+                <div
                   key={`cat-b-${category.id}`}
-                  href={`/products?category=${category.id}`}
-                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100"
+                  onClick={() => {
+                    if (category.categoryName === "Máy Bộ Nexora" || category.id === "pc-builder") {
+                      // Navigate to PC Build products page
+                      window.location.href = `/products?pcBuild=true&categoryId=${category.id}`;
+                    } else {
+                      // Navigate to regular products page with category filter
+                      window.location.href = `/products?categoryId=${category.id}`;
+                    }
+                  }}
+                  className="group relative bg-white hover:bg-slate-50 transition-all duration-300 hover:shadow-xl hover:z-10 rounded-xl flex-shrink-0 w-40 shadow-sm border border-slate-100 cursor-pointer"
                 >
                   {/* Content Container */}
                   <div className="p-4 text-center min-h-[120px] flex flex-col justify-between">
@@ -230,7 +245,7 @@ export function CategoryBanner() {
 
                   {/* Subtle bottom accent */}
                   <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-blue-500 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center"></div>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
