@@ -9,19 +9,32 @@ import { ActiveFilters } from "@/components/products/active-filters";
 import { ProductsHeader } from "@/components/products/products-header";
 import { MobileFilters } from "@/components/products/mobile-filters";
 import { ProductsGrid } from "@/components/products/products-grid";
+import { ProductsAutoLoader } from "@/components/products/products-auto-loader";
+import { useProductsInfinite } from "@/hooks/use-products-infinite";
 import { products, categories, subCategories, brands } from "@/lib/mock-data";
-import { ProductService } from "@/services/product.service";
 import { BrandService } from "@/services/brand.service";
-import { Product, Brand } from "@/lib/types";
+import { Brand } from "@/lib/types";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
   const subCategoryId = searchParams.get("subCategoryId");
+  const getAll = searchParams.get("getAll");
 
-  const [apiProducts, setApiProducts] = useState<Product[]>([]);
+  // Use the infinite products hook
+  const {
+    products: infiniteProducts,
+    loading,
+    loadingMore,
+    error,
+    hasMore,
+    totalItems,
+    fetchProducts,
+    loadMoreProducts,
+    reset,
+  } = useProductsInfinite();
+
   const [apiBrands, setApiBrands] = useState<Brand[]>([]);
-  const [loading, setLoading] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>(
     []
@@ -33,34 +46,22 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
 
-  // Load products from API when categoryId or subCategoryId is present
+  // Load products from API when URL params change
   useEffect(() => {
     const loadProducts = async () => {
-      if (categoryId || subCategoryId) {
-        setLoading(true);
-        try {
-          let products: Product[] = [];
-          if (subCategoryId) {
-            products = await ProductService.getProductBySubCategoryId(
-              subCategoryId
-            );
-          } else if (categoryId) {
-            products = await ProductService.getProductByCategoryID(categoryId);
-          }
-          setApiProducts(products);
-        } catch (error) {
-          console.error("Failed to load products:", error);
-          setApiProducts([]);
-        } finally {
-          setLoading(false);
-        }
+      if (categoryId || subCategoryId || getAll !== null) {
+        const filters = {
+          categoryId: categoryId || undefined,
+          subCategoryId: subCategoryId || undefined,
+        };
+        await fetchProducts(filters);
       } else {
-        setApiProducts([]);
+        reset();
       }
     };
 
     loadProducts();
-  }, [categoryId, subCategoryId]);
+  }, [categoryId, subCategoryId, getAll, fetchProducts, reset]);
 
   // Load brands from API
   useEffect(() => {
@@ -79,20 +80,35 @@ export default function ProductsPage() {
 
   // Generate page title based on query params
   const pageTitle = useMemo(() => {
-    if (subCategoryId && apiProducts.length > 0) {
-      return apiProducts[0]?.subCategoryName || "S?n ph?m";
+    if (getAll !== null) {
+      return "Tất cả sản phẩm";
     }
-    if (categoryId && apiProducts.length > 0) {
-      return apiProducts[0]?.categoryName || "S?n ph?m";
+    if (subCategoryId && infiniteProducts.length > 0) {
+      return infiniteProducts[0]?.subCategoryName || "Sản phẩm";
+    }
+    if (categoryId && infiniteProducts.length > 0) {
+      return infiniteProducts[0]?.categoryName || "Sản phẩm";
     }
     return undefined;
-  }, [subCategoryId, categoryId, apiProducts]);
+  }, [getAll, subCategoryId, categoryId, infiniteProducts]);
 
   const maxPrice = 100000000;
 
   const filteredProducts = useMemo(() => {
-    const sourceProducts = apiProducts.length > 0 ? apiProducts : products;
+    const sourceProducts = infiniteProducts.length > 0 ? infiniteProducts : products;
     let filtered = [...sourceProducts];
+
+    // Remove duplicates by id
+    const seen = new Set();
+    filtered = filtered.filter(product => {
+      if (seen.has(product.id)) {
+        return false; // Skip duplicate
+      }
+      seen.add(product.id);
+      return true;
+    });
+
+
 
     // Filter by categories
     if (selectedCategories.length > 0) {
@@ -142,7 +158,7 @@ export default function ProductsPage() {
 
     return filtered;
   }, [
-    apiProducts,
+    infiniteProducts,
     selectedCategories,
     selectedSubCategories,
     selectedBrands,
@@ -156,6 +172,9 @@ export default function ProductsPage() {
     setSelectedBrands([]);
     setPriceRange([0, maxPrice]);
   };
+
+  // Auto-loader should only be enabled for getAll parameter
+  const isAutoLoaderEnabled = getAll !== null;
 
   const hasActiveFilters =
     selectedCategories.length > 0 ||
@@ -257,6 +276,15 @@ export default function ProductsPage() {
                 products={filteredProducts}
                 onClearFilters={clearFilters}
               />
+
+              {isAutoLoaderEnabled && (
+                <ProductsAutoLoader
+                  loading={loadingMore}
+                  hasMore={hasMore}
+                  error={error}
+                  onLoadMore={loadMoreProducts}
+                />
+              )}
             </div>
           </div>
         </div>

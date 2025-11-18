@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import { ProductCard } from "@/components/product-card";
 import { EmptyProducts } from "@/components/products/empty-products";
 import type { Product } from "@/lib/types";
@@ -15,6 +16,17 @@ export function ProductsGrid({
   products,
   onClearFilters,
 }: ProductsGridProps) {
+  // Deduplicate products by ID to prevent React key warnings
+  const uniqueProducts = useMemo(() => {
+    const seen = new Set<string>();
+    return products.filter(product => {
+      if (seen.has(product.id)) {
+        return false;
+      }
+      seen.add(product.id);
+      return true;
+    });
+  }, [products]);
   if (loading) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
@@ -29,10 +41,10 @@ export function ProductsGrid({
     );
   }
 
-  if (products.length > 0) {
+  if (uniqueProducts.length > 0) {
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 sm:gap-3">
-        {products.map((product) => (
+        {uniqueProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>

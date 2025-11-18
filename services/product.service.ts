@@ -23,16 +23,17 @@ export class ProductService {
     maxPrice?: number;
     search?: string;
   }): Promise<Product[]> {
+    
     if (this.USE_API) {
       try {
-        const queryParams = params
-          ? Object.entries(params)
-              .filter(([_, value]) => value !== undefined)
-              .reduce(
-                (acc, [key, value]) => ({ ...acc, [key]: value.toString() }),
-                {}
-              )
-          : {};
+        // Map frontend parameters to backend expected parameters
+        const queryParams: any = {};
+        if (params?.page) queryParams.pageNumber = params.page; // Backend might expect pageNumber
+        if (params?.pageSize) queryParams.pageSize = params.pageSize;
+        if (params?.search) queryParams.search = params.search;
+        if (params?.brand) queryParams.brand = params.brand;
+        if (params?.minPrice) queryParams.minPrice = params.minPrice;
+        if (params?.maxPrice) queryParams.maxPrice = params.maxPrice;
 
         const response = await apiGet<any>(
           API_CONFIG.ENDPOINTS.PRODUCT.GET_ALL,
@@ -42,25 +43,46 @@ export class ProductService {
         if (response.code === 1000 && response.result) {
           const paginatedData = response.result;
           const filteredProducts = (paginatedData as any).items || [];
-
+          
+          // Store pagination info for hook to use
+          (filteredProducts as any).__paginationInfo = {
+            totalCount: paginatedData.totalCount,
+            totalPages: paginatedData.totalPages,
+            currentPage: paginatedData.totalPage || params?.page || 1,
+            hasNextPage: (paginatedData.totalPage || params?.page || 1) < paginatedData.totalPages
+          };
+          
           return Array.isArray(filteredProducts) ? filteredProducts : [];
         }
 
         return [];
       } catch (error) {
-        console.error(
-          "Failed to fetch products from API, using mock data:",
-          error
-        );
+        console.error("API failed, using mock data:", error);
         // Fallback to mock data
         await this.delay();
-        return products;
+        
+        // Simulate pagination with mock data for fallback
+        const page = params?.page || 1;
+        const pageSize = params?.pageSize || 10;
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        
+        const paginatedProducts = products.slice(startIndex, endIndex);
+        return paginatedProducts;
       }
     }
 
     // Mock data with simulated delay
     await this.delay();
-    return products;
+    
+    // Simulate pagination with mock data 
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    const paginatedProducts = products.slice(startIndex, endIndex);
+    return paginatedProducts;
   }
 
   // Get product by ID
@@ -129,7 +151,6 @@ export class ProductService {
             API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_SUBCATEGORY_ID
           }/${encodeURIComponent(subCategoryId)}`
         );
-        console.log("API response for products by subcategory:", pathResp);
         const normalize = (payload: any): Product[] => {
           if (!payload) return [];
           const items = (payload as any).items || [];
@@ -169,7 +190,6 @@ export class ProductService {
             API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_CATEGORY_ID
           }/${encodeURIComponent(categoryId)}`
         );
-        console.log("API response for products by category:", pathResp);
         const normalize = (payload: any): Product[] => {
           if (!payload) return [];
           const items = (payload as any).items || [];
@@ -235,6 +255,5 @@ export class ProductService {
   // Method to switch to API mode
   static enableApiMode(enable: boolean = true): void {
     this.USE_API = enable;
-    console.log(`ProductService API mode: ${enable ? "enabled" : "disabled"}`);
   }
 }
