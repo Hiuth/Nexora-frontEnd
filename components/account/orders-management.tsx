@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { OrderService } from "@/services/order.service";
 import { OrderDetailDialog } from "./order-detail-dialog";
+import { OrderUtils } from "@/lib/order-utils";
 import { useToast } from "@/hooks/use-toast";
 import type { OrderResponse } from "@/types/api";
 
@@ -162,9 +163,14 @@ function OrderList({ orders, onOrderUpdate }: OrderListProps) {
                       })}
                     </p>
                   </div>
-                  <Badge className={getStatusColor(order.status)}>
-                    {getStatusLabel(order.status)}
-                  </Badge>
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Badge className={getStatusColor(order.status)}>
+                      {getStatusLabel(order.status)}
+                    </Badge>
+                    <Badge className={OrderUtils.getPaymentStatusColor(order.isPaid)}>
+                      {OrderUtils.getPaymentStatusIcon(order.isPaid)} {OrderUtils.getPaymentStatusLabel(order.isPaid)}
+                    </Badge>
+                  </div>
                 </div>
               </div>
 

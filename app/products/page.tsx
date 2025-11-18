@@ -20,7 +20,7 @@ import { Brand } from "@/lib/types";
 export default function ProductsPage() {
   const searchParams = useSearchParams();
   const categoryId = searchParams.get("categoryId");
-  const subCategoryId = searchParams.get("subCategoryId");
+  const subCategoryId = searchParams.get("subCategoryId") || searchParams.get("SubCategoryId"); // Hỗ trợ cả hai format
   const getAll = searchParams.get("getAll");
   const pcBuild = searchParams.get("pcBuild");
   
@@ -33,7 +33,7 @@ export default function ProductsPage() {
   const pcBuildsHook = usePcBuildsInfinite({
     getAll: getAll !== null ? true : undefined,
     categoryId: categoryId || undefined,
-    subCategoryId: subCategoryId || undefined,
+    subCategoryId: subCategoryId || undefined, // Sử dụng subCategoryId đã chuẩn hóa
     enabled: isPcBuildMode,
   });
   
@@ -78,7 +78,7 @@ export default function ProductsPage() {
       if (categoryId || subCategoryId || getAll !== null) {
         const filters = {
           categoryId: categoryId || undefined,
-          subCategoryId: subCategoryId || undefined,
+          subCategoryId: subCategoryId || undefined, // Sử dụng subCategoryId đã chuẩn hóa
         };
         await fetchProducts(filters);
       } else {
@@ -86,8 +86,11 @@ export default function ProductsPage() {
       }
     };
 
-    loadProducts();
-  }, [categoryId, subCategoryId, getAll, fetchProducts, reset]);
+    // Chỉ load khi không phải PC Build mode hoặc khi có parameters cần thiết
+    if (!isPcBuildMode) {
+      loadProducts();
+    }
+  }, [categoryId, subCategoryId, getAll, fetchProducts, reset, isPcBuildMode]);
 
   // Load brands from API
   useEffect(() => {

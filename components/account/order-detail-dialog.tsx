@@ -18,6 +18,7 @@ import Link from "next/link";
 import { OrderDetailService } from "@/services/order-detail.service";
 import { OrderService } from "@/services/order.service";
 import { ProductService } from "@/services/product.service";
+import { OrderUtils } from "@/lib/order-utils";
 import type { OrderResponse, OrderDetailResponse } from "@/types/api";
 import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/mock-data";
@@ -127,11 +128,21 @@ export function OrderDetailDialog({
                     <div className="flex items-center gap-2">
                       <Receipt className="h-4 w-4 text-slate-500" />
                       <span className="text-sm font-medium text-slate-600">
-                        Trạng thái
+                        Trạng thái đơn hàng
                       </span>
                     </div>
                     <Badge className={getStatusColor(order.status)}>
                       {getStatusLabel(order.status)}
+                    </Badge>
+
+                    <div className="flex items-center gap-2 mt-4">
+                      <Receipt className="h-4 w-4 text-slate-500" />
+                      <span className="text-sm font-medium text-slate-600">
+                        Trạng thái thanh toán
+                      </span>
+                    </div>
+                    <Badge className={OrderUtils.getPaymentStatusColor(order.isPaid)}>
+                      {OrderUtils.getPaymentStatusIcon(order.isPaid)} {OrderUtils.getPaymentStatusLabel(order.isPaid)}
                     </Badge>
                   </div>
 

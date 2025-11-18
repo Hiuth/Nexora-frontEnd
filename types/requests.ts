@@ -142,6 +142,7 @@ export interface UpdateOrderRequest {
   customerName?: string;
   phoneNumber?: string;
   address?: string;
+  isPaid?: boolean;
 }
 
 // OrderDetail request types

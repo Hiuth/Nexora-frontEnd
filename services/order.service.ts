@@ -55,6 +55,9 @@ export class OrderService {
       if (request.address) {
         formData.append("address", request.address);
       }
+      if (request.isPaid !== undefined) {
+        formData.append("isPaid", request.isPaid.toString());
+      }
 
       const response = await apiClient.putFormData<OrderResponse>(
         `${API_CONFIG.ENDPOINTS.ORDER.UPDATE}/${orderId}`,
@@ -108,6 +111,28 @@ export class OrderService {
       return response.result || "Order deleted successfully";
     } catch (error) {
       console.error("Error deleting order:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Update order payment status
+   */
+  static async updateOrderPaymentStatus(
+    orderId: string,
+    isPaid: boolean
+  ): Promise<OrderResponse> {
+    try {
+      const formData = new FormData();
+      formData.append("isPaid", isPaid.toString());
+
+      const response = await apiClient.putFormData<OrderResponse>(
+        `${API_CONFIG.ENDPOINTS.ORDER.UPDATE}/${orderId}`,
+        formData
+      );
+      return response.result;
+    } catch (error) {
+      console.error("Error updating order payment status:", error);
       throw error;
     }
   }

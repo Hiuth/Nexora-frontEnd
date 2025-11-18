@@ -190,6 +190,7 @@ export interface OrderResponse {
   phoneNumber: string;
   address: string;
   customerName: string;
+  isPaid: boolean;
 }
 
 export interface OrderDetailResponse {

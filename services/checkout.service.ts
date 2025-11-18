@@ -98,6 +98,9 @@ export class CheckoutService {
    */
   static async handlePaymentSuccess(orderId: string): Promise<void> {
     try {
+      // Update order payment status to paid
+      await OrderService.updateOrderPaymentStatus(orderId, true);
+      
       // Clear cart
       await CartService.clearAllCart();
 
