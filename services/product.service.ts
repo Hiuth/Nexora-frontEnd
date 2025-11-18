@@ -28,15 +28,24 @@ export class ProductService {
       try {
         // Map frontend parameters to backend expected parameters
         const queryParams: any = {};
-        if (params?.page) queryParams.pageNumber = params.page; // Backend might expect pageNumber
+        if (params?.page) queryParams.pageNumber = params.page;
         if (params?.pageSize) queryParams.pageSize = params.pageSize;
         if (params?.search) queryParams.search = params.search;
         if (params?.brand) queryParams.brand = params.brand;
         if (params?.minPrice) queryParams.minPrice = params.minPrice;
         if (params?.maxPrice) queryParams.maxPrice = params.maxPrice;
 
+        // Choose appropriate endpoint based on filters
+        let endpoint = API_CONFIG.ENDPOINTS.PRODUCT.GET_ALL;
+        
+        if (params?.subcategory) {
+          endpoint = `${API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_SUBCATEGORY_ID}/${encodeURIComponent(params.subcategory)}`;
+        } else if (params?.category) {
+          endpoint = `${API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_CATEGORY_ID}/${encodeURIComponent(params.category)}`;
+        }
+
         const response = await apiGet<any>(
-          API_CONFIG.ENDPOINTS.PRODUCT.GET_ALL,
+          endpoint,
           queryParams
         );
 

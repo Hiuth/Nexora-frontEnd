@@ -51,21 +51,25 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
 
         // Choose appropriate API endpoint based on filters
         if (filters.subCategoryId) {
-          response = await ProductService.getProductBySubCategoryId(filters.subCategoryId);
-          // For category/subcategory, show all results, no pagination
-          setProducts(response);
-          setTotalItems(response.length);
-          setCurrentPage(1);
-          setTotalPages(1);
-          setHasMore(false);
+          response = await ProductService.getProducts({
+            page: 1,
+            pageSize,
+            subcategory: filters.subCategoryId,
+            search: filters.search,
+            brand: filters.brands?.join(","),
+            minPrice: filters.minPrice,
+            maxPrice: filters.maxPrice,
+          });
         } else if (filters.categoryId) {
-          response = await ProductService.getProductByCategoryID(filters.categoryId);
-          // For category/subcategory, show all results, no pagination
-          setProducts(response);
-          setTotalItems(response.length);
-          setCurrentPage(1);
-          setTotalPages(1);
-          setHasMore(false);
+          response = await ProductService.getProducts({
+            page: 1,
+            pageSize,
+            category: filters.categoryId,
+            search: filters.search,
+            brand: filters.brands?.join(","),
+            minPrice: filters.minPrice,
+            maxPrice: filters.maxPrice,
+          });
         } else {
           // getAll with pagination
           response = await ProductService.getProducts({
@@ -76,23 +80,23 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
             minPrice: filters.minPrice,
             maxPrice: filters.maxPrice,
           });
+        }
 
-          // Extract pagination info
-          const paginationInfo = (response as any).__paginationInfo;
-          
-          setProducts(response);
-          setCurrentPage(1);
-          
-          if (paginationInfo) {
-            setTotalItems(paginationInfo.totalCount);
-            setTotalPages(paginationInfo.totalPages);
-            setHasMore(paginationInfo.totalPages > 1);
-          } else {
-            // Fallback for mock data
-            setTotalItems(response.length);
-            setTotalPages(response.length === pageSize ? 2 : 1);
-            setHasMore(response.length === pageSize);
-          }
+        // Extract pagination info
+        const paginationInfo = (response as any).__paginationInfo;
+        
+        setProducts(response);
+        setCurrentPage(1);
+        
+        if (paginationInfo) {
+          setTotalItems(paginationInfo.totalCount);
+          setTotalPages(paginationInfo.totalPages);
+          setHasMore(paginationInfo.totalPages > 1);
+        } else {
+          // Fallback for mock data
+          setTotalItems(response.length);
+          setTotalPages(response.length === pageSize ? 2 : 1);
+          setHasMore(response.length === pageSize);
         }
 
       } catch (err: any) {
@@ -111,12 +115,10 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
   );
 
   const loadMoreProducts = useCallback(async () => {
-    // Only allow load more for getAll mode
+    // Allow load more for all modes that have pagination
     const filters = filtersRef.current;
-    const isGetAll = !filters.categoryId && !filters.subCategoryId;
     
-    if (!isGetAll || !hasMore || loadingMore || loading || currentPage >= totalPages) {
-
+    if (!hasMore || loadingMore || loading || currentPage >= totalPages) {
       return;
     }
 
@@ -125,14 +127,40 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
     setError(null);
 
     try {
-      const newProducts = await ProductService.getProducts({
-        page: nextPage,
-        pageSize,
-        search: filters.search,
-        brand: filters.brands?.join(","),
-        minPrice: filters.minPrice,
-        maxPrice: filters.maxPrice,
-      });
+      let newProducts: Product[] = [];
+      
+      // Call appropriate API with filters
+      if (filters.subCategoryId) {
+        newProducts = await ProductService.getProducts({
+          page: nextPage,
+          pageSize,
+          subcategory: filters.subCategoryId,
+          search: filters.search,
+          brand: filters.brands?.join(","),
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+        });
+      } else if (filters.categoryId) {
+        newProducts = await ProductService.getProducts({
+          page: nextPage,
+          pageSize,
+          category: filters.categoryId,
+          search: filters.search,
+          brand: filters.brands?.join(","),
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+        });
+      } else {
+        // getAll
+        newProducts = await ProductService.getProducts({
+          page: nextPage,
+          pageSize,
+          search: filters.search,
+          brand: filters.brands?.join(","),
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+        });
+      }
 
       if (newProducts.length > 0) {
         setProducts(prev => [...prev, ...newProducts]);

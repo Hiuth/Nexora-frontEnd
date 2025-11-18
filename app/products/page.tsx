@@ -173,8 +173,8 @@ export default function ProductsPage() {
     setPriceRange([0, maxPrice]);
   };
 
-  // Auto-loader should only be enabled for getAll parameter
-  const isAutoLoaderEnabled = getAll !== null;
+  // Auto-loader should be enabled for all product pages (getAll, categoryId, subCategoryId)
+  const isAutoLoaderEnabled = getAll !== null || categoryId !== null || subCategoryId !== null;
 
   const hasActiveFilters =
     selectedCategories.length > 0 ||
