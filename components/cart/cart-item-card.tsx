@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { formatPrice } from "@/lib/mock-data";
 import { Product } from "@/lib/types";
@@ -19,19 +20,29 @@ interface CartItemCardProps {
   isUpdating?: boolean;
 }
 
+// Helper function to detect if item is from PC Build
+function isPcBuildItem(product: Product): boolean {
+  return product.brandId === "pcbuild";
+}
+
 export function CartItemCard({
   item,
   onUpdateQuantity,
   onRemoveItem,
   isUpdating = false,
 }: CartItemCardProps) {
+  // Create appropriate link based on item type
+  const itemLink = isPcBuildItem(item.product) 
+    ? `/products/${item.product.id}?pcBuild=true` 
+    : `/products/${item.product.id}`;
+
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-200 hover:shadow-lg hover:border-blue-200 transition-all duration-300 overflow-hidden group">
       <div className="p-6">
         <div className="flex gap-6">
           {/* Product Image */}
           <Link
-            href={`/products/${item.product.id}`}
+            href={itemLink}
             className="relative flex-shrink-0"
           >
             <div className="w-28 h-28 rounded-xl overflow-hidden bg-gray-50 border-2 border-gray-100 group-hover:border-blue-300 transition-all duration-300 shadow-sm">
@@ -40,18 +51,27 @@ export function CartItemCard({
                 alt={item.product.productName}
                 width={112}
                 height={112}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
               />
             </div>
           </Link>
 
           {/* Product Info */}
           <div className="flex-1 min-w-0">
-            <Link href={`/products/${item.product.id}`}>
-              <h3 className="font-semibold text-gray-900 text-lg mb-2 hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
-                {item.product.productName}
-              </h3>
-            </Link>
+            <div className="flex items-start justify-between mb-2">
+              <Link href={itemLink}>
+                <h3 className="font-semibold text-lg text-gray-900 hover:text-blue-600 transition-colors line-clamp-2 leading-tight">
+                  {item.product.productName}
+                </h3>
+              </Link>
+              <div className="flex gap-2 ml-2">
+                {isPcBuildItem(item.product) && (
+                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 text-xs">
+                    PC Build
+                  </Badge>
+                )}
+              </div>
+            </div>
             <p className="text-sm text-gray-500 mb-4">
               SKU: PC-{item.product.id.toString().padStart(6, "0")}
             </p>

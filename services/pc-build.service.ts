@@ -56,7 +56,8 @@ export class PcBuildService {
   }
 
   // Get PC builds by category with pagination
-  static async getPcBuildsByCategoryId(categoryId: string, params?: {
+  static async getPcBuildsByCategoryId(params: {
+    categoryId: string;
     page?: number;
     pageSize?: number;
   }): Promise<PcBuild[]> {
@@ -67,7 +68,7 @@ export class PcBuildService {
         if (params?.pageSize) queryParams.pageSize = params.pageSize;
 
         const response = await apiGet<PaginatedResponse<PcBuild>>(
-          `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_CATEGORY_ID}/${encodeURIComponent(categoryId)}`,
+          `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_CATEGORY_ID}/${encodeURIComponent(params.categoryId)}`,
           queryParams
         );
 
@@ -99,7 +100,8 @@ export class PcBuildService {
   }
 
   // Get PC builds by subcategory with pagination
-  static async getPcBuildsBySubCategoryId(subCategoryId: string, params?: {
+  static async getPcBuildsBySubCategoryId(params: {
+    subCategoryId: string;
     page?: number;
     pageSize?: number;
   }): Promise<PcBuild[]> {
@@ -110,7 +112,7 @@ export class PcBuildService {
         if (params?.pageSize) queryParams.pageSize = params.pageSize;
 
         const response = await apiGet<PaginatedResponse<PcBuild>>(
-          `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_SUBCATEGORY_ID}/${encodeURIComponent(subCategoryId)}`,
+          `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_SUBCATEGORY_ID}/${encodeURIComponent(params.subCategoryId)}`,
           queryParams
         );
 
@@ -145,9 +147,8 @@ export class PcBuildService {
   static async getPcBuildById(buildId: string): Promise<PcBuild | null> {
     if (this.USE_API) {
       try {
-        const response = await apiGet<PcBuild>(
-          `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_ID}/${buildId}`
-        );
+        const endpoint = `${API_CONFIG.ENDPOINTS.PC_BUILD.GET_BY_ID}/${buildId}`;
+        const response = await apiGet<PcBuild>(endpoint);
 
         if (response.code === 1000 && response.result) {
           return response.result;
@@ -155,7 +156,7 @@ export class PcBuildService {
 
         return null;
       } catch (error) {
-        console.error("Failed to fetch PC build from API:", error);
+        console.error("❌ Failed to fetch PC build from API:", error);
         return null;
       }
     }

@@ -219,6 +219,7 @@ export interface PcBuildItemResponse {
   pcBuildId: string;
   productId: string;
   quantity: number;
+  stockQuantity: number;
   productName: string;
   price: number;
   thumbnail: string;

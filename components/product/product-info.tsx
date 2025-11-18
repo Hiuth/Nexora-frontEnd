@@ -8,44 +8,84 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingCart, Minus, Plus, Share2 } from "lucide-react";
 import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { formatPrice } from "@/lib/mock-data";
 import { CartService } from "@/services/cart.service";
-import type { Product } from "@/lib/types";
+import type { Product, PcBuildItem } from "@/lib/types";
 
 interface ProductInfoProps {
   product: Product;
+  isPcBuild?: boolean;
+  pcBuildItems?: PcBuildItem[];
 }
 
-export function ProductInfo({ product }: ProductInfoProps) {
+export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1);
   const [isAddingToCart, setIsAddingToCart] = useState(false);
   const { addItem } = useCart();
+  const { user } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+
+  // Kiểm tra có sản phẩm PC Build nào hết hàng không
+  const hasOutOfStockItems = isPcBuild && pcBuildItems.some(item => item.stockQuantity === 0);
+  
+  // Kiểm tra có thể thêm vào giỏ hàng không
+  const canAddToCart = isPcBuild 
+    ? (user && !hasOutOfStockItems) // PC Build: cần đăng nhập và không hết hàng
+    : (product.stockQuantity > 0); // Product thường: chỉ kiểm tra stock
 
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
   };
 
   const increaseQuantity = () => {
-    if (quantity < product.stockQuantity) setQuantity(quantity + 1);
+    // PC Build không giới hạn số lượng, Product thường kiểm tra stock
+    if (isPcBuild || quantity < product.stockQuantity) {
+      setQuantity(quantity + 1);
+    }
   };
 
   const handleAddToCart = async () => {
     setIsAddingToCart(true);
 
     try {
-      // Add to cart via API
-      await CartService.addToCart(product.id, quantity);
-
-      // Also add to local cart context for immediate UI update
-      addItem(product, quantity);
-
-      toast({
-        title: "Đã thêm vào giỏ hàng",
-        description: `Đã thêm ${quantity} ${product.productName} vào giỏ hàng`,
-      });
+      if (isPcBuild) {
+        // Xử lý PC Build: thêm từng component vào giỏ hàng
+        for (const item of pcBuildItems) {
+          await CartService.addToCart(item.productId, item.quantity);
+          // Thêm vào local cart context (cần tạo Product object từ PcBuildItem)
+          const productForCart = {
+            id: item.productId,
+            productName: item.productName,
+            price: item.price,
+            thumbnail: item.thumbnail,
+            brandId: item.brandId || "",
+            brandName: item.brandName || "",
+            categoryId: "",
+            categoryName: "",
+            stockQuantity: item.stockQuantity,
+            warrantyPeriod: 36,
+            createdAt: new Date().toISOString()
+          } as Product;
+          addItem(productForCart, item.quantity);
+        }
+        
+        toast({
+          title: "Đã thêm vào giỏ hàng",
+          description: `Đã thêm tất cả linh kiện của ${product.productName} vào giỏ hàng`,
+        });
+      } else {
+        // Xử lý Product thường
+        await CartService.addToCart(product.id, quantity);
+        addItem(product, quantity);
+        
+        toast({
+          title: "Đã thêm vào giỏ hàng",
+          description: `Đã thêm ${quantity} ${product.productName} vào giỏ hàng`,
+        });
+      }
     } catch (error) {
       console.error("Error adding to cart:", error);
       toast({
@@ -98,9 +138,16 @@ export function ProductInfo({ product }: ProductInfoProps) {
           </Badge>
         </div>
 
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">
-          {product.productName}
-        </h1>
+        <div className="flex items-start justify-between mb-3">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight flex-1">
+            {product.productName}
+          </h1>
+          {product.stockQuantity === 0 && (
+            <Badge variant="destructive" className="ml-3 text-sm font-semibold">
+              Hết hàng
+            </Badge>
+          )}
+        </div>
 
         <div className="flex items-baseline gap-3 mb-2">
           <span className="text-3xl md:text-4xl font-bold text-blue-600">
@@ -114,7 +161,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
               ✓ Còn {product.stockQuantity} sản phẩm
             </span>
           ) : (
-            <span className="text-red-600 font-semibold">✗ Hết hàng</span>
+            <span className="text-red-600 font-semibold">✗ Sản phẩm hiện đã hết hàng</span>
           )}
         </p>
       </div>
@@ -143,7 +190,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
                 variant="ghost"
                 size="icon"
                 onClick={increaseQuantity}
-                disabled={quantity >= product.stockQuantity}
+                disabled={isPcBuild ? false : quantity >= product.stockQuantity}
                 className="h-10 w-10"
               >
                 <Plus className="h-4 w-4" />
@@ -162,7 +209,7 @@ export function ProductInfo({ product }: ProductInfoProps) {
           <Button
             size="lg"
             className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={product.stockQuantity === 0 || isAddingToCart}
+            disabled={!canAddToCart || isAddingToCart}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-5 w-5 mr-2" />
@@ -177,11 +224,27 @@ export function ProductInfo({ product }: ProductInfoProps) {
           variant="secondary"
           size="lg"
           className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold border border-gray-300 shadow-sm"
-          disabled={product.stockQuantity === 0 || isAddingToCart}
+          disabled={!canAddToCart || isAddingToCart}
           onClick={handleBuyNow}
         >
           {isAddingToCart ? "Đang xử lý..." : "Mua ngay"}
         </Button>
+        
+        {/* Thông báo cho PC Build */}
+        {isPcBuild && (
+          <div className="mt-3">
+            {!user && (
+              <p className="text-sm text-red-600 text-center">
+                Vui lòng đăng nhập để thực hiện việc thêm vào giỏ hàng
+              </p>
+            )}
+            {user && hasOutOfStockItems && (
+              <p className="text-sm text-red-600 text-center">
+                Một số linh kiện đã hết hàng, không thể thêm vào giỏ hàng
+              </p>
+            )}
+          </div>
+        )}
       </div>
 
       <Separator />

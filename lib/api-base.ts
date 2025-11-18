@@ -29,7 +29,11 @@ export async function apiCall<T>(
     endpoint.includes("/Product/getByPriceRange") ||
     endpoint.includes("/ProductImg/getAllByProductId") ||
     endpoint.includes("/Payment/vnpay-return") ||
-    endpoint.includes("/ProductAttribute/getByProductId");
+    endpoint.includes("/ProductAttribute/getByProductId")||
+    endpoint.includes("/PcBuildItem/getAllByPcBuildById")||
+    endpoint.includes("/PcBuild/getByCategory")||
+    endpoint.includes("/PcBuild/getBySubCategory")||
+    endpoint.includes("/PcBuild/getById");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

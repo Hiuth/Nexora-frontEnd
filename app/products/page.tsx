@@ -11,6 +11,8 @@ import { MobileFilters } from "@/components/products/mobile-filters";
 import { ProductsGrid } from "@/components/products/products-grid";
 import { ProductsAutoLoader } from "@/components/products/products-auto-loader";
 import { useProductsInfinite } from "@/hooks/use-products-infinite";
+import { PcBuildFilterSidebar } from "@/components/pc-build/pc-build-filter-sidebar";
+import { usePcBuildsInfinite } from "@/hooks/use-pc-builds";
 import { products, categories, subCategories, brands } from "@/lib/mock-data";
 import { BrandService } from "@/services/brand.service";
 import { Brand } from "@/lib/types";
@@ -20,19 +22,43 @@ export default function ProductsPage() {
   const categoryId = searchParams.get("categoryId");
   const subCategoryId = searchParams.get("subCategoryId");
   const getAll = searchParams.get("getAll");
+  const pcBuild = searchParams.get("pcBuild");
+  
+  // Determine if this is PC Build mode
+  const isPcBuildMode = pcBuild === "true";
 
-  // Use the infinite products hook
+  // Use the appropriate infinite hook
+  const productsHook = useProductsInfinite();
+  
+  const pcBuildsHook = usePcBuildsInfinite({
+    getAll: getAll !== null ? true : undefined,
+    categoryId: categoryId || undefined,
+    subCategoryId: subCategoryId || undefined,
+    enabled: isPcBuildMode,
+  });
+  
+  // Select the appropriate hook based on mode
   const {
-    products: infiniteProducts,
+    products: infiniteProducts = [],
     loading,
     loadingMore,
     error,
     hasMore,
-    totalItems,
+    totalItems = 0,
     fetchProducts,
     loadMoreProducts,
     reset,
-  } = useProductsInfinite();
+  } = !isPcBuildMode ? productsHook : {
+    products: pcBuildsHook.pcBuilds,
+    loading: pcBuildsHook.loading,
+    loadingMore: pcBuildsHook.loadingMore,
+    error: pcBuildsHook.error,
+    hasMore: pcBuildsHook.hasMore,
+    totalItems: 0, // PC builds don't have totalItems
+    fetchProducts: () => Promise.resolve(),
+    loadMoreProducts: pcBuildsHook.loadMorePcBuilds,
+    reset: () => {},
+  };
 
   const [apiBrands, setApiBrands] = useState<Brand[]>([]);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -41,7 +67,7 @@ export default function ProductsPage() {
   );
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([
-    0, 100000000,
+    0, 2000000000,
   ]);
   const [sortBy, setSortBy] = useState("newest");
   const [showFilters, setShowFilters] = useState(false);
@@ -80,19 +106,34 @@ export default function ProductsPage() {
 
   // Generate page title based on query params
   const pageTitle = useMemo(() => {
-    if (getAll !== null) {
-      return "Tất cả sản phẩm";
+    if (isPcBuildMode) {
+      if (getAll !== null) {
+        return "Tất cả máy bộ Nexora";
+      }
+      if (subCategoryId && infiniteProducts.length > 0) {
+        return infiniteProducts[0]?.subCategoryName || "Máy bộ Nexora";
+      }
+      if (categoryId && infiniteProducts.length > 0) {
+        const firstItem = infiniteProducts[0] as any;
+        return firstItem?.categoryName || "Máy bộ Nexora";
+      }
+      return "Máy bộ Nexora";
+    } else {
+      if (getAll !== null) {
+        return "Tất cả sản phẩm";
+      }
+      if (subCategoryId && infiniteProducts.length > 0) {
+        return infiniteProducts[0]?.subCategoryName || "Sản phẩm";
+      }
+      if (categoryId && infiniteProducts.length > 0) {
+        const firstItem = infiniteProducts[0] as any;
+        return firstItem?.categoryName || "Sản phẩm";
+      }
+      return undefined;
     }
-    if (subCategoryId && infiniteProducts.length > 0) {
-      return infiniteProducts[0]?.subCategoryName || "Sản phẩm";
-    }
-    if (categoryId && infiniteProducts.length > 0) {
-      return infiniteProducts[0]?.categoryName || "Sản phẩm";
-    }
-    return undefined;
-  }, [getAll, subCategoryId, categoryId, infiniteProducts]);
+  }, [isPcBuildMode, getAll, subCategoryId, categoryId, infiniteProducts]);
 
-  const maxPrice = 100000000;
+  const maxPrice = 2000000000; // 2 tỷ để cover PC builds có giá cao
 
   const filteredProducts = useMemo(() => {
     const sourceProducts = infiniteProducts.length > 0 ? infiniteProducts : products;
@@ -110,8 +151,8 @@ export default function ProductsPage() {
 
 
 
-    // Filter by categories
-    if (selectedCategories.length > 0) {
+    // Filter by categories (only for regular products, not PC builds)
+    if (!isPcBuildMode && selectedCategories.length > 0) {
       const validSubCategoryIds = subCategories
         .filter((sub) => selectedCategories.includes(sub.categoryId))
         .map((sub) => sub.id);
@@ -120,16 +161,16 @@ export default function ProductsPage() {
       );
     }
 
-    // Filter by subcategories
-    if (selectedSubCategories.length > 0) {
+    // Filter by subcategories (only for regular products, not PC builds)
+    if (!isPcBuildMode && selectedSubCategories.length > 0) {
       filtered = filtered.filter((p) =>
         selectedSubCategories.includes(p.subCategoryId)
       );
     }
 
-    // Filter by brands
-    if (selectedBrands.length > 0) {
-      filtered = filtered.filter((p) => selectedBrands.includes(p.brandId));
+    // Filter by brands (only for regular products, not PC builds)
+    if (!isPcBuildMode && selectedBrands.length > 0) {
+      filtered = filtered.filter((p) => (p as any).brandId && selectedBrands.includes((p as any).brandId));
     }
 
     // Filter by price range
@@ -149,10 +190,12 @@ export default function ProductsPage() {
         filtered.sort((a, b) => a.productName.localeCompare(b.productName));
         break;
       default:
-        filtered.sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        // Sort by creation date (only for products that have createdAt)
+        filtered.sort((a, b) => {
+          const aDate = (a as any).createdAt ? new Date((a as any).createdAt).getTime() : 0;
+          const bDate = (b as any).createdAt ? new Date((b as any).createdAt).getTime() : 0;
+          return bDate - aDate;
+        });
         break;
     }
 
@@ -164,6 +207,7 @@ export default function ProductsPage() {
     selectedBrands,
     priceRange,
     sortBy,
+    isPcBuildMode,
   ]);
 
   const clearFilters = () => {
@@ -175,6 +219,9 @@ export default function ProductsPage() {
 
   // Auto-loader should be enabled for all product pages (getAll, categoryId, subCategoryId)
   const isAutoLoaderEnabled = getAll !== null || categoryId !== null || subCategoryId !== null;
+
+  // Hide brand filters for PC Build mode (PC builds don't have brands)
+  const shouldShowBrandFilters = !isPcBuildMode;
 
   const hasActiveFilters =
     selectedCategories.length > 0 ||
@@ -233,24 +280,37 @@ export default function ProductsPage() {
           />
 
           <div className="flex gap-8">
-            <aside className="hidden lg:block w-80 flex-shrink-0">
-              <FilterSidebar
-                categories={categories}
-                subCategories={subCategories}
-                brands={apiBrands.length > 0 ? apiBrands : brands}
-                selectedCategories={selectedCategories}
-                selectedSubCategories={selectedSubCategories}
-                selectedBrands={selectedBrands}
-                priceRange={priceRange}
-                maxPrice={maxPrice}
-                hasActiveFilters={hasActiveFilters}
-                onCategoryChange={handleCategoryChange}
-                onSubCategoryChange={handleSubCategoryChange}
-                onBrandChange={handleBrandChange}
-                onPriceRangeChange={setPriceRange}
-                onClearFilters={clearFilters}
-              />
-            </aside>
+            {!isPcBuildMode && (
+              <aside className="hidden lg:block w-80 flex-shrink-0">
+                <FilterSidebar
+                  categories={categories}
+                  subCategories={subCategories}
+                  brands={apiBrands.length > 0 ? apiBrands : brands}
+                  selectedCategories={selectedCategories}
+                  selectedSubCategories={selectedSubCategories}
+                  selectedBrands={selectedBrands}
+                  priceRange={priceRange}
+                  maxPrice={maxPrice}
+                  hasActiveFilters={hasActiveFilters}
+                  onCategoryChange={handleCategoryChange}
+                  onSubCategoryChange={handleSubCategoryChange}
+                  onBrandChange={handleBrandChange}
+                  onPriceRangeChange={setPriceRange}
+                  onClearFilters={clearFilters}
+                />
+              </aside>
+            )}
+            
+            {isPcBuildMode && (
+              <aside className="hidden lg:block w-80 flex-shrink-0">
+                <PcBuildFilterSidebar
+                  priceRange={priceRange}
+                  maxPrice={maxPrice}
+                  onPriceRangeChange={setPriceRange}
+                  onClearFilters={clearFilters}
+                />
+              </aside>
+            )}
 
             <div className="flex-1">
               <ProductsHeader
@@ -275,6 +335,7 @@ export default function ProductsPage() {
                 loading={loading}
                 products={filteredProducts}
                 onClearFilters={clearFilters}
+                isPcBuildMode={isPcBuildMode}
               />
 
               {isAutoLoaderEnabled && (

@@ -27,11 +27,11 @@ export function CategorySidebar({
             }`}
             onMouseEnter={() => onCategoryHover(category.id)}
             onClick={() => {
-              if (category.id === "pc-builder") {
-                // Navigate to PC Builder page
-                window.location.href = "/pc-builder";
+              if (category.categoryName === "Máy Bộ Nexora" || category.id === "pc-builder") {
+                // Navigate to PC Build products page
+                window.location.href = `/products?pcBuild=true&categoryId=${category.id}`;
               } else {
-                // Navigate to products page with category filter
+                // Navigate to regular products page with category filter
                 window.location.href = `/products?categoryId=${category.id}`;
               }
             }}

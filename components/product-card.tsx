@@ -8,23 +8,41 @@ import { ShoppingCart, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useToast } from "@/hooks/use-toast";
-import { useCart } from "@/lib/cart-context";
-import type { Product } from "@/lib/types";
 import { formatPrice } from "@/lib/mock-data";
+import { useCart } from "@/lib/cart-context";
+import { useToast } from "@/hooks/use-toast";
+import { useSearchParams } from "next/navigation";
+import type { Product, PcBuild } from "@/lib/types";
 
 interface ProductCardProps {
-  product: Product;
+  product: Product | PcBuild;
   compact?: boolean;
+  isPcBuild?: boolean; // Add explicit flag to know the type
 }
 
-export function ProductCard({ product, compact = false }: ProductCardProps) {
+export function ProductCard({ product, compact = false, isPcBuild = false }: ProductCardProps) {
   const { addItem } = useCart();
   const { toast } = useToast();
+  const searchParams = useSearchParams();
+  
+  // Use explicit isPcBuild flag instead of URL params
+  const productLink = isPcBuild ? `/products/${product.id}?pcBuild=true` : `/products/${product.id}`;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
-    addItem(product, 1);
+    
+    // Don't allow adding PC Build to cart from grid - only from detail page
+    if (isPcBuild) {
+      toast({
+        title: "Thông báo",
+        description: "Vui lòng vào trang chi tiết để xem và thêm PC Build vào giỏ hàng",
+      });
+      return;
+    }
+    
+    // Only add regular Product to cart
+    const productToAdd = product as Product;
+    addItem(productToAdd, 1);
     toast({
       title: "Đã thêm vào giỏ hàng",
       description: `${product.productName} đã được thêm vào giỏ hàng`,
@@ -34,7 +52,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
   if (compact) {
     return (
       <Card className="group relative overflow-hidden transition-all hover:shadow-lg bg-white border border-gray-200 rounded-lg">
-        <Link href={`/products/${product.id}`}>
+        <Link href={productLink}>
           <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 rounded-t-lg">
             <Image
               src={product.thumbnail || "/placeholder.svg"}
@@ -42,7 +60,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            {product.stockQuantity === 0 && (
+            {(product as any).stockQuantity === 0 && (
               <Badge className="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-1">
                 Hết hàng
               </Badge>
@@ -51,7 +69,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
         </Link>
 
         <CardContent className="p-3">
-          <Link href={`/products/${product.id}`}>
+          <Link href={productLink}>
             <h3
               className="font-medium text-xs mb-2 text-gray-700 leading-tight"
               title={product.productName}
@@ -74,7 +92,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
               variant="ghost"
               size="icon"
               className="h-8 w-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
-              disabled={product.stockQuantity === 0}
+              disabled={(product as any).stockQuantity === 0}
               onClick={handleAddToCart}
             >
               <ShoppingCart className="h-4 w-4" />
@@ -87,7 +105,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
 
   return (
     <Card className="group relative overflow-hidden transition-all hover:shadow-lg bg-white border border-gray-200 rounded-lg w-full">
-      <Link href={`/products/${product.id}`}>
+      <Link href={productLink}>
         <div className="relative aspect-[4/3] overflow-hidden bg-gray-50 rounded-t-lg">
           <Image
             src={product.thumbnail || "/placeholder.svg"}
@@ -95,7 +113,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          {product.stockQuantity === 0 && (
+          {(product as any).stockQuantity === 0 && (
             <Badge className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
               Hết hàng
             </Badge>
@@ -104,7 +122,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
       </Link>
 
       <CardContent className="p-2 sm:p-3 md:p-4">
-        <Link href={`/products/${product.id}`}>
+        <Link href={productLink}>
           <h3
             className="font-medium text-xs sm:text-sm mb-2 sm:mb-3 text-gray-700 leading-tight min-h-[32px] sm:min-h-[40px]"
             title={product.productName}
@@ -139,7 +157,7 @@ export function ProductCard({ product, compact = false }: ProductCardProps) {
             variant="ghost"
             size="icon"
             className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
-            disabled={product.stockQuantity === 0}
+            disabled={(product as any).stockQuantity === 0}
             onClick={handleAddToCart}
           >
             <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
