@@ -113,6 +113,7 @@ export function PCBuilderContent() {
     
     // Compatibility
     checkCompatibility,
+    isSubCategoryDisabled,
     
     // Computed
     getTotalPrice,
@@ -289,15 +290,33 @@ export function PCBuilderContent() {
                 <div className="grid grid-cols-1 gap-4">
                   {categorySubCategories.map(subCategory => {
                     const selectedProduct = getSelectedProduct(subCategory.id);
+                    const isDisabled = isSubCategoryDisabled(subCategory);
                     
                     return (
                       <div 
                         key={subCategory.id}
-                        className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 cursor-pointer transition-colors"
-                        onClick={() => handleSubCategorySelect(subCategory)}
+                        className={`
+                          border rounded-lg p-4 transition-colors
+                          ${isDisabled 
+                            ? "border-red-200 bg-red-50 cursor-not-allowed opacity-60" 
+                            : "border-gray-200 hover:border-blue-300 cursor-pointer"
+                          }
+                        `}
+                        onClick={() => {
+                          if (!isDisabled) {
+                            handleSubCategorySelect(subCategory);
+                          }
+                        }}
                       >
                         <div className="flex items-center justify-between mb-3">
-                          <h3 className="font-medium text-gray-900">{subCategory.subCategoryName}</h3>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900">{subCategory.subCategoryName}</h3>
+                            {isDisabled && (
+                              <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
+                                Không tương thích
+                              </span>
+                            )}
+                          </div>
                           {selectedProduct ? (
                             <button
                               onClick={(e) => {
@@ -361,9 +380,16 @@ export function PCBuilderContent() {
                           </div>
                         ) : (
                           <div className="text-center py-4">
-                            <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                              + Chọn {subCategory.subCategoryName}
-                            </button>
+                            {isDisabled ? (
+                              <div className="text-red-600 text-sm">
+                                <p>Không tương thích với CPU đã chọn</p>
+                                <p className="text-xs mt-1">Vui lòng chọn bo mạch chủ cùng brand với CPU</p>
+                              </div>
+                            ) : (
+                              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                + Chọn {subCategory.subCategoryName}
+                              </button>
+                            )}
                           </div>
                         )}
                       </div>

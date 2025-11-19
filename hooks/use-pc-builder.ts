@@ -185,7 +185,7 @@ export function usePCBuilder() {
 
   // Check compatibility between products
   const checkCompatibility = (newProduct: Product, component: BuildComponent): boolean => {
-    // Get current CPU and Mainboard by subcategory names
+    // Get current CPU and Mainboard by checking component names
     const currentCPU = buildComponents.find(comp => 
       comp.name?.toLowerCase().includes('cpu') || 
       comp.name?.toLowerCase().includes('vi xử lý')
@@ -193,7 +193,8 @@ export function usePCBuilder() {
     
     const currentMainboard = buildComponents.find(comp => 
       comp.name?.toLowerCase().includes('mainboard') || 
-      comp.name?.toLowerCase().includes('bo mạch chủ')
+      comp.name?.toLowerCase().includes('bo mạch chủ') ||
+      comp.name?.toLowerCase().includes('bo mach')
     )?.product;
 
     // Check if the new product is CPU
@@ -206,7 +207,8 @@ export function usePCBuilder() {
     const isNewProductMainboard = newProduct.productName.toLowerCase().includes('mainboard') ||
                                  newProduct.productName.toLowerCase().includes('bo mạch chủ') ||
                                  component.name?.toLowerCase().includes('mainboard') ||
-                                 component.name?.toLowerCase().includes('bo mạch chủ');
+                                 component.name?.toLowerCase().includes('bo mạch chủ') ||
+                                 component.name?.toLowerCase().includes('bo mach');
 
     // If selecting CPU, check against current Mainboard
     if (isNewProductCPU && currentMainboard) {
@@ -245,6 +247,38 @@ export function usePCBuilder() {
     }
 
     return true; // Compatible or no brand info available
+  };
+
+  // Check if a subcategory should be disabled due to compatibility
+  const isSubCategoryDisabled = (subCategory: SubCategory): boolean => {
+    const currentCPU = buildComponents.find(comp => 
+      comp.name?.toLowerCase().includes('cpu')
+    )?.product;
+    
+    if (!currentCPU) return false; // No CPU selected, allow all
+    
+    const subCategoryName = subCategory.subCategoryName.toLowerCase();
+    const isMainboardSubCategory = subCategoryName.includes('mainboard') || 
+                                  subCategoryName.includes('bo mạch') ||
+                                  subCategoryName.includes('main') ||
+                                  subCategoryName.includes('mb');
+    
+    if (!isMainboardSubCategory) return false; // Not mainboard, allow
+    
+    // Check CPU brand
+    const cpuName = currentCPU.productName.toLowerCase();
+    const isIntelCPU = cpuName.includes('intel') || cpuName.includes('i3') || cpuName.includes('i5') || cpuName.includes('i7') || cpuName.includes('i9');
+    const isAmdCPU = cpuName.includes('amd') || cpuName.includes('ryzen');
+    
+    // Check subcategory brand
+    const isIntelMainboard = subCategoryName.includes('intel') || subCategoryName.includes('z690') || subCategoryName.includes('z790') || subCategoryName.includes('b660') || subCategoryName.includes('b760');
+    const isAmdMainboard = subCategoryName.includes('amd') || subCategoryName.includes('x570') || subCategoryName.includes('b550') || subCategoryName.includes('x670') || subCategoryName.includes('b650');
+    
+    // Disable incompatible combinations
+    if (isIntelCPU && isAmdMainboard) return true;
+    if (isAmdCPU && isIntelMainboard) return true;
+    
+    return false;
   };
 
   const removeProduct = (subCategoryId: string) => {
@@ -324,6 +358,7 @@ export function usePCBuilder() {
     
     // Compatibility
     checkCompatibility,
+    isSubCategoryDisabled,
     
     // Computed
     getTotalPrice,
