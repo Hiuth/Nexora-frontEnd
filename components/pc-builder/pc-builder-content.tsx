@@ -6,6 +6,8 @@ import { usePCBuilder } from "@/hooks/use-pc-builder";
 import { ComponentCard } from "./component-card";
 import { ComponentSelectionDialog } from "./component-selection-dialog";
 import { BuildSummaryCard } from "./build-summary-card";
+import { QuantityControls } from "./quantity-controls";
+import { useQuantityValidator } from "./product-quantity-validator";
 import { Category, SubCategory } from "@/lib/types";
 import { 
   Cpu, 
@@ -118,6 +120,7 @@ export function PCBuilderContent() {
   } = usePCBuilder();
 
   const { toast } = useToast();
+  const { validateProductQuantities } = useQuantityValidator();
 
   // Filter out unwanted categories with multiple name variations
   const excludedCategoryNames = [
@@ -212,6 +215,26 @@ export function PCBuilderContent() {
     }
 
     try {
+      // Prepare products for validation
+      const productsToValidate = componentsWithProducts
+        .filter(comp => comp.product)
+        .map(comp => ({
+          product: comp.product!,
+          quantity: comp.quantity
+        }));
+
+      // Validate quantities against cart and stock
+      const { isValid, errors } = await validateProductQuantities(productsToValidate);
+      
+      if (!isValid) {
+        toast({
+          title: "Không thể thêm vào giỏ hàng",
+          description: errors?.join("; ") || "Có lỗi xảy ra khi kiểm tra số lượng",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Add each component to cart with proper quantity
       for (const comp of componentsWithProducts) {
         if (comp.product) {
@@ -322,51 +345,17 @@ export function PCBuilderContent() {
                                 </p>
                                 
                                 {/* Quantity Controls */}
-                                <div className="flex items-center gap-2">
-                                  <label className="text-xs text-gray-500">Số lượng:</label>
-                                  <div className="flex items-center gap-1">
-                                    {(() => {
-                                      const currentComponent = buildComponents.find(comp => comp.subCategoryId === subCategory.id);
-                                      return (
-                                        <>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (currentComponent && currentComponent.quantity > 1) {
-                                                updateQuantity(currentComponent.id, currentComponent.quantity - 1);
-                                              }
-                                            }}
-                                            className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={!currentComponent || currentComponent.quantity <= 1}
-                                          >
-                                            -
-                                          </button>
-                                          <span className="w-8 text-center text-sm">
-                                            {currentComponent?.quantity || 1}
-                                          </span>
-                                          <button
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              if (currentComponent && currentComponent.quantity < selectedProduct.stockQuantity) {
-                                                updateQuantity(currentComponent.id, currentComponent.quantity + 1);
-                                              }
-                                            }}
-                                            className="w-6 h-6 rounded border border-gray-300 flex items-center justify-center text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={!currentComponent || currentComponent.quantity >= selectedProduct.stockQuantity}
-                                          >
-                                            +
-                                          </button>
-                                        </>
-                                      );
-                                    })()}
-                                  </div>
-                                </div>
-                                
-                                {selectedProduct.stockQuantity <= 5 && (
-                                  <p className="text-xs text-orange-600 mt-1">
-                                    Còn {selectedProduct.stockQuantity} sản phẩm
-                                  </p>
-                                )}
+                                <QuantityControls
+                                  product={selectedProduct}
+                                  currentQuantity={buildComponents.find(comp => comp.subCategoryId === subCategory.id)?.quantity || 1}
+                                  onQuantityChange={(newQuantity) => {
+                                    const currentComponent = buildComponents.find(comp => comp.subCategoryId === subCategory.id);
+                                    if (currentComponent) {
+                                      updateQuantity(currentComponent.id, newQuantity);
+                                    }
+                                  }}
+                                  showStock={true}
+                                />
                               </div>
                             </div>
                           </div>

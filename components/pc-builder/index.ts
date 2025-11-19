@@ -3,6 +3,8 @@ export { PCBuilderContent } from "./pc-builder-content";
 export { ComponentCard } from "./component-card";
 export { ComponentSelectionDialog } from "./component-selection-dialog";
 export { BuildSummaryCard } from "./build-summary-card";
+export { QuantityControls } from "./quantity-controls";
+export { ProductQuantityValidator, useQuantityValidator } from "./product-quantity-validator";
 
 // Hooks
 export { usePCBuilder } from "@/hooks/use-pc-builder";
