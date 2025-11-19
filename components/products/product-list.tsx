@@ -26,7 +26,7 @@ export function ProductList({
 
   if (!hasItems && !isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border p-8 text-center">
+      <div className="bg-white rounded-lg shadow-lg p-8 text-center">
         <div className="space-y-4">
           <div className="text-6xl">📦</div>
           <h3 className="text-lg font-semibold text-gray-900">

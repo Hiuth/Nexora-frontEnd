@@ -9,9 +9,7 @@ import { Product, PcBuild } from "@/lib/types";
 
 interface ProductContentAreaProps {
   isPcBuildMode: boolean;
-  searchTerm: string;
   sortBy: string;
-  viewMode: 'grid' | 'list';
   products: Product[];
   pcBuilds: PcBuild[];
   isLoading: boolean;
@@ -26,9 +24,7 @@ interface ProductContentAreaProps {
   maxPrice: number;
   
   // Event handlers
-  onSearchChange: (value: string) => void;
   onSortChange: (value: string) => void;
-  onViewModeChange: (mode: 'grid' | 'list') => void;
   onCategoryChange: (categoryId: string) => void;
   onSubCategoryChange: (subCategoryId: string) => void;
   onBrandChange: (brandId: string) => void;
@@ -39,9 +35,7 @@ interface ProductContentAreaProps {
 
 export function ProductContentArea({
   isPcBuildMode,
-  searchTerm,
   sortBy,
-  viewMode,
   products,
   pcBuilds,
   isLoading,
@@ -52,9 +46,7 @@ export function ProductContentArea({
   selectedBrands,
   priceRange,
   maxPrice,
-  onSearchChange,
   onSortChange,
-  onViewModeChange,
   onCategoryChange,
   onSubCategoryChange,
   onBrandChange,
@@ -92,14 +84,10 @@ export function ProductContentArea({
 
           <main className="flex-1">
             <SearchFilters
-              searchTerm={searchTerm}
               sortBy={sortBy}
-              viewMode={viewMode}
               hasActiveFilters={hasActiveFilters}
               isPcBuildMode={isPcBuildMode}
-              onSearchChange={onSearchChange}
               onSortChange={onSortChange}
-              onViewModeChange={onViewModeChange}
               onClearFilters={onClearFilters}
             />
 
@@ -107,7 +95,7 @@ export function ProductContentArea({
               isPcBuildMode={isPcBuildMode}
               products={products}
               pcBuilds={pcBuilds}
-              viewMode={viewMode}
+              viewMode="grid"
               isLoading={isLoading}
               onLoadMore={onLoadMore}
             />

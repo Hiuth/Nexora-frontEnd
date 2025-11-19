@@ -47,9 +47,7 @@ export default function ProductsPage() {
 
       <ProductContentArea
         isPcBuildMode={isPcBuildMode}
-        searchTerm={searchTerm}
         sortBy={sortBy}
-        viewMode={viewMode}
         products={products}
         pcBuilds={pcBuilds}
         isLoading={isLoading}
@@ -62,9 +60,7 @@ export default function ProductsPage() {
         priceRange={priceRange}
         maxPrice={maxPrice}
         
-        onSearchChange={setSearchTerm}
         onSortChange={setSortBy}
-        onViewModeChange={setViewMode}
         onCategoryChange={handleCategoryChange}
         onSubCategoryChange={handleSubCategoryChange}
         onBrandChange={handleBrandChange}
