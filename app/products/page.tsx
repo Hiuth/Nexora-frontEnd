@@ -1,358 +1,77 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
-import { FilterSidebar } from "@/components/products/filter-sidebar";
-import { ActiveFilters } from "@/components/products/active-filters";
-import { ProductsHeader } from "@/components/products/products-header";
-import { MobileFilters } from "@/components/products/mobile-filters";
-import { ProductsGrid } from "@/components/products/products-grid";
-import { ProductsAutoLoader } from "@/components/products/products-auto-loader";
-import { useProductsInfinite } from "@/hooks/use-products-infinite";
-import { PcBuildFilterSidebar } from "@/components/pc-build/pc-build-filter-sidebar";
-import { usePcBuildsInfinite } from "@/hooks/use-pc-builds";
-import { products, categories, subCategories, brands } from "@/lib/mock-data";
-import { BrandService } from "@/services/brand.service";
-import { Brand } from "@/lib/types";
+import { ProductContentArea } from "@/components/products/product-content-area";
+import { useProductsPageLogic } from "@/hooks/use-products-page";
 
 export default function ProductsPage() {
-  const searchParams = useSearchParams();
-  const categoryId = searchParams.get("categoryId");
-  const subCategoryId = searchParams.get("subCategoryId") || searchParams.get("SubCategoryId"); // Hỗ trợ cả hai format
-  const getAll = searchParams.get("getAll");
-  const pcBuild = searchParams.get("pcBuild");
-  
-  // Determine if this is PC Build mode
-  const isPcBuildMode = pcBuild === "true";
-
-  // Use the appropriate infinite hook
-  const productsHook = useProductsInfinite();
-  
-  const pcBuildsHook = usePcBuildsInfinite({
-    getAll: getAll !== null ? true : undefined,
-    categoryId: categoryId || undefined,
-    subCategoryId: subCategoryId || undefined, // Sử dụng subCategoryId đã chuẩn hóa
-    enabled: isPcBuildMode,
-  });
-  
-  // Select the appropriate hook based on mode
   const {
-    products: infiniteProducts = [],
-    loading,
-    loadingMore,
-    error,
+    // Data
+    isPcBuildMode,
+    pageTitle,
+    products,
+    pcBuilds,
+    brands,
+    isLoading,
+    isLoadingMore,
     hasMore,
-    totalItems = 0,
-    fetchProducts,
-    loadMoreProducts,
-    reset,
-  } = !isPcBuildMode ? productsHook : {
-    products: pcBuildsHook.pcBuilds,
-    loading: pcBuildsHook.loading,
-    loadingMore: pcBuildsHook.loadingMore,
-    error: pcBuildsHook.error,
-    hasMore: pcBuildsHook.hasMore,
-    totalItems: 0, // PC builds don't have totalItems
-    fetchProducts: () => Promise.resolve(),
-    loadMoreProducts: pcBuildsHook.loadMorePcBuilds,
-    reset: () => {},
-  };
-
-  const [apiBrands, setApiBrands] = useState<Brand[]>([]);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedSubCategories, setSelectedSubCategories] = useState<string[]>(
-    []
-  );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([
-    0, 2000000000,
-  ]);
-  const [sortBy, setSortBy] = useState("newest");
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Load products from API when URL params change
-  useEffect(() => {
-    const loadProducts = async () => {
-      if (categoryId || subCategoryId || getAll !== null) {
-        const filters = {
-          categoryId: categoryId || undefined,
-          subCategoryId: subCategoryId || undefined, // Sử dụng subCategoryId đã chuẩn hóa
-        };
-        await fetchProducts(filters);
-      } else {
-        reset();
-      }
-    };
-
-    // Chỉ load khi không phải PC Build mode hoặc khi có parameters cần thiết
-    if (!isPcBuildMode) {
-      loadProducts();
-    }
-  }, [categoryId, subCategoryId, getAll, fetchProducts, reset, isPcBuildMode]);
-
-  // Load brands from API
-  useEffect(() => {
-    const loadBrands = async () => {
-      try {
-        const brandsData = await BrandService.getBrands();
-        setApiBrands(brandsData);
-      } catch (error) {
-        console.error("Failed to load brands:", error);
-        setApiBrands([]);
-      }
-    };
-
-    loadBrands();
-  }, []);
-
-  // Generate page title based on query params
-  const pageTitle = useMemo(() => {
-    if (isPcBuildMode) {
-      if (getAll !== null) {
-        return "Tất cả máy bộ Nexora";
-      }
-      if (subCategoryId && infiniteProducts.length > 0) {
-        return infiniteProducts[0]?.subCategoryName || "Máy bộ Nexora";
-      }
-      if (categoryId && infiniteProducts.length > 0) {
-        const firstItem = infiniteProducts[0] as any;
-        return firstItem?.categoryName || "Máy bộ Nexora";
-      }
-      return "Máy bộ Nexora";
-    } else {
-      if (getAll !== null) {
-        return "Tất cả sản phẩm";
-      }
-      if (subCategoryId && infiniteProducts.length > 0) {
-        return infiniteProducts[0]?.subCategoryName || "Sản phẩm";
-      }
-      if (categoryId && infiniteProducts.length > 0) {
-        const firstItem = infiniteProducts[0] as any;
-        return firstItem?.categoryName || "Sản phẩm";
-      }
-      return undefined;
-    }
-  }, [isPcBuildMode, getAll, subCategoryId, categoryId, infiniteProducts]);
-
-  const maxPrice = 2000000000; // 2 tỷ để cover PC builds có giá cao
-
-  const filteredProducts = useMemo(() => {
-    const sourceProducts = infiniteProducts.length > 0 ? infiniteProducts : products;
-    let filtered = [...sourceProducts];
-
-    // Remove duplicates by id
-    const seen = new Set();
-    filtered = filtered.filter(product => {
-      if (seen.has(product.id)) {
-        return false; // Skip duplicate
-      }
-      seen.add(product.id);
-      return true;
-    });
-
-
-
-    // Filter by categories (only for regular products, not PC builds)
-    if (!isPcBuildMode && selectedCategories.length > 0) {
-      const validSubCategoryIds = subCategories
-        .filter((sub) => selectedCategories.includes(sub.categoryId))
-        .map((sub) => sub.id);
-      filtered = filtered.filter((p) =>
-        validSubCategoryIds.includes(p.subCategoryId)
-      );
-    }
-
-    // Filter by subcategories (only for regular products, not PC builds)
-    if (!isPcBuildMode && selectedSubCategories.length > 0) {
-      filtered = filtered.filter((p) =>
-        selectedSubCategories.includes(p.subCategoryId)
-      );
-    }
-
-    // Filter by brands (only for regular products, not PC builds)
-    if (!isPcBuildMode && selectedBrands.length > 0) {
-      filtered = filtered.filter((p) => (p as any).brandId && selectedBrands.includes((p as any).brandId));
-    }
-
-    // Filter by price range
-    filtered = filtered.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1]
-    );
-
-    // Sort products
-    switch (sortBy) {
-      case "price-asc":
-        filtered.sort((a, b) => a.price - b.price);
-        break;
-      case "price-desc":
-        filtered.sort((a, b) => b.price - a.price);
-        break;
-      case "name":
-        filtered.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      default:
-        // Sort by creation date (only for products that have createdAt)
-        filtered.sort((a, b) => {
-          const aDate = (a as any).createdAt ? new Date((a as any).createdAt).getTime() : 0;
-          const bDate = (b as any).createdAt ? new Date((b as any).createdAt).getTime() : 0;
-          return bDate - aDate;
-        });
-        break;
-    }
-
-    return filtered;
-  }, [
-    infiniteProducts,
+    error,
+    
+    // State
+    searchTerm,
+    sortBy,
+    viewMode,
     selectedCategories,
     selectedSubCategories,
     selectedBrands,
     priceRange,
-    sortBy,
-    isPcBuildMode,
-  ]);
-
-  const clearFilters = () => {
-    setSelectedCategories([]);
-    setSelectedSubCategories([]);
-    setSelectedBrands([]);
-    setPriceRange([0, maxPrice]);
-  };
-
-  // Auto-loader should be enabled for all product pages (getAll, categoryId, subCategoryId)
-  const isAutoLoaderEnabled = getAll !== null || categoryId !== null || subCategoryId !== null;
-
-  // Hide brand filters for PC Build mode (PC builds don't have brands)
-  const shouldShowBrandFilters = !isPcBuildMode;
-
-  const hasActiveFilters =
-    selectedCategories.length > 0 ||
-    selectedSubCategories.length > 0 ||
-    selectedBrands.length > 0 ||
-    priceRange[0] > 0 ||
-    priceRange[1] < maxPrice;
-
-  // Handler functions
-  const handleCategoryChange = (categoryId: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(categoryId)
-        ? prev.filter((id) => id !== categoryId)
-        : [...prev, categoryId]
-    );
-  };
-
-  const handleSubCategoryChange = (subCategoryId: string) => {
-    setSelectedSubCategories((prev) =>
-      prev.includes(subCategoryId)
-        ? prev.filter((id) => id !== subCategoryId)
-        : [...prev, subCategoryId]
-    );
-  };
-
-  const handleBrandChange = (brandId: string) => {
-    setSelectedBrands((prev) =>
-      prev.includes(brandId)
-        ? prev.filter((id) => id !== brandId)
-        : [...prev, brandId]
-    );
-  };
-
-  const handleRemoveCategory = (categoryId: string) => {
-    setSelectedCategories((prev) => prev.filter((id) => id !== categoryId));
-  };
-
-  const handleRemoveBrand = (brandId: string) => {
-    setSelectedBrands((prev) => prev.filter((id) => id !== brandId));
-  };
+    maxPrice,
+    hasActiveFilters,
+    
+    // Handlers
+    setSearchTerm,
+    setSortBy,
+    setViewMode,
+    handleCategoryChange,
+    handleSubCategoryChange,
+    handleBrandChange,
+    setPriceRange,
+    clearFilters,
+    loadMoreProducts,
+  } = useProductsPageLogic();
 
   return (
     <div className="flex min-h-screen flex-col bg-white">
       <Header />
 
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
-          <ActiveFilters
-            selectedCategories={selectedCategories}
-            selectedBrands={selectedBrands}
-            categories={categories}
-            brands={apiBrands.length > 0 ? apiBrands : brands}
-            onRemoveCategory={handleRemoveCategory}
-            onRemoveBrand={handleRemoveBrand}
-            onClearAll={clearFilters}
-          />
-
-          <div className="flex gap-8">
-            {!isPcBuildMode && (
-              <aside className="hidden lg:block w-80 flex-shrink-0">
-                <FilterSidebar
-                  categories={categories}
-                  subCategories={subCategories}
-                  brands={apiBrands.length > 0 ? apiBrands : brands}
-                  selectedCategories={selectedCategories}
-                  selectedSubCategories={selectedSubCategories}
-                  selectedBrands={selectedBrands}
-                  priceRange={priceRange}
-                  maxPrice={maxPrice}
-                  hasActiveFilters={hasActiveFilters}
-                  onCategoryChange={handleCategoryChange}
-                  onSubCategoryChange={handleSubCategoryChange}
-                  onBrandChange={handleBrandChange}
-                  onPriceRangeChange={setPriceRange}
-                  onClearFilters={clearFilters}
-                />
-              </aside>
-            )}
-            
-            {isPcBuildMode && (
-              <aside className="hidden lg:block w-80 flex-shrink-0">
-                <PcBuildFilterSidebar
-                  priceRange={priceRange}
-                  maxPrice={maxPrice}
-                  onPriceRangeChange={setPriceRange}
-                  onClearFilters={clearFilters}
-                />
-              </aside>
-            )}
-
-            <div className="flex-1">
-              <ProductsHeader
-                sortBy={sortBy}
-                productsCount={filteredProducts.length}
-                onSortChange={setSortBy}
-                onToggleFilters={() => setShowFilters(!showFilters)}
-                title={pageTitle}
-              />
-
-              <MobileFilters
-                showFilters={showFilters}
-                setShowFilters={setShowFilters}
-                brands={apiBrands.length > 0 ? apiBrands : brands}
-                selectedBrands={selectedBrands}
-                hasActiveFilters={hasActiveFilters}
-                onBrandChange={handleBrandChange}
-                onClearFilters={clearFilters}
-              />
-
-              <ProductsGrid
-                loading={loading}
-                products={filteredProducts}
-                onClearFilters={clearFilters}
-                isPcBuildMode={isPcBuildMode}
-              />
-
-              {isAutoLoaderEnabled && (
-                <ProductsAutoLoader
-                  loading={loadingMore}
-                  hasMore={hasMore}
-                  error={error}
-                  onLoadMore={loadMoreProducts}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
+      <ProductContentArea
+        isPcBuildMode={isPcBuildMode}
+        searchTerm={searchTerm}
+        sortBy={sortBy}
+        viewMode={viewMode}
+        products={products}
+        pcBuilds={pcBuilds}
+        isLoading={isLoading}
+        hasActiveFilters={hasActiveFilters}
+        pageTitle={pageTitle}
+        
+        selectedCategories={selectedCategories}
+        selectedSubCategories={selectedSubCategories}
+        selectedBrands={selectedBrands}
+        priceRange={priceRange}
+        maxPrice={maxPrice}
+        
+        onSearchChange={setSearchTerm}
+        onSortChange={setSortBy}
+        onViewModeChange={setViewMode}
+        onCategoryChange={handleCategoryChange}
+        onSubCategoryChange={handleSubCategoryChange}
+        onBrandChange={handleBrandChange}
+        onPriceRangeChange={setPriceRange}
+        onClearFilters={clearFilters}
+        onLoadMore={loadMoreProducts}
+      />
 
       <Footer />
     </div>
