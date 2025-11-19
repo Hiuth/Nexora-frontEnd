@@ -1,6 +1,7 @@
 "use client";
 
 import type React from "react";
+import { useState, useEffect } from "react";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -12,7 +13,9 @@ import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "next/navigation";
+import { CommentService } from "@/services/comment.service";
 import type { Product, PcBuild } from "@/lib/types";
+import type { RatingSummaryResponse } from "@/types/api";
 
 interface ProductCardProps {
   product: Product | PcBuild;
@@ -24,9 +27,60 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
   const { addItem } = useCart();
   const { toast } = useToast();
   const searchParams = useSearchParams();
+  const [ratingSummary, setRatingSummary] = useState<RatingSummaryResponse | null>(null);
+  const [loadingRating, setLoadingRating] = useState(false);
   
   // Use explicit isPcBuild flag instead of URL params
   const productLink = isPcBuild ? `/products/${product.id}?pcBuild=true` : `/products/${product.id}`;
+
+  // Fetch rating summary when component mounts
+  useEffect(() => {
+    const fetchRatingSummary = async () => {
+      if (!product.id) return;
+      
+      setLoadingRating(true);
+      try {
+        const summary = await CommentService.getRatingSummaryByProductId(product.id);
+        setRatingSummary(summary);
+      } catch (error) {
+        console.error("Error fetching rating summary:", error);
+        // Don't show error to user, just keep default state
+      } finally {
+        setLoadingRating(false);
+      }
+    };
+
+    fetchRatingSummary();
+  }, [product.id]);
+
+  // Helper function to render rating stars
+  const renderRatingStars = () => {
+    const rating = ratingSummary?.average || 0;
+    const totalComments = ratingSummary?.total || 0;
+
+    return (
+      <div className="flex items-center gap-0.5 sm:gap-1 mb-2 sm:mb-3">
+        {[...Array(5)].map((_, i) => {
+          const isFilled = i < Math.floor(rating);
+          const isHalfFilled = i === Math.floor(rating) && rating % 1 >= 0.5;
+          
+          return (
+            <Star
+              key={i}
+              className={`h-2.5 w-2.5 sm:h-3 sm:w-3 ${
+                isFilled || isHalfFilled
+                  ? "fill-yellow-400 text-yellow-400"
+                  : "fill-gray-200 text-gray-200"
+              }`}
+            />
+          );
+        })}
+        <span className="text-[10px] sm:text-xs text-gray-400 ml-0.5 sm:ml-1">
+          ({totalComments})
+        </span>
+      </div>
+    );
+  };
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -137,17 +191,7 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
           </h3>
         </Link>
 
-        <div className="flex items-center gap-0.5 sm:gap-1 mb-2 sm:mb-3">
-          {[...Array(5)].map((_, i) => (
-            <Star
-              key={i}
-              className="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-yellow-400 text-yellow-400"
-            />
-          ))}
-          <span className="text-[10px] sm:text-xs text-gray-400 ml-0.5 sm:ml-1">
-            (128)
-          </span>
-        </div>
+        {renderRatingStars()}
 
         <div className="flex items-center justify-between">
           <p className="text-sm sm:text-base md:text-lg font-bold text-red-600">
