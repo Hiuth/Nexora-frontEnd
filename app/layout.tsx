@@ -10,7 +10,7 @@ import { ServiceInitializer } from "@/components/service-initializer";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PC Store - Linh kiện PC chính hãng",
+  title: "Nexora - Cửa hàng linh kiện PC & Laptop Gaming chính hãng",
   description:
     "Chuyên cung cấp linh kiện PC, laptop gaming chính hãng với giá tốt nhất. Build PC theo yêu cầu với dịch vụ tư vấn chuyên nghiệp.",
   generator: "v0.app",

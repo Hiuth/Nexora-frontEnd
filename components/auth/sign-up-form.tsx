@@ -148,7 +148,7 @@ export function SignUpForm() {
       toast({
         title: "Đăng ký thành công! 🎉",
         description:
-          "Chào mừng bạn đến với PC Store. Đang chuyển đến trang đăng nhập...",
+          "Chào mừng bạn đến với Nexora. Đang chuyển đến trang đăng nhập...",
         duration: 3000,
       });
 
