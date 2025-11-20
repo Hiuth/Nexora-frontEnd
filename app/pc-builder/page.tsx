@@ -6,10 +6,10 @@ import { PCBuilderContent } from "@/components/pc-builder/pc-builder-content";
 
 export default function PCBuilderPage() {
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-gray-50">
       <Header />
       
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1">
         <PCBuilderContent />
       </main>
 

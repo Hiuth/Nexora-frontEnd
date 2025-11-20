@@ -1,6 +1,5 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -26,121 +25,96 @@ export function BuildSummaryCard({
   const selectedComponents = components.filter(comp => comp.product !== null);
 
   return (
-    <Card className="sticky top-4">
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <span>Tóm tắt cấu hình</span>
-          <Badge variant="secondary">
-            {selectedCount} linh kiện
-          </Badge>
-        </CardTitle>
-      </CardHeader>
+    <div className="space-y-6">
+      {/* Simple Header */}
+      <div className="text-center">
+        <h3 className="text-lg font-semibold text-gray-900 mb-2">Cấu hình của bạn</h3>
+        <Badge variant="secondary" className="bg-gray-100 text-gray-700">
+          {selectedCount} linh kiện
+        </Badge>
+      </div>
       
-      <CardContent className="space-y-4">
-        {/* Components List */}
-        {selectedComponents.length > 0 ? (
-          <div className="space-y-3">
-            {selectedComponents.map(component => (
-              <div key={component.id} className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 flex-1 min-w-0">
-                  {/* Product Thumbnail */}
-                  {component.product ? (
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
-                      {component.product.thumbnail ? (
-                        <img 
-                          src={component.product.thumbnail} 
-                          alt={component.product.productName}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            const target = e.target as HTMLImageElement;
-                            target.src = '/placeholder-product.png';
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <Package className="h-5 w-5" />
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                      {component.icon}
-                    </div>
-                  )}
-                  
-                  {/* Component Info */}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      {component.name}
-                    </p>
-                    {component.product && (
-                      <p className="text-xs text-gray-600 line-clamp-1">
-                        {component.product.productName}
-                      </p>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Price and Quantity */}
-                <div className="text-right flex-shrink-0">
-                  {component.product && (
-                    <>
-                      <p className="text-sm font-medium">
-                        {formatPrice(component.product.price * component.quantity)}
-                      </p>
-                      {component.quantity > 1 && (
-                        <p className="text-xs text-gray-500">
-                          x{component.quantity}
-                        </p>
-                      )}
-                    </>
-                  )}
-                </div>
+      {/* Components List */}
+      {selectedComponents.length > 0 ? (
+        <div className="space-y-3">
+          {selectedComponents.map(component => (
+            <div key={component.id} className="flex items-center gap-3 p-3 rounded-lg bg-white shadow-sm">
+              {/* Simple Thumbnail */}
+              <div className="w-10 h-10 bg-gray-50 rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
+                {component.product?.thumbnail ? (
+                  <img 
+                    src={component.product.thumbnail} 
+                    alt={component.product.productName}
+                    className="w-8 h-8 object-cover rounded"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.src = '/placeholder-product.png';
+                    }}
+                  />
+                ) : (
+                  <Package className="h-4 w-4 text-gray-400" />
+                )}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            <p>Chưa có linh kiện nào được chọn</p>
-          </div>
-        )}
-
-        {selectedComponents.length > 0 && (
-          <>
-            <Separator />
-            
-            {/* Total */}
-            <div className="flex items-center justify-between text-lg font-semibold">
-              <span>Tổng cộng:</span>
-              <span className="text-blue-600">
-                {formatPrice(totalPrice)}
-              </span>
-            </div>
-
-            <Separator />
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <Button 
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors duration-200" 
-                onClick={onAddAllToCart}
-                disabled={!isAuthenticated}
-                title={!isAuthenticated ? "Cần đăng nhập để thêm vào giỏ hàng" : ""}
-              >
-                <ShoppingCart className="mr-2 h-4 w-4" />
-                Thêm tất cả vào giỏ hàng
-              </Button>
               
-              {/* Warning message for unauthenticated users */}
-              {!isAuthenticated && (
-                <p className="text-sm text-red-500 text-center font-medium">
-                  Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng
+              {/* Component Info */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">
+                  {component.name}
                 </p>
-              )}
+                {component.product && (
+                  <p className="text-xs text-gray-600 truncate">
+                    {component.product.productName}
+                  </p>
+                )}
+              </div>
+              
+              {/* Price */}
+              <div className="text-right">
+                {component.product && (
+                  <p className="text-sm font-medium text-gray-900">
+                    {formatPrice(component.product.price * component.quantity)}
+                  </p>
+                )}
+              </div>
             </div>
-          </>
-        )}
-      </CardContent>
-    </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-8 text-gray-500">
+          <Package className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+          <p className="text-sm">Chưa chọn linh kiện nào</p>
+        </div>
+      )}
+
+      {selectedComponents.length > 0 && (
+        <>
+          <Separator />
+          
+          {/* Simple Total */}
+          <div className="flex items-center justify-between py-4 bg-white rounded-lg px-4 shadow-sm">
+            <span className="font-semibold text-gray-900">Tổng cộng</span>
+            <span className="text-lg font-bold text-blue-600">
+              {formatPrice(totalPrice)}
+            </span>
+          </div>
+
+          {/* Simple Button */}
+          <Button 
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white" 
+            onClick={onAddAllToCart}
+            disabled={!isAuthenticated}
+          >
+            <ShoppingCart className="mr-2 h-4 w-4" />
+            Thêm vào giỏ hàng
+          </Button>
+          
+          {!isAuthenticated && (
+            <p className="text-xs text-red-600 text-center">
+              Vui lòng đăng nhập để thêm vào giỏ hàng
+            </p>
+          )}
+        </>
+      )}
+    </div>
   );
 }

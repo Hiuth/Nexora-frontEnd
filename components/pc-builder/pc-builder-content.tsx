@@ -4,8 +4,10 @@ import React from "react";
 import { useRouter } from "next/navigation";
 import { usePCBuilder } from "@/hooks/use-pc-builder";
 import { ComponentCard } from "./component-card";
-import { ComponentSelectionDialog } from "./component-selection-dialog";
-import { BuildSummaryCard } from "./build-summary-card";
+import { ComponentSelectionDialog } from './component-selection-dialog';
+import { BuildSummaryCard } from './build-summary-card';
+import { PCBuilderPageHeader } from './pc-builder-page-header';
+import { CategoriesList } from './categories-list';
 import { QuantityControls } from "./quantity-controls";
 import { useQuantityValidator } from "./product-quantity-validator";
 import { Category, SubCategory } from "@/lib/types";
@@ -268,142 +270,49 @@ export function PCBuilderContent() {
   const coreComponents = buildComponents.slice(0, 7); // CPU, GPU, RAM, Mainboard, SSD, PSU, Case
   const optionalComponents = buildComponents.slice(7); // HDD, Cooling, Peripherals
 
+  // Sort categories: PC components first, then VGA, Monitor, and others
+  const getSortedCategories = () => {
+    const categoryOrder = {
+      'Linh Kiện Máy Tính': 1,
+      'VGA - Card Đồ Họa': 2,
+      'Màn Hình Máy Tính': 3,
+      'Chuột - Phím - Tai Nghe': 4,
+      'Phụ Kiện - Cáp - Hub -Usb': 5,
+      'Bàn - Ghế - Setup': 6,
+      'Thiết Bị Mạng - Thiết Bị Hội Nghị': 7,
+    };
+    
+    const sorted = [...filteredCategories].sort((a, b) => {
+      const orderA = categoryOrder[a.categoryName as keyof typeof categoryOrder] || 999;
+      const orderB = categoryOrder[b.categoryName as keyof typeof categoryOrder] || 999;
+      return orderA - orderB;
+    });
+    
+    console.log('Sorted categories:', sorted.map(c => ({ id: c.id, name: c.categoryName })));
+    return sorted;
+  };
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <PCBuilderPageHeader />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* PC Builder Categories */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Categories Display */}
-          {filteredCategories.map(category => {
-            const categorySubCategories = getCategorySubCategories(category.id);
-            
-            if (categorySubCategories.length === 0) return null;
-            
-            return (
-              <div key={category.id} className="bg-white rounded-lg border border-gray-200 p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  {getIconForCategory(category.id)}
-                  {category.categoryName}
-                </h2>
-                
-                {/* Subcategories Grid */}
-                <div className="grid grid-cols-1 gap-4">
-                  {categorySubCategories.map(subCategory => {
-                    const selectedProduct = getSelectedProduct(subCategory.id);
-                    const isDisabled = isSubCategoryDisabled(subCategory);
-                    
-                    return (
-                      <div 
-                        key={subCategory.id}
-                        className={`
-                          border rounded-lg p-4 transition-colors
-                          ${isDisabled 
-                            ? "border-red-200 bg-red-50 cursor-not-allowed opacity-60" 
-                            : "border-gray-200 hover:border-blue-300 cursor-pointer"
-                          }
-                        `}
-                        onClick={() => {
-                          if (!isDisabled) {
-                            handleSubCategorySelect(subCategory);
-                          }
-                        }}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-gray-900">{subCategory.subCategoryName}</h3>
-                            {isDisabled && (
-                              <span className="text-xs text-red-600 bg-red-100 px-2 py-1 rounded">
-                                Không tương thích
-                              </span>
-                            )}
-                          </div>
-                          {selectedProduct ? (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                removeProduct(subCategory.id);
-                              }}
-                              className="text-red-500 hover:text-red-700 text-sm"
-                            >
-                              Xóa
-                            </button>
-                          ) : (
-                            <span className="text-sm text-gray-500">Chưa chọn</span>
-                          )}
-                        </div>
-                        
-                        {selectedProduct ? (
-                          <div className="space-y-3">
-                            <div className="flex items-start gap-3">
-                              {/* Product Image */}
-                              <div className="w-16 h-16 bg-gray-100 rounded-lg flex-shrink-0 overflow-hidden">
-                                {selectedProduct.thumbnail ? (
-                                  <img 
-                                    src={selectedProduct.thumbnail} 
-                                    alt={selectedProduct.productName}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      const target = e.target as HTMLImageElement;
-                                      target.src = '/placeholder-product.png';
-                                    }}
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                    <Box className="h-6 w-6" />
-                                  </div>
-                                )}
-                              </div>
-                              
-                              {/* Product Info */}
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium text-gray-900 line-clamp-2 mb-1">
-                                  {selectedProduct.productName}
-                                </p>
-                                <p className="text-sm font-semibold text-blue-600 mb-2">
-                                  {formatPrice(selectedProduct.price)}
-                                </p>
-                                
-                                {/* Quantity Controls */}
-                                <QuantityControls
-                                  product={selectedProduct}
-                                  currentQuantity={buildComponents.find(comp => comp.subCategoryId === subCategory.id)?.quantity || 1}
-                                  onQuantityChange={(newQuantity) => {
-                                    const currentComponent = buildComponents.find(comp => comp.subCategoryId === subCategory.id);
-                                    if (currentComponent) {
-                                      updateQuantity(currentComponent.id, newQuantity);
-                                    }
-                                  }}
-                                  showStock={true}
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="text-center py-4">
-                            {isDisabled ? (
-                              <div className="text-red-600 text-sm">
-                                <p>Không tương thích với CPU đã chọn</p>
-                                <p className="text-xs mt-1">Vui lòng chọn bo mạch chủ cùng brand với CPU</p>
-                              </div>
-                            ) : (
-                              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
-                                + Chọn {subCategory.subCategoryName}
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+        <div className="lg:col-span-2">
+          <CategoriesList
+            categories={getSortedCategories()}
+            getCategorySubCategories={getCategorySubCategories}
+            onSubCategorySelect={handleSubCategorySelect}
+            getSelectedProduct={getSelectedProduct}
+            isSubCategoryDisabled={isSubCategoryDisabled}
+            removeProduct={removeProduct}
+          />
         </div>
 
         {/* Build Summary */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="bg-white rounded-lg shadow-md p-6 sticky top-8">
             <BuildSummaryCard
               components={buildComponents}
               totalPrice={getTotalPrice()}
@@ -428,6 +337,7 @@ export function PCBuilderContent() {
         onSelectProduct={selectProduct}
         checkCompatibility={checkCompatibility}
       />
+      </div>
     </div>
   );
 }
