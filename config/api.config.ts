@@ -133,6 +133,7 @@ export const API_CONFIG = {
       GET_BY_STATUS: "/WarrantyRecord/GetByStatus",
       GET_BY_SERIAL_NUMBER: "/WarrantyRecord/GetBySerialNumber",
       GET_BY_IMEI: "/WarrantyRecord/GetByImei",
+      GET_BY_PHONE_NUMBER: "/WarrantyRecord/GetByPhoneNumber",
     },
 
     // Comment endpoints

@@ -33,7 +33,11 @@ export async function apiCall<T>(
     endpoint.includes("/PcBuildItem/getAllByPcBuildById")||
     endpoint.includes("/PcBuild/getByCategory")||
     endpoint.includes("/PcBuild/getBySubCategory")||
-    endpoint.includes("/PcBuild/getById");
+    endpoint.includes("/PcBuild/getById") ||
+    endpoint.includes("/WarrantyRecord/GetBySerialNumber") ||
+    endpoint.includes("/WarrantyRecord/GetByImei") ||
+    endpoint.includes("/WarrantyRecord/GetByOrderId") ||
+    endpoint.includes("/WarrantyRecord/GetByPhoneNumber");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();
