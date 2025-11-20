@@ -8,6 +8,7 @@ import {
   ProfileInfo,
   AccountTabs,
   OrdersManagement,
+  WarrantyLookup,
 } from "@/components/account";
 import { accountService } from "@/services/account.service";
 import { AccountResponse } from "@/types/api";
@@ -100,6 +101,7 @@ export default function AccountPage() {
               />
             }
             ordersManagementContent={<OrdersManagement />}
+            warrantyLookupContent={<WarrantyLookup />}
           />
         </div>
       </main>

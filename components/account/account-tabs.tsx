@@ -8,12 +8,14 @@ interface AccountTabsProps {
   defaultValue: string;
   profileContent: React.ReactNode;
   ordersManagementContent: React.ReactNode;
+  warrantyLookupContent: React.ReactNode;
 }
 
 export function AccountTabs({
   defaultValue,
   profileContent,
   ordersManagementContent,
+  warrantyLookupContent,
 }: AccountTabsProps) {
   const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState(defaultValue);
@@ -35,6 +37,11 @@ export function AccountTabs({
       label: "Quản lý đơn hàng",
       content: ordersManagementContent,
     },
+    {
+      value: "warranty-lookup",
+      label: "Tra cứu bảo hành",
+      content: warrantyLookupContent,
+    },
   ];
 
   return (
@@ -44,7 +51,7 @@ export function AccountTabs({
       className="space-y-6 sm:space-y-8"
     >
       <div className="rounded-xl sm:rounded-2xl p-1 sm:p-1.5 bg-white shadow-sm border border-slate-100">
-        <TabsList className="bg-transparent rounded-lg sm:rounded-xl w-full grid grid-cols-2 gap-1 overflow-hidden">
+        <TabsList className="bg-transparent rounded-lg sm:rounded-xl w-full grid grid-cols-3 gap-1 overflow-hidden">
           {tabs.map((tab) => (
             <TabsTrigger
               key={tab.value}

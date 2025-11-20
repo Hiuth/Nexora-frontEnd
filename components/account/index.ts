@@ -6,3 +6,4 @@ export { AccountTabs } from "./account-tabs";
 export { OrdersManagement } from "./orders-management";
 export { AccountHeader } from "./account-header";
 export { OrderDetailDialog } from "./order-detail-dialog";
+export { WarrantyLookup } from "./warranty-lookup";
