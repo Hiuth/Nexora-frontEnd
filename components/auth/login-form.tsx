@@ -17,6 +17,7 @@ interface LoginFormData {
 
 export function LoginForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [loginError, setLoginError] = useState<string>("");
   const { toast } = useToast();
   const { login } = useAuth();
   const router = useRouter();
@@ -74,6 +75,7 @@ export function LoginForm() {
       // Redirect to home page or previous page
       router.push("/");
     } catch (error: any) {
+      setLoginError("Email hoặc mật khẩu không đúng ! Vui lòng kiểm tra lại");
       toast({
         title: "Đăng nhập thất bại",
         description: error.message || "Email hoặc mật khẩu không chính xác",
@@ -89,6 +91,10 @@ export function LoginForm() {
     if (errors[field]) {
       setErrors((prev) => ({ ...prev, [field]: undefined }));
     }
+    // Clear login error when user starts typing
+    if (loginError) {
+      setLoginError("");
+    }
   };
 
   return (
@@ -98,6 +104,15 @@ export function LoginForm() {
         <h1 className="text-3xl font-bold text-gray-900">Đăng Nhập</h1>
         <p className="text-gray-600">Chào mừng bạn quay trở lại với Nexora</p>
       </div>
+
+      {/* Login Error Message */}
+      {loginError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-600 text-sm font-medium text-center">
+            {loginError}
+          </p>
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email */}
