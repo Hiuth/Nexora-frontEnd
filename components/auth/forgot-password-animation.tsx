@@ -1,38 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shield, Key, Mail, CheckCircle2, Lock, RefreshCw } from "lucide-react";
+import { Cpu, Monitor, HardDrive, Zap, Shield, Award } from "lucide-react";
 
-const securityFeatures = [
+const features = [
   {
-    icon: Mail,
-    title: "Xác thực qua Email",
-    description: "Gửi mã OTP bảo mật đến email của bạn",
+    icon: Cpu,
+    title: "Linh kiện chính hãng",
+    description: "100% sản phẩm chính hãng từ các thương hiệu uy tín",
+  },
+  {
+    icon: Monitor,
+    title: "Bảo hành tận tâm",
+    description: "Chế độ bảo hành dài hạn, hỗ trợ nhanh chóng",
+  },
+  {
+    icon: HardDrive,
+    title: "Tư vấn chuyên nghiệp",
+    description: "Đội ngũ kỹ thuật giàu kinh nghiệm",
+  },
+  {
+    icon: Zap,
+    title: "Giao hàng nhanh",
+    description: "Giao hàng trong ngày tại TP.HCM",
   },
   {
     icon: Shield,
-    title: "Mã hóa mạnh",
-    description: "Dữ liệu được bảo vệ bằng mã hóa AES-256",
+    title: "Thanh toán bảo mật",
+    description: "An toàn, nhanh chóng, tiện lợi",
   },
   {
-    icon: Key,
-    title: "Quên mật khẩu an toàn",
-    description: "Quy trình khôi phục mật khẩu đa lớp bảo mật",
-  },
-  {
-    icon: CheckCircle2,
-    title: "Xác minh danh tính",
-    description: "Kiểm tra kỹ lưỡng trước khi thay đổi mật khẩu",
-  },
-  {
-    icon: Lock,
-    title: "Bảo mật tuyệt đối",
-    description: "Không lưu trữ mật khẩu dạng văn bản thô",
-  },
-  {
-    icon: RefreshCw,
-    title: "Cập nhật nhanh chóng",
-    description: "Mật khẩu mới có hiệu lực ngay lập tức",
+    icon: Award,
+    title: "Giá cả cạnh tranh",
+    description: "Giá tốt nhất thị trường, nhiều ưu đãi",
   },
 ];
 
@@ -41,7 +41,7 @@ export function ForgotPasswordAnimation() {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % securityFeatures.length);
+      setActiveIndex((prev) => (prev + 1) % features.length);
     }, 3000);
 
     return () => clearInterval(interval);
@@ -56,7 +56,7 @@ export function ForgotPasswordAnimation() {
       <div className="relative">
         {/* Background gradient circles */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute top-1/4 -right-20 w-96 h-96 bg-green-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute top-1/4 -right-20 w-96 h-96 bg-blue-400/20 rounded-full blur-3xl animate-pulse"></div>
           <div className="absolute bottom-1/4 -left-20 w-96 h-96 bg-blue-600/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
         </div>
 
@@ -64,20 +64,17 @@ export function ForgotPasswordAnimation() {
         <div className="relative z-10 space-y-8">
           {/* Main title */}
           <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-600 rounded-full mb-6">
-              <Shield className="w-10 h-10 text-white" />
-            </div>
             <h2 className="text-4xl font-bold text-blue-900 mb-4">
-              Bảo mật tài khoản
+              Chào mừng đến với Nexora
             </h2>
             <p className="text-lg text-blue-700">
-              Khôi phục mật khẩu một cách an toàn và bảo mật
+              Nơi bạn tìm thấy mọi linh kiện PC chất lượng cao
             </p>
           </div>
 
           {/* Animated features grid */}
           <div className="grid grid-cols-2 gap-6">
-            {securityFeatures.map((feature, index) => {
+            {features.map((feature, index) => {
               const Icon = feature.icon;
               const isActive = index === activeIndex;
 
@@ -136,7 +133,7 @@ export function ForgotPasswordAnimation() {
 
           {/* Progress dots */}
           <div className="flex justify-center space-x-2 mt-8">
-            {securityFeatures.map((_, index) => (
+            {features.map((_, index) => (
               <div
                 key={index}
                 className={`
@@ -149,16 +146,6 @@ export function ForgotPasswordAnimation() {
                 `}
               />
             ))}
-          </div>
-
-          {/* Security badge */}
-          <div className="text-center mt-8">
-            <div className="inline-flex items-center space-x-2 bg-green-100 px-4 py-2 rounded-full">
-              <Shield className="w-4 h-4 text-green-600" />
-              <span className="text-sm font-medium text-green-700">
-                Quy trình bảo mật SSL 256-bit
-              </span>
-            </div>
           </div>
         </div>
       </div>
