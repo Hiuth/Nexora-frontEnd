@@ -14,6 +14,7 @@ import {
   Share2,
 } from "lucide-react";
 import { formatPrice } from "@/lib/mock-data";
+import { useAuth } from "@/lib/auth-context";
 import type { Product } from "@/lib/types";
 
 interface BuildComponent {
@@ -39,6 +40,7 @@ export function BuildSummary({
   isComplete,
   onClearBuild,
 }: BuildSummaryProps) {
+  const { user } = useAuth();
   const selectedComponents = buildComponents.filter((c) => c.product);
   const requiredComponents = buildComponents.filter((c) => c.required);
   const completedRequired = requiredComponents.filter((c) => c.product).length;
@@ -208,10 +210,26 @@ export function BuildSummary({
 
           {/* Actions */}
           <div className="space-y-2 pt-4">
-            <Button className="w-full" size="lg" disabled={!isComplete}>
-              <ShoppingCart className="h-5 w-5 mr-2" />
-              Thêm vào giỏ hàng
-            </Button>
+            {user ? (
+              <Button className="w-full" size="lg" disabled={!isComplete}>
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                Thêm vào giỏ hàng
+              </Button>
+            ) : (
+              <div className="space-y-2">
+                <Button
+                  className="w-full bg-gray-400 cursor-not-allowed"
+                  size="lg"
+                  disabled
+                >
+                  <ShoppingCart className="h-5 w-5 mr-2" />
+                  Thêm vào giỏ hàng
+                </Button>
+                <p className="text-sm text-red-600 text-center">
+                  Vui lòng đăng nhập để thêm vào giỏ hàng
+                </p>
+              </div>
+            )}
             <div className="grid grid-cols-2 gap-2">
               <Button variant="outline" size="sm" className="text-xs">
                 <Download className="h-4 w-4 mr-1" />

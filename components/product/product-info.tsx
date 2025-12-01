@@ -32,9 +32,9 @@ export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: P
   const hasOutOfStockItems = isPcBuild && pcBuildItems.some(item => item.stockQuantity === 0);
   
   // Kiểm tra có thể thêm vào giỏ hàng không
-  const canAddToCart = isPcBuild 
-    ? (user && !hasOutOfStockItems) // PC Build: cần đăng nhập và không hết hàng
-    : (product.stockQuantity > 0); // Product thường: chỉ kiểm tra stock
+  const canAddToCart = user && (isPcBuild 
+    ? !hasOutOfStockItems // PC Build: cần đăng nhập và không hết hàng
+    : (product.stockQuantity > 0)); // Product thường: kiểm tra stock
 
   const decreaseQuantity = () => {
     if (quantity > 1) setQuantity(quantity - 1);
@@ -230,21 +230,24 @@ export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: P
           {isAddingToCart ? "Đang xử lý..." : "Mua ngay"}
         </Button>
         
-        {/* Thông báo cho PC Build */}
-        {isPcBuild && (
-          <div className="mt-3">
-            {!user && (
-              <p className="text-sm text-red-600 text-center">
-                Vui lòng đăng nhập để thực hiện việc thêm vào giỏ hàng
-              </p>
-            )}
-            {user && hasOutOfStockItems && (
-              <p className="text-sm text-red-600 text-center">
-                Một số linh kiện đã hết hàng, không thể thêm vào giỏ hàng
-              </p>
-            )}
-          </div>
-        )}
+        {/* Thông báo cho việc thêm vào giỏ hàng */}
+        <div className="mt-3">
+          {!user && (
+            <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
+              <strong>Vui lòng đăng nhập</strong> để thực hiện việc thêm vào giỏ hàng
+            </p>
+          )}
+          {user && isPcBuild && hasOutOfStockItems && (
+            <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
+              Một số linh kiện đã hết hàng, không thể thêm vào giỏ hàng
+            </p>
+          )}
+          {user && !isPcBuild && product.stockQuantity === 0 && (
+            <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
+              Sản phẩm hiện tại đã hết hàng
+            </p>
+          )}
+        </div>
       </div>
 
       <Separator />

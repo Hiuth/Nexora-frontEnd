@@ -6,6 +6,7 @@ import { useCart } from "@/lib/cart-context";
 import { ProductService } from "@/services/product.service";
 import { CategoryService } from "@/services/category.service";
 import { SubCategoryService } from "@/services/subcategory.service";
+import { CartService } from "@/services/cart.service";
 import { Product, Category, SubCategory } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
@@ -308,7 +309,12 @@ export function usePCBuilder() {
     }
 
     try {
+      // Gọi API thêm vào giỏ hàng
+      await CartService.addToCart(product.id, 1);
+      
+      // Thêm vào local cart context
       await addItem(product, 1);
+      
       toast({
         title: "Đã thêm vào giỏ hàng",
         description: `${product.productName} đã được thêm vào giỏ hàng`,

@@ -11,9 +11,11 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/mock-data";
 import { useCart } from "@/lib/cart-context";
+import { useAuth } from "@/lib/auth-context";
 import { useToast } from "@/hooks/use-toast";
 import { useSearchParams } from "next/navigation";
 import { CommentService } from "@/services/comment.service";
+import { CartService } from "@/services/cart.service";
 import type { Product, PcBuild } from "@/lib/types";
 import type { RatingSummaryResponse } from "@/types/api";
 
@@ -25,10 +27,12 @@ interface ProductCardProps {
 
 export function ProductCard({ product, compact = false, isPcBuild = false }: ProductCardProps) {
   const { addItem } = useCart();
+  const { user } = useAuth();
   const { toast } = useToast();
   const searchParams = useSearchParams();
   const [ratingSummary, setRatingSummary] = useState<RatingSummaryResponse | null>(null);
   const [loadingRating, setLoadingRating] = useState(false);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
   
   // Use explicit isPcBuild flag instead of URL params
   const productLink = isPcBuild ? `/products/${product.id}?pcBuild=true` : `/products/${product.id}`;
@@ -82,8 +86,18 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
     );
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
+    
+    // Kiểm tra đăng nhập trước
+    if (!user) {
+      toast({
+        title: "Cần đăng nhập",
+        description: "Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Don't allow adding PC Build to cart from grid - only from detail page
     if (isPcBuild) {
@@ -94,13 +108,30 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
       return;
     }
     
-    // Only add regular Product to cart
-    const productToAdd = product as Product;
-    addItem(productToAdd, 1);
-    toast({
-      title: "Đã thêm vào giỏ hàng",
-      description: `${product.productName} đã được thêm vào giỏ hàng`,
-    });
+    setIsAddingToCart(true);
+    
+    try {
+      // Gọi API thêm vào giỏ hàng
+      await CartService.addToCart(product.id, 1);
+      
+      // Thêm vào local cart context
+      const productToAdd = product as Product;
+      addItem(productToAdd, 1);
+      
+      toast({
+        title: "Đã thêm vào giỏ hàng",
+        description: `${product.productName} đã được thêm vào giỏ hàng`,
+      });
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+      toast({
+        title: "Lỗi",
+        description: "Không thể thêm sản phẩm vào giỏ hàng. Vui lòng thử lại.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAddingToCart(false);
+    }
   };
 
   if (compact) {
@@ -142,15 +173,17 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
             <p className="text-sm font-bold text-red-600">
               {formatPrice(product.price)}
             </p>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
-              disabled={(product as any).stockQuantity === 0}
-              onClick={handleAddToCart}
-            >
-              <ShoppingCart className="h-4 w-4" />
-            </Button>
+            {user && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
+                disabled={(product as any).stockQuantity === 0 || isAddingToCart}
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -197,15 +230,17 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
           <p className="text-sm sm:text-base md:text-lg font-bold text-red-600">
             {formatPrice(product.price)}
           </p>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
-            disabled={(product as any).stockQuantity === 0}
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
-          </Button>
+          {user && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full bg-blue-50 hover:bg-blue-100 text-blue-600 hover:text-blue-700 transition-all"
+              disabled={(product as any).stockQuantity === 0 || isAddingToCart}
+              onClick={handleAddToCart}
+            >
+              <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>
