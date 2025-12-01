@@ -37,7 +37,9 @@ export async function apiCall<T>(
     endpoint.includes("/WarrantyRecord/GetBySerialNumber") ||
     endpoint.includes("/WarrantyRecord/GetByImei") ||
     endpoint.includes("/WarrantyRecord/GetByOrderId") ||
-    endpoint.includes("/WarrantyRecord/GetByPhoneNumber");
+    endpoint.includes("/WarrantyRecord/GetByPhoneNumber")||
+    endpoint.includes("/Auth/send-otp-forgot-password")||
+    endpoint.includes("/Auth/reset-password");
 
   if (!isPublicEndpoint) {
     token = await TokenManager.ensureValidToken();

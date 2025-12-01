@@ -198,14 +198,24 @@ export function LoginForm() {
         </div>
 
         {/* Sign Up Link */}
-        <div className="text-center text-sm text-gray-600 pt-2">
-          Chưa có tài khoản?{" "}
-          <Link
-            href="/signup"
-            className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
-          >
-            Đăng ký ngay
-          </Link>
+        <div className="space-y-2">
+          <div className="text-center">
+            <Link
+              href="/forgot-password"
+              className="text-sm text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              Quên mật khẩu?
+            </Link>
+          </div>
+          <div className="text-center text-sm text-gray-600">
+            Chưa có tài khoản?{" "}
+            <Link
+              href="/signup"
+              className="text-blue-600 hover:text-blue-700 font-semibold hover:underline"
+            >
+              Đăng ký ngay
+            </Link>
+          </div>
         </div>
       </form>
     </div>

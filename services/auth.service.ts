@@ -103,10 +103,14 @@ export class AuthService {
   }
 
   // Send OTP for forgot password
-  async sendOtpForgotPassword(): Promise<string> {
+  async sendOtpForgotPassword(email: string): Promise<string> {
     try {
-      const data = await apiGet<string>(
-        API_CONFIG.ENDPOINTS.SEND_OTP_FORGOT_PASSWORD
+      const formData = new FormData();
+      formData.append("email", email);
+
+      const data = await apiPostFormData<string>(
+        API_CONFIG.ENDPOINTS.SEND_OTP_FORGOT_PASSWORD,
+        formData
       );
 
       return data.result || data.message;
@@ -117,11 +121,12 @@ export class AuthService {
   }
 
   // Reset password
-  async resetPassword(otp: string, newPassword: string): Promise<string> {
+  async resetPassword(otp: string, newPassword: string, email: string): Promise<string> {
     try {
       const formData = new FormData();
       formData.append("otp", otp);
       formData.append("newPassword", newPassword);
+      formData.append("email", email);
 
       const data = await apiPutFormData<string>(
         API_CONFIG.ENDPOINTS.RESET_PASSWORD,
