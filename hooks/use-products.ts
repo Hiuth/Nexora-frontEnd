@@ -96,35 +96,102 @@ export function useFeaturedProducts() {
   return { products, loading, error };
 }
 
-export function useProductSearch(query: string) {
+export function useProductSearch(query: string, pageSize: number = 10) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
-  useEffect(() => {
+  const searchProducts = async (page: number = 1, append: boolean = false) => {
     if (!query.trim()) {
       setProducts([]);
+      setCurrentPage(1);
+      setHasMore(false);
+      setTotalPages(0);
+      setTotalCount(0);
       return;
     }
 
-    const searchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
-        const data = await ProductService.searchProducts(query);
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const data = await ProductService.searchProducts(query, {
+        page,
+        pageSize
+      });
+      
+      // Extract pagination info
+      const paginationInfo = (data as any).__paginationInfo;
+      
+      if (append) {
+        setProducts(prev => [...prev, ...data]);
+      } else {
         setProducts(data);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to search products"
-        );
-      } finally {
-        setLoading(false);
       }
-    };
+      
+      if (paginationInfo) {
+        setCurrentPage(paginationInfo.currentPage);
+        setTotalPages(paginationInfo.totalPages);
+        setTotalCount(paginationInfo.totalCount);
+        setHasMore(paginationInfo.hasNextPage);
+      } else {
+        setCurrentPage(page);
+        setTotalPages(Math.ceil(data.length / pageSize));
+        setTotalCount(data.length);
+        setHasMore(data.length === pageSize);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to search products"
+      );
+      if (!append) {
+        setProducts([]);
+        setCurrentPage(1);
+        setHasMore(false);
+        setTotalPages(0);
+        setTotalCount(0);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const debounceTimer = setTimeout(searchProducts, 300);
+  const loadMore = async () => {
+    if (hasMore && !loading) {
+      await searchProducts(currentPage + 1, true);
+    }
+  };
+
+  const reset = () => {
+    setProducts([]);
+    setCurrentPage(1);
+    setHasMore(false);
+    setTotalPages(0);
+    setTotalCount(0);
+  };
+
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      searchProducts(1, false);
+    }, 300);
+    
     return () => clearTimeout(debounceTimer);
   }, [query]);
 
-  return { products, loading, error };
+  return { 
+    products, 
+    loading, 
+    error, 
+    currentPage,
+    hasMore,
+    totalPages,
+    totalCount,
+    loadMore,
+    reset,
+    refetch: () => searchProducts(1, false)
+  };
 }

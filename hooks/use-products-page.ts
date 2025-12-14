@@ -14,6 +14,7 @@ export function useProductsPageLogic() {
   const subCategoryId = searchParams.get("subCategoryId") || searchParams.get("SubCategoryId");
   const getAll = searchParams.get("getAll");
   const pcBuild = searchParams.get("pcBuild");
+  const searchQuery = searchParams.get("search");
   
   // Determine if this is PC Build mode
   const isPcBuildMode = pcBuild === "true";
@@ -58,13 +59,27 @@ export function useProductsPageLogic() {
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 2000000000]);
   const [sortBy, setSortBy] = useState("newest");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState(searchQuery || "");
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Update search term when URL changes
+  useEffect(() => {
+    setSearchTerm(searchQuery || "");
+  }, [searchQuery]);
 
   // Load products from API when URL params change
   useEffect(() => {
     const loadProducts = async () => {
-      if (categoryId || subCategoryId || getAll !== null) {
+      if (searchQuery) {
+        // Search mode
+        const filters = {
+          search: searchQuery,
+          categoryId: categoryId || undefined,
+          subCategoryId: subCategoryId || undefined,
+        };
+        await fetchProducts(filters);
+      } else if (categoryId || subCategoryId || getAll !== null) {
+        // Category/subcategory mode
         const filters = {
           categoryId: categoryId || undefined,
           subCategoryId: subCategoryId || undefined,
@@ -78,7 +93,7 @@ export function useProductsPageLogic() {
     if (!isPcBuildMode) {
       loadProducts();
     }
-  }, [categoryId, subCategoryId, getAll, fetchProducts, reset, isPcBuildMode]);
+  }, [categoryId, subCategoryId, getAll, searchQuery, fetchProducts, reset, isPcBuildMode]);
 
   // Load brands from API
   useEffect(() => {
@@ -97,6 +112,10 @@ export function useProductsPageLogic() {
 
   // Generate page title based on query params
   const pageTitle = useMemo(() => {
+    if (searchQuery) {
+      return `Kết quả tìm kiếm cho "${searchQuery}"`;
+    }
+    
     if (isPcBuildMode) {
       if (getAll !== null) {
         return "Tất cả máy bộ Nexora";

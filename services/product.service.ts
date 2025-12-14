@@ -38,7 +38,9 @@ export class ProductService {
         // Choose appropriate endpoint based on filters
         let endpoint = API_CONFIG.ENDPOINTS.PRODUCT.GET_ALL;
         
-        if (params?.subcategory) {
+        if (params?.search) {
+          endpoint = `${API_CONFIG.ENDPOINTS.PRODUCT.SEARCH}/${encodeURIComponent(params.search)}`;
+        } else if (params?.subcategory) {
           endpoint = `${API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_SUBCATEGORY_ID}/${encodeURIComponent(params.subcategory)}`;
         } else if (params?.category) {
           endpoint = `${API_CONFIG.ENDPOINTS.PRODUCT.GET_BY_CATEGORY_ID}/${encodeURIComponent(params.category)}`;
@@ -227,18 +229,37 @@ export class ProductService {
     return products;
   }
 
-  // Search products
-  static async searchProducts(query: string): Promise<Product[]> {
+  // Search products with pagination
+  static async searchProducts(
+    query: string, 
+    params?: {
+      page?: number;
+      pageSize?: number;
+    }
+  ): Promise<Product[]> {
     if (this.USE_API) {
       try {
+        // Map frontend parameters to backend expected parameters
+        const queryParams: any = {};
+        if (params?.page) queryParams.pageNumber = params.page;
+        if (params?.pageSize) queryParams.pageSize = params.pageSize;
+
         const response = await apiGet<any>(
-          API_CONFIG.ENDPOINTS.PRODUCT.SEARCH,
-          { q: query }
+          `${API_CONFIG.ENDPOINTS.PRODUCT.SEARCH}/${encodeURIComponent(query)}`,
+          queryParams
         );
 
         if (response.code === 1000 && response.result) {
           const paginatedData = response.result;
           const filteredProducts = (paginatedData as any).items || [];
+          
+          // Store pagination info for hook to use
+          (filteredProducts as any).__paginationInfo = {
+            totalCount: paginatedData.totalCount,
+            totalPages: paginatedData.totalPages,
+            currentPage: paginatedData.currentPage || params?.page || 1,
+            hasNextPage: (paginatedData.currentPage || params?.page || 1) < paginatedData.totalPages
+          };
 
           return Array.isArray(filteredProducts) ? filteredProducts : [];
         }
@@ -248,17 +269,53 @@ export class ProductService {
         console.error("Failed to search products from API:", error);
         // Fallback to mock data
         await this.delay();
-        return products.filter((p) =>
+        
+        // Simulate pagination with mock data for fallback
+        const page = params?.page || 1;
+        const pageSize = params?.pageSize || 10;
+        const startIndex = (page - 1) * pageSize;
+        const endIndex = startIndex + pageSize;
+        
+        const filtered = products.filter((p) =>
           p.productName.toLowerCase().includes(query.toLowerCase())
         );
+        const paginatedProducts = filtered.slice(startIndex, endIndex);
+        
+        // Store pagination info for mock data
+        (paginatedProducts as any).__paginationInfo = {
+          totalCount: filtered.length,
+          totalPages: Math.ceil(filtered.length / pageSize),
+          currentPage: page,
+          hasNextPage: page < Math.ceil(filtered.length / pageSize)
+        };
+        
+        return paginatedProducts;
       }
     }
 
     // Mock data with simulated delay
     await this.delay();
-    return products.filter((p) =>
+    
+    // Simulate pagination with mock data 
+    const page = params?.page || 1;
+    const pageSize = params?.pageSize || 10;
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
+    
+    const filtered = products.filter((p) =>
       p.productName.toLowerCase().includes(query.toLowerCase())
     );
+    const paginatedProducts = filtered.slice(startIndex, endIndex);
+    
+    // Store pagination info for mock data
+    (paginatedProducts as any).__paginationInfo = {
+      totalCount: filtered.length,
+      totalPages: Math.ceil(filtered.length / pageSize),
+      currentPage: page,
+      hasNextPage: page < Math.ceil(filtered.length / pageSize)
+    };
+    
+    return paginatedProducts;
   }
 
   // Method to switch to API mode

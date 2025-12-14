@@ -12,6 +12,7 @@ import { useState } from "react";
 import { CategoryMegaMenu } from "@/components/category-mega-menu";
 import { PCBuilderButton } from "@/components/pc-builder-button";
 import { AccountDropdown } from "@/components/auth/account-dropdown";
+import { SearchBar } from "@/components/search-bar";
 
 export function Header() {
   const { totalItems } = useCart();
@@ -39,14 +40,10 @@ export function Header() {
 
           {/* Search Bar - Center */}
           <div className="flex flex-1 max-w-2xl mx-2 lg:mx-6">
-            <div className="relative w-full">
-              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Tìm kiếm sản phẩm..."
-                className="w-full pl-12 pr-4 py-4 h-14 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-gray-50 focus:bg-white transition-all text-base"
-              />
-            </div>
+            <SearchBar 
+              size="lg"
+              placeholder="Tìm kiếm sản phẩm..." 
+            />
           </div>
 
           {/* Right Actions */}
@@ -129,14 +126,10 @@ export function Header() {
 
           {/* Bottom Row: Search Bar */}
           <div className="px-2 pb-3">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-              <Input
-                type="search"
-                placeholder="Tìm kiếm sản phẩm..."
-                className="w-full pl-10 pr-3 py-2 h-10 border-2 border-gray-200 rounded-lg focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-gray-50 focus:bg-white transition-all text-sm"
-              />
-            </div>
+            <SearchBar 
+              size="sm"
+              placeholder="Tìm kiếm sản phẩm..." 
+            />
           </div>
         </div>
       </div>

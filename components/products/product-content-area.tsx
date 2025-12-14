@@ -4,7 +4,9 @@ import { SearchFilters } from "@/components/products/search-filters";
 import { ProductList } from "@/components/products/product-list";
 import { ProductSidebar } from "@/components/products/product-sidebar";
 import { ProductPageHeader } from "@/components/products/product-page-header";
+import { SearchResultsHeader } from "@/components/search-results-header";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useSearchParams } from "next/navigation";
 import { Product, PcBuild } from "@/lib/types";
 
 interface ProductContentAreaProps {
@@ -56,15 +58,25 @@ export function ProductContentArea({
 }: ProductContentAreaProps) {
   const isMobile = useIsMobile();
   const totalCount = isPcBuildMode ? pcBuilds.length : products.length;
+  const searchParams = useSearchParams();
+  const searchQuery = searchParams.get("search");
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <ProductPageHeader
-          title={pageTitle}
-          isPcBuildMode={isPcBuildMode}
-          totalCount={totalCount}
-        />
+        {searchQuery ? (
+          <SearchResultsHeader
+            query={searchQuery}
+            totalResults={totalCount}
+            isLoading={isLoading}
+          />
+        ) : (
+          <ProductPageHeader
+            title={pageTitle}
+            isPcBuildMode={isPcBuildMode}
+            totalCount={totalCount}
+          />
+        )}
         
         <div className="flex gap-8">
           <ProductSidebar

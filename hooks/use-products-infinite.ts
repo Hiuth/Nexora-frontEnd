@@ -50,7 +50,19 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
         let response: Product[] = [];
 
         // Choose appropriate API endpoint based on filters
-        if (filters.subCategoryId) {
+        if (filters.search) {
+          // Priority for search - use getProducts with search parameter
+          response = await ProductService.getProducts({
+            page: 1,
+            pageSize,
+            search: filters.search,
+            category: filters.categoryId,
+            subcategory: filters.subCategoryId,
+            brand: filters.brands?.join(","),
+            minPrice: filters.minPrice,
+            maxPrice: filters.maxPrice,
+          });
+        } else if (filters.subCategoryId) {
           response = await ProductService.getProducts({
             page: 1,
             pageSize,
@@ -130,7 +142,19 @@ export function useProductsInfinite(): UseProductsInfiniteReturn {
       let newProducts: Product[] = [];
       
       // Call appropriate API with filters
-      if (filters.subCategoryId) {
+      if (filters.search) {
+        // Priority for search
+        newProducts = await ProductService.getProducts({
+          page: nextPage,
+          pageSize,
+          search: filters.search,
+          category: filters.categoryId,
+          subcategory: filters.subCategoryId,
+          brand: filters.brands?.join(","),
+          minPrice: filters.minPrice,
+          maxPrice: filters.maxPrice,
+        });
+      } else if (filters.subCategoryId) {
         newProducts = await ProductService.getProducts({
           page: nextPage,
           pageSize,
