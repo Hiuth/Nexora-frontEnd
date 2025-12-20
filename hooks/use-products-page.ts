@@ -146,7 +146,8 @@ export function useProductsPageLogic() {
   const maxPrice = 2000000000;
 
   const filteredProducts = useMemo(() => {
-    const sourceProducts = infiniteProducts.length > 0 ? infiniteProducts : products;
+    // Chỉ sử dụng sản phẩm từ API, không fallback về mock data
+    const sourceProducts = infiniteProducts;
     let filtered = [...sourceProducts];
 
     // Remove duplicates by id

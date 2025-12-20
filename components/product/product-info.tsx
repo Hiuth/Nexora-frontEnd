@@ -31,8 +31,11 @@ export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: P
   // Kiểm tra có sản phẩm PC Build nào hết hàng không
   const hasOutOfStockItems = isPcBuild && pcBuildItems.some(item => item.stockQuantity === 0);
   
+  // Kiểm tra product có INACTIVE không
+  const isInactive = product.status === "INACTIVE";
+  
   // Kiểm tra có thể thêm vào giỏ hàng không
-  const canAddToCart = user && (isPcBuild 
+  const canAddToCart = user && !isInactive && (isPcBuild 
     ? !hasOutOfStockItems // PC Build: cần đăng nhập và không hết hàng
     : (product.stockQuantity > 0)); // Product thường: kiểm tra stock
 
@@ -142,21 +145,23 @@ export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: P
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 leading-tight flex-1">
             {product.productName}
           </h1>
-          {product.stockQuantity === 0 && (
+          {(product.stockQuantity === 0 || isInactive) && (
             <Badge variant="destructive" className="ml-3 text-sm font-semibold">
-              Hết hàng
+              {isInactive ? "Ngưng kinh doanh" : "Hết hàng"}
             </Badge>
           )}
         </div>
 
         <div className="flex items-baseline gap-3 mb-2">
           <span className="text-3xl md:text-4xl font-bold text-blue-600">
-            {formatPrice(product.price)}
+            {isInactive ? "Liên hệ" : formatPrice(product.price)}
           </span>
         </div>
 
         <p className="text-sm text-gray-600">
-          {product.stockQuantity > 0 ? (
+          {isInactive ? (
+            <span className="text-red-600 font-semibold">✗ Sản phẩm ngưng kinh doanh</span>
+          ) : product.stockQuantity > 0 ? (
             <span className="text-green-600 font-medium">
               ✓ Còn {product.stockQuantity} sản phẩm
             </span>
@@ -196,53 +201,64 @@ export function ProductInfo({ product, isPcBuild = false, pcBuildItems = [] }: P
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <span className="text-sm text-gray-500">
-              Tổng:{" "}
-              <span className="font-semibold text-blue-600">
-                {formatPrice(product.price * quantity)}
+            {!isInactive && (
+              <span className="text-sm text-gray-500">
+                Tổng:{" "}
+                <span className="font-semibold text-blue-600">
+                  {formatPrice(product.price * quantity)}
+                </span>
               </span>
-            </span>
+            )}
           </div>
         </div>
 
-        <div className="flex gap-3">
-          <Button
-            size="lg"
-            className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-            disabled={!canAddToCart || isAddingToCart}
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart className="h-5 w-5 mr-2" />
-            {isAddingToCart ? "Đang thêm..." : "Thêm vào giỏ hàng"}
-          </Button>
-          <Button size="lg" variant="outline" className="border-gray-300">
-            <Share2 className="h-5 w-5" />
-          </Button>
-        </div>
+        {!isInactive && (
+          <>
+            <div className="flex gap-3">
+              <Button
+                size="lg"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                disabled={!canAddToCart || isAddingToCart}
+                onClick={handleAddToCart}
+              >
+                <ShoppingCart className="h-5 w-5 mr-2" />
+                {isAddingToCart ? "Đang thêm..." : "Thêm vào giỏ hàng"}
+              </Button>
+              <Button size="lg" variant="outline" className="border-gray-300">
+                <Share2 className="h-5 w-5" />
+              </Button>
+            </div>
 
-        <Button
-          variant="secondary"
-          size="lg"
-          className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold border border-gray-300 shadow-sm"
-          disabled={!canAddToCart || isAddingToCart}
-          onClick={handleBuyNow}
-        >
-          {isAddingToCart ? "Đang xử lý..." : "Mua ngay"}
-        </Button>
+            <Button
+              variant="secondary"
+              size="lg"
+              className="w-full bg-white hover:bg-gray-50 text-gray-900 font-semibold border border-gray-300 shadow-sm"
+              disabled={!canAddToCart || isAddingToCart}
+              onClick={handleBuyNow}
+            >
+              {isAddingToCart ? "Đang xử lý..." : "Mua ngay"}
+            </Button>
+          </>
+        )}
         
         {/* Thông báo cho việc thêm vào giỏ hàng */}
         <div className="mt-3">
-          {!user && (
+          {isInactive && (
+            <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
+              <strong>Sản phẩm ngưng kinh doanh</strong> - Vui lòng liên hệ để được tư vấn
+            </p>
+          )}
+          {!user && !isInactive && (
             <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
               <strong>Vui lòng đăng nhập</strong> để thực hiện việc thêm vào giỏ hàng
             </p>
           )}
-          {user && isPcBuild && hasOutOfStockItems && (
+          {user && isPcBuild && hasOutOfStockItems && !isInactive && (
             <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
               Một số linh kiện đã hết hàng, không thể thêm vào giỏ hàng
             </p>
           )}
-          {user && !isPcBuild && product.stockQuantity === 0 && (
+          {user && !isPcBuild && product.stockQuantity === 0 && !isInactive && (
             <p className="text-sm text-red-600 text-center bg-red-50 p-3 rounded-lg border border-red-200">
               Sản phẩm hiện tại đã hết hàng
             </p>

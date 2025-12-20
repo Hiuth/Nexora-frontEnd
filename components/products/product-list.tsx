@@ -30,12 +30,12 @@ export function ProductList({
         <div className="space-y-4">
           <div className="text-6xl">📦</div>
           <h3 className="text-lg font-semibold text-gray-900">
-            {isPcBuildMode ? "Không tìm thấy cấu hình PC" : "Không tìm thấy sản phẩm"}
+            {isPcBuildMode ? "Chưa có cấu hình PC" : "Chưa có sản phẩm"}
           </h3>
           <p className="text-gray-600">
             {isPcBuildMode 
-              ? "Không có cấu hình PC nào phù hợp với bộ lọc của bạn."
-              : "Không có sản phẩm nào phù hợp với bộ lọc của bạn."
+              ? "Hiện tại chưa có cấu hình PC nào trong danh mục này."
+              : "Hiện tại chưa có sản phẩm nào trong danh mục này."
             }
           </p>
         </div>

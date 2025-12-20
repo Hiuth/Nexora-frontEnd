@@ -37,6 +37,9 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
   // Use explicit isPcBuild flag instead of URL params
   const productLink = isPcBuild ? `/products/${product.id}?pcBuild=true` : `/products/${product.id}`;
 
+  // Check if product is inactive
+  const isInactive = (product as Product).status === "INACTIVE";
+
   // Fetch rating summary when component mounts
   useEffect(() => {
     const fetchRatingSummary = async () => {
@@ -145,9 +148,9 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
             />
-            {(product as any).stockQuantity === 0 && (
+            {((product as any).stockQuantity === 0 || isInactive) && (
               <Badge className="absolute top-2 right-2 bg-red-500 text-white text-[10px] px-2 py-1">
-                Hết hàng
+                {isInactive ? "Ngừng kinh doanh" : "Hết hàng"}
               </Badge>
             )}
           </div>
@@ -171,9 +174,9 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
 
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-red-600">
-              {formatPrice(product.price)}
+              {isInactive ? "Liên hệ" : formatPrice(product.price)}
             </p>
-            {user && (
+            {user && !isInactive && (
               <Button
                 variant="ghost"
                 size="icon"
@@ -200,9 +203,9 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
             fill
             className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
-          {(product as any).stockQuantity === 0 && (
+          {((product as any).stockQuantity === 0 || isInactive) && (
             <Badge className="absolute top-1 right-1 sm:top-2 sm:right-2 bg-red-500 text-white text-[10px] sm:text-xs px-1 sm:px-2 py-0.5 sm:py-1">
-              Hết hàng
+              {isInactive ? "Ngừng kinh doanh" : "Hết hàng"}
             </Badge>
           )}
         </div>
@@ -228,9 +231,9 @@ export function ProductCard({ product, compact = false, isPcBuild = false }: Pro
 
         <div className="flex items-center justify-between">
           <p className="text-sm sm:text-base md:text-lg font-bold text-red-600">
-            {formatPrice(product.price)}
+            {isInactive ? "Liên hệ" : formatPrice(product.price)}
           </p>
-          {user && (
+          {user && !isInactive && (
             <Button
               variant="ghost"
               size="icon"

@@ -68,32 +68,15 @@ export class ProductService {
 
         return [];
       } catch (error) {
-        console.error("API failed, using mock data:", error);
-        // Fallback to mock data
-        await this.delay();
-        
-        // Simulate pagination with mock data for fallback
-        const page = params?.page || 1;
-        const pageSize = params?.pageSize || 10;
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        
-        const paginatedProducts = products.slice(startIndex, endIndex);
-        return paginatedProducts;
+        console.error("API failed:", error);
+        // Không fallback về mock data, trả về mảng rỗng
+        return [];
       }
     }
 
-    // Mock data with simulated delay
-    await this.delay();
-    
-    // Simulate pagination with mock data 
-    const page = params?.page || 1;
-    const pageSize = params?.pageSize || 10;
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    
-    const paginatedProducts = products.slice(startIndex, endIndex);
-    return paginatedProducts;
+    // Không có API_BASE_URL, trả về mảng rỗng thay vì mock data
+    console.warn("No API_BASE_URL configured");
+    return [];
   }
 
   // Get product by ID
@@ -187,7 +170,7 @@ export class ProductService {
 
     // Mock data with simulated delay
     await this.delay();
-    return products.filter((p) => p.subCategoryId === subCategoryId);
+    return [];
   }
 
   // Get products by category ID
@@ -216,17 +199,14 @@ export class ProductService {
         return [];
       } catch (error) {
         console.error("Failed to fetch products by category from API:", error);
-        // Fallback to mock data
-        await this.delay();
-        // Return mock list to keep UI populated in dev fallback
-        return products;
+        // Không fallback về mock data
+        return [];
       }
     }
 
-    // Mock data with simulated delay
-    await this.delay();
-    // Without API, return mock products
-    return products;
+    // Không có API_BASE_URL
+    console.warn("No API_BASE_URL configured");
+    return [];
   }
 
   // Search products with pagination
@@ -267,55 +247,14 @@ export class ProductService {
         return [];
       } catch (error) {
         console.error("Failed to search products from API:", error);
-        // Fallback to mock data
-        await this.delay();
-        
-        // Simulate pagination with mock data for fallback
-        const page = params?.page || 1;
-        const pageSize = params?.pageSize || 10;
-        const startIndex = (page - 1) * pageSize;
-        const endIndex = startIndex + pageSize;
-        
-        const filtered = products.filter((p) =>
-          p.productName.toLowerCase().includes(query.toLowerCase())
-        );
-        const paginatedProducts = filtered.slice(startIndex, endIndex);
-        
-        // Store pagination info for mock data
-        (paginatedProducts as any).__paginationInfo = {
-          totalCount: filtered.length,
-          totalPages: Math.ceil(filtered.length / pageSize),
-          currentPage: page,
-          hasNextPage: page < Math.ceil(filtered.length / pageSize)
-        };
-        
-        return paginatedProducts;
+        // Không fallback về mock data
+        return [];
       }
     }
 
-    // Mock data with simulated delay
-    await this.delay();
-    
-    // Simulate pagination with mock data 
-    const page = params?.page || 1;
-    const pageSize = params?.pageSize || 10;
-    const startIndex = (page - 1) * pageSize;
-    const endIndex = startIndex + pageSize;
-    
-    const filtered = products.filter((p) =>
-      p.productName.toLowerCase().includes(query.toLowerCase())
-    );
-    const paginatedProducts = filtered.slice(startIndex, endIndex);
-    
-    // Store pagination info for mock data
-    (paginatedProducts as any).__paginationInfo = {
-      totalCount: filtered.length,
-      totalPages: Math.ceil(filtered.length / pageSize),
-      currentPage: page,
-      hasNextPage: page < Math.ceil(filtered.length / pageSize)
-    };
-    
-    return paginatedProducts;
+    // Không có API_BASE_URL
+    console.warn("No API_BASE_URL configured for search");
+    return [];
   }
 
   // Method to switch to API mode
