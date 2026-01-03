@@ -186,7 +186,7 @@ export function ComponentSelectionDialog({
                               Còn {product.stockQuantity} sản phẩm
                             </Badge>
                           ) : (
-                            <Badge variant="destructive" className="text-xs">
+                            <Badge variant="destructive" className="text-xs bg-red-100 text-red-600 border-red-200">
                               Hết hàng
                             </Badge>
                           )}

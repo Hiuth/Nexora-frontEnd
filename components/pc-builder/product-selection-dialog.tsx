@@ -121,7 +121,11 @@ export function ProductSelectionDialog({
                           size="sm"
                           onClick={() => onSelectProduct(product)}
                           disabled={product.stockQuantity === 0}
-                          className="flex-shrink-0 bg-blue-600 hover:bg-blue-700 text-white"
+                          className={`flex-shrink-0 ${
+                            product.stockQuantity === 0 
+                              ? "bg-gray-100 hover:bg-gray-100 text-red-600 cursor-not-allowed"
+                              : "bg-blue-600 hover:bg-blue-700 text-white"
+                          }`}
                         >
                           {product.stockQuantity === 0 ? "Hết hàng" : "Chọn"}
                         </Button>
