@@ -40,6 +40,13 @@ export class OrderUtils {
   }
 
   /**
+   * Check if order can be cancelled
+   */
+  static canCancelOrder(status: string, isPaid: boolean): boolean {
+    return !isPaid && status === "PENDING";
+  }
+
+  /**
    * Format order summary for display
    */
   static formatOrderSummary(

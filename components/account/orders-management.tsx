@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { OrderService } from "@/services/order.service";
 import { OrderDetailDialog } from "./order-detail-dialog";
+import { OrderActionButtons } from "./order-action-buttons";
 import { OrderUtils } from "@/lib/order-utils";
 import { useToast } from "@/hooks/use-toast";
 import type { OrderResponse } from "@/types/api";
@@ -94,15 +95,6 @@ function OrderList({ orders, onOrderUpdate }: OrderListProps) {
 
   const getStatusLabel = (status: string) => {
     return OrderService.getOrderStatusLabel(status);
-  };
-
-  const canCancelOrder = (status: string) => {
-    return status === "PENDING";
-  };
-
-  // Simplified: Show view details for all non-PENDING orders
-  const shouldShowViewDetails = () => {
-    return true; // Always show view details button
   };
   if (orders.length === 0) {
     return (
@@ -202,37 +194,12 @@ function OrderList({ orders, onOrderUpdate }: OrderListProps) {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
-                  {canCancelOrder(order.status) && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={(e) => {
-                        e.stopPropagation(); // Prevent triggering order click
-                        handleCancelOrderClick(order);
-                      }}
-                      disabled={isCancelling}
-                      className="w-full sm:flex-1 border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 transition-all h-9 sm:h-10"
-                    >
-                      <span className="text-xs sm:text-sm font-medium">
-                        {isCancelling ? "Đang hủy..." : "Hủy đơn hàng"}
-                      </span>
-                    </Button>
-                  )}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={(e) => {
-                      e.stopPropagation(); // Prevent triggering order click
-                      handleViewDetails(order);
-                    }}
-                    className="w-full sm:flex-1 border border-blue-600 text-blue-600 hover:bg-blue-50 hover:border-blue-700 transition-all h-9 sm:h-10"
-                  >
-                    <span className="text-xs sm:text-sm font-medium">
-                      Xem chi tiết & giá tiền
-                    </span>
-                  </Button>
-                </div>
+                <OrderActionButtons
+                  order={order}
+                  onCancelOrder={handleCancelOrderClick}
+                  onViewDetails={handleViewDetails}
+                  isCancelling={isCancelling}
+                />
 
                 {/* Click hint */}
                 <div className="mt-4 pt-3 border-t border-slate-100">
